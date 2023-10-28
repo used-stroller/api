@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 @JsonIgnoreProperties(ignoreUnknown = true, value = {"pageable"})
 public class RestPage<T> extends PageImpl<T> {
@@ -15,7 +16,7 @@ public class RestPage<T> extends PageImpl<T> {
       @JsonProperty("number") int page,
       @JsonProperty("size") int size,
       @JsonProperty("totalElements") long totalElements) {
-    super(content, org.springframework.data.domain.PageRequest.of(page, size), totalElements);
+    super(content, PageRequest.of(page, size), totalElements);
   }
 
   public RestPage(Page<T> page) {
