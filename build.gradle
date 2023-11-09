@@ -68,4 +68,5 @@ bootJar {
 
 clean {
     delete file('src/main/generated')
+    delete file('../docker-setting/jar-path/api-0.0.1-SNAPSHOT.jar')
 }
