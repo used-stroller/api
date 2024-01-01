@@ -19,7 +19,7 @@ public class FilterReq {
   private Long minPrice;
   private Long maxPrice;
   private String town;
-  private String period;
+  private Integer period;
   private List<String> model;
   private List<String> brand;
 }

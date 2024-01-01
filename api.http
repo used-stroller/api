@@ -1,3 +1,9 @@
 GET http://localhost:8080/product/list?keyword=&sourceType=JUNGGO&minPrice=0&maxPrice=30000&town=&model=&period=&brand=&page=0&size=10&sort=price%2Cdesc
 accept: application/json
-```
+
+###
+
+GET http://localhost:8080/product/list?sourceType=CARROT&period=30&sort=uploadDate%2Cdesc%2Cpid%2Casc&page=0&size=10
+accept: application/json
+
+###
