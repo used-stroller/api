@@ -90,9 +90,9 @@ public class ProductRepositoryImpl implements CustomProductRepository {
     return null;
   }
 
-  private BooleanExpression applySourceType(SourceType sourceType) {
-    if (!ObjectUtils.isEmpty(sourceType)) {
-      return product.sourceType.eq(sourceType);
+  private BooleanExpression applySourceType(List<SourceType> sourceType) {
+    if (!CollectionUtils.isEmpty(sourceType)) {
+      return product.sourceType.in(sourceType);
     }
     return null;
   }

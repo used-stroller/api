@@ -16,7 +16,7 @@ public final class PageRequest {
   private final String sort;
 
   public PageRequest(Integer page, Integer size, String sort) {
-    int DEFAULT_SIZE = 10;
+    int DEFAULT_SIZE = 20;
     int MAX_SIZE = 100;
 
     if (size == null) {

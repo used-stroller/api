@@ -15,7 +15,7 @@ import team.three.usedstroller.api.domain.SourceType;
 public class FilterReq {
 
   private String keyword;
-  private SourceType sourceType;
+  private List<SourceType> sourceType;
   private Long minPrice;
   private Long maxPrice;
   private String town;

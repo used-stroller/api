@@ -1,8 +1,6 @@
 package team.three.usedstroller.api.controller;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,7 +20,7 @@ public class ProductController {
   /**
    * 상품리스트 가져오기 Top10 브랜드, 모델리스트, 토탈카운트 포함 동네,가격,모델명,기간,브랜드,사이트별 파라미터 다 들어가는 한방 쿼리
    *
-   * @param filter 제목, 수집처, 가격(min, max), 브랜드, 모델, 지역, 기간(min, max)
+   * @param filter 제목, 수집처, 가격(min, max), 브랜드, 모델, 지역, 등록일자
    * @param pageable 페이지, 사이즈, 정렬(예시: "price,desc,title,asc")
    */
   @GetMapping("/list")
