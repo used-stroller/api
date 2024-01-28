@@ -6,6 +6,7 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDate;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+import team.three.usedstroller.api.domain.Product;
 import team.three.usedstroller.api.domain.SourceType;
 import team.three.usedstroller.api.dto.FilterReq;
 import team.three.usedstroller.api.dto.ProductRes;
@@ -30,7 +32,7 @@ public class ProductRepositoryImpl implements CustomProductRepository {
 
   @Override
   public Page<ProductRes> getProducts(FilterReq filter, Pageable pageable) {
-    List<ProductRes> products = query.select(product)
+    JPAQuery<Product> jpaQuery = query.select(product)
         .from(product)
         .where(applyKeyword(filter.getKeyword()),
             applySourceType(filter.getSourceType()),
@@ -38,7 +40,11 @@ public class ProductRepositoryImpl implements CustomProductRepository {
             applyTown(filter.getTown()),
             applyBrand(filter.getBrand()),
             applyModel(filter.getModel()),
-            applyPeriod(filter.getPeriod()))
+            applyPeriod(filter.getPeriod()));
+
+    int totalCount = jpaQuery.fetch().size();
+
+    List<ProductRes> products = jpaQuery
         .orderBy(getOrderBy(pageable.getSort()))
         .offset(pageable.getOffset())
         .limit(ObjectUtils.isEmpty(pageable.getPageSize()) ? 10: pageable.getPageSize())
@@ -47,7 +53,7 @@ public class ProductRepositoryImpl implements CustomProductRepository {
         .map(ProductRes::of)
         .toList();
 
-    return new PageImpl<>(products, pageable, products.size());
+    return new PageImpl<>(products, pageable, totalCount);
   }
 
   private BooleanExpression applyPeriod(Integer period) {
