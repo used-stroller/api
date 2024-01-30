@@ -37,7 +37,7 @@ public class ProductRepositoryImpl implements CustomProductRepository {
         .where(applyKeyword(filter.getKeyword()),
             applySourceType(filter.getSourceType()),
             applyPriceRange(filter.getMinPrice(), filter.getMaxPrice()),
-            applyTown(filter.getTown()),
+            applyRegion(filter.getRegion()),
             applyBrand(filter.getBrand()),
             applyModel(filter.getModel()),
             applyPeriod(filter.getPeriod()));
@@ -78,9 +78,9 @@ public class ProductRepositoryImpl implements CustomProductRepository {
     return null;
   }
 
-  private BooleanExpression applyTown(String town) {
-    if (StringUtils.hasText(town)) {
-      return product.address.containsIgnoreCase(town);
+  private BooleanExpression applyRegion(String region) {
+    if (StringUtils.hasText(region)) {
+      return product.region.containsIgnoreCase(region);
     }
     return null;
   }
