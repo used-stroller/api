@@ -66,14 +66,20 @@ public class ProductRepositoryImpl implements CustomProductRepository {
 
   private BooleanExpression applyBrand(List<String> brand) {
     if (!CollectionUtils.isEmpty(brand)) {
-      return product.title.in(brand);
+      return brand.stream()
+          .map(product.title::containsIgnoreCase)
+          .reduce(BooleanExpression::or)
+          .orElse(null);
     }
     return null;
   }
 
   private BooleanExpression applyModel(List<String> model) {
     if (!CollectionUtils.isEmpty(model)) {
-      return product.title.in(model);
+      return model.stream()
+          .map(product.title::containsIgnoreCase)
+          .reduce(BooleanExpression::or)
+          .orElse(null);
     }
     return null;
   }
