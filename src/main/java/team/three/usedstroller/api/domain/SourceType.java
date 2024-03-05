@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum SourceType {
 	NAVER("naver"),
 	CARROT("carrot"),
-	HELLO("hello"),
+	SECOND("second"),
 	BUNJANG("bunjang"),
 	JUNGGO("junggo");
 
