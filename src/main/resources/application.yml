@@ -5,9 +5,9 @@ spring:
     password: ${db.password}
     driver-class-name: org.postgresql.Driver
   data:
-    redis:
-      host: ${redis.host}
-      port: ${redis.port}
+#    redis:
+#      host: ${redis.host}
+#      port: ${redis.port}
 
   jpa:
     hibernate:
