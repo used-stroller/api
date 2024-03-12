@@ -35,6 +35,3 @@ logging:
   level:
     ROOT: info
     org.springframework.jdbc: debug
-    
-
-#웹훅테스트
