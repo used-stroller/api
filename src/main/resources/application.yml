@@ -35,6 +35,8 @@ logging:
   level:
     ROOT: info
     org.springframework.jdbc: debug
-    
+
+apiNinjas:
+  token: IlUI1OV1J+Yofs0ib5q3hg==2FkpjYRP8WMVcXmz
 
 #웹훅테스트
