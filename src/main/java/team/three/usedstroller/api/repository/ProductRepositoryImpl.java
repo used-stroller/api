@@ -59,6 +59,26 @@ public class ProductRepositoryImpl implements CustomProductRepository {
     return new PageImpl<>(products, pageable, totalCount);
   }
 
+  @Override
+  public List<ProductRes> getProductsOnly(FilterReq filter) {
+    JPAQuery<Product> jpaQuery = query.select(product)
+        .from(product)
+        .where(applyKeyword(filter.getKeyword()),
+            applySourceType(filter.getSourceType()),
+            applyPriceRange(filter.getMinPrice(), filter.getMaxPrice()),
+            applyRegion(filter.getRegion()),
+            applyBrand(filter.getBrand()),
+            applyModel(filter.getModel()),
+            applyPeriod(filter.getPeriod()));
+
+    List<ProductRes> products = jpaQuery
+        .fetch()
+        .stream()
+        .map(ProductRes::of)
+        .toList();
+    return products;
+  }
+
   private BooleanExpression applyPeriod(Integer period) {
     if (period != null) {
       LocalDate periodDate = LocalDate.now().minusDays(period);
