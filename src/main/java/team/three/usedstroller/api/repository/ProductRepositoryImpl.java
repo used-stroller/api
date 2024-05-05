@@ -4,6 +4,7 @@ import static team.three.usedstroller.api.domain.QProduct.product;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -40,7 +41,8 @@ public class ProductRepositoryImpl implements CustomProductRepository {
             applyRegion(filter.getRegion()),
             applyBrand(filter.getBrand()),
             applyModel(filter.getModel()),
-            applyPeriod(filter.getPeriod()));
+            applyPeriod(filter.getPeriod()),
+            applyNotNullUploadDate(pageable.getSort()));
 
     int totalCount = jpaQuery.fetch().size();
 
@@ -136,6 +138,16 @@ public class ProductRepositoryImpl implements CustomProductRepository {
           .or(product.etc.containsIgnoreCase(keyword));
     }
     return null;
+  }
+
+  /**
+   * uploadDate 최신순 정렬 조건이 있으면, null 값을 제외하고 정렬한다.
+   */
+  private Predicate applyNotNullUploadDate(Sort sort) {
+    return sort.stream()
+        .anyMatch(order -> order.getProperty().equalsIgnoreCase("uploadDate"))
+        ? product.uploadDate.isNotNull()
+        : null;
   }
 
   private OrderSpecifier<?>[] getOrderBy(Sort sort) {
