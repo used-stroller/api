@@ -11,6 +11,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -131,10 +132,16 @@ public class ProductRepositoryImpl implements CustomProductRepository {
   }
 
   private OrderSpecifier<?>[] getOrderBy(Sort sort) {
-    return sort.stream()
-        .map(order -> new OrderSpecifier<>(
-            order.isAscending() ? Order.ASC : Order.DESC,
-            Expressions.stringPath(order.getProperty())
-        )).toArray(OrderSpecifier[]::new);
+    return Stream.concat(
+        sort.stream()
+            .map(order -> new OrderSpecifier<>(
+                order.isAscending() ? Order.ASC : Order.DESC,
+                Expressions.stringPath(order.getProperty())
+            )),
+        Stream.of(new OrderSpecifier<>(
+            Order.DESC,
+            product.sourceType.when(SourceType.NAVER).then(0).otherwise(1)
+        ))
+    ).toArray(OrderSpecifier[]::new);
   }
 }
