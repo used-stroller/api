@@ -1,4 +1,4 @@
-package team.three.usedstroller.utils;
+package team.three.usedstroller.api.utils;
 
 import jakarta.annotation.PostConstruct;
 import java.net.URI;
@@ -20,7 +20,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import team.three.usedstroller.api.dto.GeoCodingAPi;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class ReverseGeocodingApi {
   private final RestTemplate restTemplate;
