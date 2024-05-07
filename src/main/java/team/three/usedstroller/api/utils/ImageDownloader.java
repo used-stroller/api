@@ -31,15 +31,15 @@ public class ImageDownloader {
     try {
       URL url = new URL(imageUrl);
       InputStream inputStream = url.openStream();
-      BufferedInputStream bis = new BufferedInputStream(inputStream);
+      //BufferedInputStream bis = new BufferedInputStream(inputStream);
       OutputStream outputStream = new FileOutputStream(destinationFile);
-      BufferedOutputStream bos = new BufferedOutputStream(outputStream);
+      //BufferedOutputStream bos = new BufferedOutputStream(outputStream);
 
       byte[] buffer = new byte[2048];
       int length;
 
-      while ((length = bis.read(buffer)) != -1) {
-        bos.write(buffer, 0, length);
+      while ((length = inputStream.read(buffer)) != -1) {
+        outputStream.write(buffer, 0, length);
       }
       inputStream.close();
       outputStream.close();
