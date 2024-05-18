@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import team.three.usedstroller.api.domain.Model;
 import team.three.usedstroller.api.domain.Product;
 import team.three.usedstroller.api.domain.SourceType;
 
@@ -57,10 +58,13 @@ public class ProductRes implements Serializable {
   private String region;
   private String content;
 
+  private Model model;
+
+
   @Builder
   private ProductRes(Long id, String sourceType, String pid, String title, Long price,
       String link, String imgSrc, LocalDateTime createdAt, LocalDateTime updatedAt, int releaseYear,
-      String etc, LocalDate uploadDate, String address, String region, String content) {
+      String etc, LocalDate uploadDate, String address, String region, String content,Model model) {
     this.id = id;
     this.sourceType = SourceType.valueOf(sourceType);
     this.pid = pid;
@@ -76,6 +80,7 @@ public class ProductRes implements Serializable {
     this.address = address;
     this.region = region;
     this.content = content;
+    this.model = model;
   }
 
   public static ProductRes of(Product product) {
@@ -95,6 +100,7 @@ public class ProductRes implements Serializable {
         .address(product.getAddress())
         .region(product.getRegion())
         .content(product.getContent())
+        .model(product.getModel())
         .build();
   }
 }

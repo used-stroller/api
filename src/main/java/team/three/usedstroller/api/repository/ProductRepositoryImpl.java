@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -49,6 +50,7 @@ public class ProductRepositoryImpl implements CustomProductRepository {
 
     List<ProductRes> products = jpaQuery
         .orderBy(getOrderBy(pageable.getSort()))
+        .orderBy(product.uploadDate.desc().nullsLast())
         .offset(pageable.getOffset())
         .limit(ObjectUtils.isEmpty(pageable.getPageSize()) ? 10: pageable.getPageSize())
         .fetch()

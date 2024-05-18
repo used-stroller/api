@@ -1,5 +1,6 @@
 package team.three.usedstroller.api.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,19 +16,22 @@ import lombok.ToString;
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "models")
+@Table(name = "model")
 public class Model extends BaseTimeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
   private Long id;
-  private String modelName;
+  private String name;
   private String brand;
+  private String price;
 
 
   @Builder
-  private Model(Long id, String modelName, String brand) {
-    this.modelName = modelName;
+  private Model(Long id, String name, String brand,String price) {
+    this.name = name;
     this.brand = brand;
+    this.price = price;
   }
 }

@@ -1,0 +1,3 @@
+### 상품목록
+GET {{host}}/product/list
+

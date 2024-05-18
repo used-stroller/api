@@ -7,6 +7,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import lombok.AccessLevel;
@@ -24,6 +26,7 @@ public class Product extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
 	private Long id;
 	@Enumerated(EnumType.STRING)
 	private SourceType sourceType;
@@ -49,6 +52,10 @@ public class Product extends BaseTimeEntity {
 	private String region;
 	@Column(columnDefinition = "text")
 	private String content;
+
+	@ManyToOne
+	@JoinColumn(name = "model_id")
+	private Model model;
 
 	@Builder
 	private Product(SourceType sourceType, String pid, String title, String link, Long price, String imgSrc, String address,
