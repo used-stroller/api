@@ -18,6 +18,7 @@ public class FilterReq {
   private List<SourceType> sourceType;
   private Long minPrice;
   private Long maxPrice;
+  private String defaultRegion;
   private String region;
   private Integer period;
   private List<String> model;

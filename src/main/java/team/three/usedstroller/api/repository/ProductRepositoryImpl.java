@@ -10,6 +10,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -40,6 +40,7 @@ public class ProductRepositoryImpl implements CustomProductRepository {
         .where(applyKeyword(filter.getKeyword()),
             applySourceType(filter.getSourceType()),
             applyPriceRange(filter.getMinPrice(), filter.getMaxPrice()),
+            applyDefaultRegion(filter.getRegion(), filter.getDefaultRegion()),
             applyRegion(filter.getRegion()),
             applyBrand(filter.getBrand()),
             applyModel(filter.getModel()),
@@ -79,6 +80,23 @@ public class ProductRepositoryImpl implements CustomProductRepository {
         .map(ProductRes::of)
         .toList();
     return products;
+  }
+
+  /**
+   * 1. 사용자가 직접 동네를 검색하면(region) 자동으로 받아온 당근 지역 필터링을 제외하고 모든 데이터를 기준으로 위치 검색한다.
+   * 2. 직접 검색이 없다면, 위경도 값을 기준으로 아래 당근 위치 필터링을 적용한다.(당근 제품만 위치 적용됨)
+    */
+  private Predicate applyDefaultRegion(String region, String defaultRegion) {
+    if (StringUtils.hasText(region) || !StringUtils.hasText(defaultRegion)) {
+      return null;
+    }
+    BooleanExpression regionListExpression = Arrays.stream(defaultRegion.split(","))
+        .map(product.region::contains)
+        .reduce(BooleanExpression::or)
+        .orElse(null);
+    return product.sourceType.eq(SourceType.CARROT)
+        .and(regionListExpression)
+        .or(product.sourceType.ne(SourceType.CARROT));
   }
 
   private BooleanExpression applyPeriod(Integer period) {
