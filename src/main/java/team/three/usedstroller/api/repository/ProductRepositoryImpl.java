@@ -40,7 +40,7 @@ public class ProductRepositoryImpl implements CustomProductRepository {
         .where(applyKeyword(filter.getKeyword()),
             applySourceType(filter.getSourceType()),
             applyPriceRange(filter.getMinPrice(), filter.getMaxPrice()),
-            applyDefaultRegion(filter.getRegion(), filter.getDefaultRegion()),
+            applyDefaultRegion(filter.getRegion(), filter.getFixedAddress(), filter.getDetailAddress()),
             applyRegion(filter.getRegion()),
             applyBrand(filter.getBrand()),
             applyModel(filter.getModel()),
@@ -74,28 +74,32 @@ public class ProductRepositoryImpl implements CustomProductRepository {
             applyModel(filter.getModel()),
             applyPeriod(filter.getPeriod()));
 
-    List<ProductRes> products = jpaQuery
+    return jpaQuery
         .fetch()
         .stream()
         .map(ProductRes::of)
         .toList();
-    return products;
   }
 
   /**
    * 1. 사용자가 직접 동네를 검색하면(region) 자동으로 받아온 당근 지역 필터링을 제외하고 모든 데이터를 기준으로 위치 검색한다.
    * 2. 직접 검색이 없다면, 위경도 값을 기준으로 아래 당근 위치 필터링을 적용한다.(당근 제품만 위치 적용됨)
     */
-  private Predicate applyDefaultRegion(String region, String defaultRegion) {
-    if (StringUtils.hasText(region) || !StringUtils.hasText(defaultRegion)) {
+  private Predicate applyDefaultRegion(String region, String fixedAddress, String detailAddress) {
+    if (StringUtils.hasText(region) || !StringUtils.hasText(fixedAddress + detailAddress)) {
       return null;
     }
-    BooleanExpression regionListExpression = Arrays.stream(defaultRegion.split(","))
+    BooleanExpression fixedListExpression = Arrays.stream(fixedAddress.split(","))
+        .map(product.region::contains)
+        .reduce(BooleanExpression::or)
+        .orElse(null);
+    BooleanExpression detailListExpression = Arrays.stream(detailAddress.split(","))
         .map(product.region::contains)
         .reduce(BooleanExpression::or)
         .orElse(null);
     return product.sourceType.eq(SourceType.CARROT)
-        .and(regionListExpression)
+        .and(fixedListExpression)
+        .and(detailListExpression)
         .or(product.sourceType.ne(SourceType.CARROT));
   }
 
