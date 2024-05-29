@@ -86,7 +86,7 @@ public class ProductRepositoryImpl implements CustomProductRepository {
    * 2. 직접 검색이 없다면, 위경도 값을 기준으로 아래 당근 위치 필터링을 적용한다.(당근 제품만 위치 적용됨)
     */
   private Predicate applyDefaultRegion(String region, String fixedAddress, String detailAddress) {
-    if (StringUtils.hasText(region) || !StringUtils.hasText(fixedAddress + detailAddress)) {
+    if (StringUtils.hasText(region) || !StringUtils.hasText(fixedAddress + detailAddress) || fixedAddress==null || detailAddress==null) {
       return null;
     }
     BooleanExpression fixedListExpression = Arrays.stream(fixedAddress.split(","))
