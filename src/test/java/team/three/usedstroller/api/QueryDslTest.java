@@ -53,7 +53,7 @@ class QueryDslTest {
 
   @Test
   void cotainTest(){
-    FilterReq filter = new FilterReq("",null,null,null,"전국",null,null,null);
+    FilterReq filter = new FilterReq("",null,null,null,"", "", "전국",null,null,null);
     Pageable pageable = PageRequest.of(1,1);
     Page<ProductRes> products = productRepository.getProducts(filter, pageable);
   }
