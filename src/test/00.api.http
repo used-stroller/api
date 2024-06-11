@@ -1,3 +1,3 @@
 ### 상품목록
-GET {{host}}/product/list
+GET {{host}}/product/list?region=광주,울산
 

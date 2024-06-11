@@ -20,7 +20,7 @@ public class FilterReq {
   private Long maxPrice;
   private String fixedAddress;
   private String detailAddress;
-  private String region;
+  private List<String> region;
   private Integer period;
   private List<String> model;
   private List<String> brand;
