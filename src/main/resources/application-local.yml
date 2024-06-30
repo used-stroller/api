@@ -1,5 +1,5 @@
 server:
-  port: 8090
+  port: 8080
 
 spring:
   datasource:
@@ -11,3 +11,7 @@ spring:
     redis:
       host: localhost
       port: 6379
+
+socket-server:
+  port: 8086 # you can change this to a port that is free to use
+  host: 127.0.0.1 # change this to your IPv4 address
