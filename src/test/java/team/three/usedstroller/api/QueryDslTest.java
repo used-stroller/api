@@ -12,12 +12,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
-import team.three.usedstroller.api.config.QueryDslConfig;
-import team.three.usedstroller.api.domain.Product;
+import team.three.usedstroller.api.common.config.QueryDslConfig;
+import team.three.usedstroller.api.product.domain.Product;
 import team.three.usedstroller.api.domain.QProduct;
-import team.three.usedstroller.api.dto.FilterReq;
-import team.three.usedstroller.api.dto.ProductRes;
-import team.three.usedstroller.api.repository.ProductRepositoryImpl;
+import team.three.usedstroller.api.product.dto.FilterReq;
+import team.three.usedstroller.api.product.dto.ProductRes;
+import team.three.usedstroller.api.product.repository.ProductRepositoryImpl;
 
 @DataJpaTest
 @Import(QueryDslConfig.class)
