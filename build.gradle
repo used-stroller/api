@@ -56,7 +56,8 @@ dependencies {
     //test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    runtimeOnly 'com.h2database:h2'
+//    runtimeOnly 'com.h2database:h2'
+    testRuntimeOnly 'com.h2database:h2'
 }
 
 tasks.named('test') {
@@ -72,6 +73,6 @@ jar {
 //}
 
 clean {
-    delete file('src/main/generated')
+    delete file('build/generated')
     delete file('../docker-setting/jar-path/api-0.0.1-SNAPSHOT.jar')
 }

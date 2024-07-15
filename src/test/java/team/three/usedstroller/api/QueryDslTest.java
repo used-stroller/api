@@ -1,6 +1,7 @@
 package team.three.usedstroller.api;
 
-import static team.three.usedstroller.api.domain.QProduct.product;
+
+import static team.three.usedstroller.api.product.domain.QProduct.*;
 
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -14,7 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import team.three.usedstroller.api.common.config.QueryDslConfig;
 import team.three.usedstroller.api.product.domain.Product;
-import team.three.usedstroller.api.domain.QProduct;
+import team.three.usedstroller.api.product.domain.QProduct;
 import team.three.usedstroller.api.product.dto.FilterReq;
 import team.three.usedstroller.api.product.dto.ProductRes;
 import team.three.usedstroller.api.product.repository.ProductRepositoryImpl;

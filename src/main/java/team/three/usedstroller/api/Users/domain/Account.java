@@ -14,11 +14,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.three.usedstroller.api.Users.domain.dto.AccountDto;
 import team.three.usedstroller.api.Users.domain.dto.Authority;
+import team.three.usedstroller.api.common.domain.BaseTimeEntity;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Account {
+public class Account extends BaseTimeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,6 +40,14 @@ public class Account {
     this.nickname = nickname;
     this.address = address;
     this.role = role;
+  }
+
+  public Account(String email, String password) {
+    this.email = email;
+    this.password = password;
+    this.nickname = "";
+    this.address = "";
+    this.role = Authority.ROLE_USER;
   }
 
   public Account(AccountDto accountDto) {
