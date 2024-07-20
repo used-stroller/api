@@ -43,3 +43,8 @@ apiNinjas:
   token: IlUI1OV1J+Yofs0ib5q3hg==2FkpjYRP8WMVcXmz
 
 #웹훅테스트
+
+jwt:
+  secret: eyJzdWIiOiJqdW5nbW9jaGEiLCJhdXRoIjoidGVhbTMifQ
+  access-expiration: 1800000 # 30분
+  refresh-expiration: 604800000 # 7일
