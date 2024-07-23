@@ -12,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -31,7 +32,7 @@ import team.three.usedstroller.api.security.utils.JwtUtil;
 @Slf4j
 @EnableScheduling
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -39,6 +40,14 @@ public class SecurityConfig {
   private final RefreshTokenRepository refreshTokenRepository;
   private final CustomUserDetailsService customUserDetailsService;
   private final AuthenticationConfiguration authenticationConfiguration;
+
+  /**
+   * security 필터를 거치지 않는다. 보통 html이나 css, image 등 정적자원들을 주로 설정한다.
+   */
+  @Bean
+  public WebSecurityCustomizer webSecurityCustomizer() {
+    return webSecurity -> webSecurity.ignoring().requestMatchers("/product/**");
+  }
 
   @Bean
   public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -48,7 +57,7 @@ public class SecurityConfig {
         .formLogin(AbstractHttpConfigurer::disable)
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(requests -> requests
-            .requestMatchers("/product/**", "/login", "/signup", "/reissue").permitAll()
+            .requestMatchers("/login", "/signup", "/reissue").permitAll()
             .requestMatchers("/mypage/**").hasRole("USER")
             .requestMatchers("/admin/**").hasRole("ADMIN")
             .anyRequest().authenticated()
