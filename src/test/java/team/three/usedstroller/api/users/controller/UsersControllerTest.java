@@ -35,7 +35,10 @@ class UsersControllerTest extends WebIntegrationTest {
   @Test
   void create_user() {
     //given
-    AccountDto accountDto = new AccountDto("test", "1111");
+    AccountDto accountDto = AccountDto.builder()
+        .email("test")
+        .password("1111")
+        .build();
 
     //when
     ResultDto user = accountService.createUser(accountDto);

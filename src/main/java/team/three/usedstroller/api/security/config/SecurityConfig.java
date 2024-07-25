@@ -38,7 +38,6 @@ public class SecurityConfig {
 
   private final JwtUtil jwtUtil;
   private final RefreshTokenRepository refreshTokenRepository;
-  private final CustomUserDetailsService customUserDetailsService;
   private final AuthenticationConfiguration authenticationConfiguration;
 
   /**
@@ -62,7 +61,7 @@ public class SecurityConfig {
             .requestMatchers("/admin/**").hasRole("ADMIN")
             .anyRequest().authenticated()
         )
-        .addFilterBefore(new JwtFilter(jwtUtil, customUserDetailsService), LoginFilter.class)
+        .addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class)
         .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository), UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository), LogoutFilter.class)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

@@ -1,6 +1,7 @@
 package team.three.usedstroller.api.users.dto;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
@@ -15,20 +16,21 @@ public class AccountDto {
   private String nickname;
   private String address;
 
-  public AccountDto(String email, String password) {
-    this.email = email.trim();
-    this.password = password.trim();
-  }
-
+  @Builder
   public AccountDto(String email, String password, String nickname, String address) {
-    this.email = email.trim();
-    this.password = password.trim();
-    this.nickname = nickname.trim();
-    this.address = address.trim();
+    this.email = email == null ? null : email.trim();
+    this.password = password == null ? null : password.trim();
+    this.nickname = nickname == null ? null : nickname.trim();
+    this.address = address == null ? null : address.trim();
   }
 
   public static AccountDto of(Account user) {
-    return new AccountDto(user.getEmail(), user.getPassword(), user.getNickname(), user.getAddress());
+    return AccountDto.builder()
+        .email(user.getEmail())
+        .password(user.getPassword())
+        .nickname(user.getNickname())
+        .address(user.getAddress())
+        .build();
   }
 
   public boolean isValid() {
