@@ -24,7 +24,7 @@ public class UsersController {
   @ResponseStatus(HttpStatus.CREATED)
   public ResponseEntity<ResultDto> signup(@RequestBody AccountDto accountDto) {
     ResultDto resultDto = accountService.createUser(accountDto);
-    return ResponseEntity.status(resultDto.getStatus()).body(resultDto);
+    return ResponseEntity.ok().body(resultDto);
   }
 
   @GetMapping("/mypage")

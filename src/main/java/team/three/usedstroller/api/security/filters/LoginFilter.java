@@ -55,7 +55,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     try {
       accountDto = objectMapper.readValue(request.getReader(), AccountDto.class);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new IllegalArgumentException(e);
     }
 
     if (!accountDto.isValid()) {

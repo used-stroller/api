@@ -31,15 +31,14 @@ public class ReissueController {
     String oldRefreshToken = extractTokenFromCookies(request.getCookies());
 
     if (!StringUtils.hasText(oldRefreshToken)) {
-      ResultDto resultDto = ResultDto.of(HttpStatus.BAD_REQUEST, false, "refresh token is null");
-      return ResponseEntity.status(resultDto.getStatus()).body(resultDto);
+      return buildErrorResponse("Refresh token is null");
     }
 
     if (jwtUtil.isExpired(oldRefreshToken) ||
         !REFRESH.equals(jwtUtil.getType(oldRefreshToken)) ||
         Boolean.FALSE.equals(refreshTokenRepository.existsByToken(oldRefreshToken))
     ) {
-      return buildErrorResponse(HttpStatus.BAD_REQUEST, "Invalid refresh token");
+      return buildErrorResponse("Invalid refresh token");
     }
 
     String email = jwtUtil.getEmailFromToken(oldRefreshToken);
@@ -84,13 +83,13 @@ public class ReissueController {
     return cookie;
   }
 
-  private ResponseEntity<ResultDto> buildErrorResponse(HttpStatus status, String message) {
-    ResultDto resultDto = ResultDto.of(status, false, message);
-    return ResponseEntity.status(resultDto.getStatus()).body(resultDto);
+  private ResponseEntity<ResultDto> buildErrorResponse(String message) {
+    ResultDto resultDto = ResultDto.of(HttpStatus.BAD_REQUEST, false, message);
+    return ResponseEntity.badRequest().body(resultDto);
   }
 
   private ResponseEntity<ResultDto> buildSuccessResponse(String message) {
     ResultDto resultDto = ResultDto.of(HttpStatus.CREATED, true, message);
-    return ResponseEntity.status(resultDto.getStatus()).body(resultDto);
+    return ResponseEntity.ok(resultDto);
   }
 }
