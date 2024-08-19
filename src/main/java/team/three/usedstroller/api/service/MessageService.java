@@ -3,8 +3,8 @@ package team.three.usedstroller.api.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import team.three.usedstroller.api.domain.Message;
-import team.three.usedstroller.api.repository.MessageRepository;
+import team.three.usedstroller.api.socket.ChatController.Message;
+import team.three.usedstroller.api.socket.ChatController.MessageRepository;
 
 @Service
 @RequiredArgsConstructor

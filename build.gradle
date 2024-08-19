@@ -53,7 +53,7 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
 
     //socket io
-    implementation 'com.corundumstudio.socketio:netty-socketio:1.7.19'
+    implementation 'com.corundumstudio.socketio:netty-socketio:2.0.9'
 
     //test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
