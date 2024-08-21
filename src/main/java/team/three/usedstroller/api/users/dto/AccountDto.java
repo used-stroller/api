@@ -33,6 +33,14 @@ public class AccountDto {
         .build();
   }
 
+  public static AccountDto toDto(Account user) {
+    return AccountDto.builder()
+        .email(user.getEmail())
+        .nickname(user.getNickname())
+        .address(user.getAddress())
+        .build();
+  }
+
   public boolean isValid() {
     return StringUtils.hasText(email) && StringUtils.hasText(password);
   }

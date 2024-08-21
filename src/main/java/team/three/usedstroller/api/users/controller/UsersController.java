@@ -29,10 +29,20 @@ public class UsersController {
 
   @GetMapping("/mypage")
   @ResponseStatus(HttpStatus.OK)
-  public AccountDto mypage() {
+  public ResponseEntity<AccountDto> mypage() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     String email = (String) authentication.getPrincipal();
-    return accountService.getAccountByEmail(email);
+    AccountDto accountDto = accountService.getAccountByEmail(email);
+    return ResponseEntity.ok().body(accountDto);
+  }
+
+  @PostMapping("/mypage/update")
+  @ResponseStatus(HttpStatus.CREATED)
+  public ResponseEntity<Boolean> updateAccount(@RequestBody AccountDto accountDto) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String email = (String) authentication.getPrincipal();
+    accountService.updateAccount(email, accountDto);
+    return ResponseEntity.ok().body(true);
   }
 
 }

@@ -59,4 +59,12 @@ public class Account extends BaseTimeEntity {
   public void updatePassword(String password) {
     this.password = password;
   }
+
+  public void changeNickName(String nickname) {
+    this.nickname = nickname;
+  }
+
+  public void changeAddress(String address) {
+    this.address = address;
+  }
 }

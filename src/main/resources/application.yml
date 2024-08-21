@@ -46,5 +46,5 @@ apiNinjas:
 
 jwt:
   secret: eyJzdWIiOiJqdW5nbW9jaGEiLCJhdXRoIjoidGVhbTMifQ
-  access-expiration: 1800000 # 30분
+  access-expiration: 3600000 # 60분
   refresh-expiration: 604800000 # 7일

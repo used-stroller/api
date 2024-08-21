@@ -32,7 +32,7 @@ import team.three.usedstroller.api.security.utils.JwtUtil;
 @Slf4j
 @EnableScheduling
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity(debug = false)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -57,7 +57,7 @@ public class SecurityConfig {
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(requests -> requests
             .requestMatchers("/login", "/signup", "/reissue").permitAll()
-            .requestMatchers("/mypage/**").hasRole("USER")
+            .requestMatchers("/mypage", "/mypage/**").hasRole("USER")
             .requestMatchers("/admin/**").hasRole("ADMIN")
             .anyRequest().authenticated()
         )
@@ -79,7 +79,7 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration corsConfiguration = new CorsConfiguration();
-    corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
+    corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "https://jungmocha.co.kr"));
     corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
     corsConfiguration.setAllowCredentials(true);
 

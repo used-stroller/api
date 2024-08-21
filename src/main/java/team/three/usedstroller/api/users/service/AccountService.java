@@ -40,6 +40,14 @@ public class AccountService {
   public AccountDto getAccountByEmail(String email) {
     Account account = accountRepository.findByEmail(email)
         .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 이메일입니다."));
-    return AccountDto.of(account);
+    return AccountDto.toDto(account);
+  }
+
+  @Transactional
+  public void updateAccount(String email, AccountDto accountDto) {
+    Account account = accountRepository.findByEmail(email)
+        .orElseThrow(() -> new UsernameNotFoundException(email));
+    account.changeNickName(accountDto.getNickname());
+    account.changeAddress(accountDto.getAddress());
   }
 }
