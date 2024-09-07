@@ -1,11 +1,18 @@
 package team.three.usedstroller.api;
 
+import static team.three.usedstroller.api.domain.QModel.model;
 import static team.three.usedstroller.api.domain.QProduct.product;
 
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
@@ -21,8 +28,8 @@ import team.three.usedstroller.api.repository.ProductRepositoryImpl;
 
 @DataJpaTest
 @Import(QueryDslConfig.class)
-@ActiveProfiles("test")
-//@AutoConfigureTestDatabase(replace = Replace.NONE) //실제 DB연결 해주는 설정, default가 내장형 DB
+@ActiveProfiles("prod")
+@AutoConfigureTestDatabase(replace = Replace.NONE) //실제 DB연결 해주는 설정, default가 내장형 DB
 class QueryDslTest {
 
   @Autowired
@@ -74,6 +81,27 @@ class QueryDslTest {
     query.select(product.address.concat("_").concat(product.title))
         .from(product)
         .fetch();
+  }
+
+  @Test
+  void recommendPrice(){
+    NumberTemplate<Integer> minPrice = Expressions.numberTemplate(Integer.class, "{0} * {1}", model.recommendPrice, 0.9);
+    System.out.println("minPrice = " + minPrice);
+    NumberTemplate<Integer> maxPrice = Expressions.numberTemplate(Integer.class, "{0} * {1}", model.recommendPrice, 1.1);
+    System.out.println("maxPrice = " + maxPrice);
+    List<Product> fetch = query.selectFrom(product)
+        .leftJoin(model).on(product.model.id.eq(model.id))
+        .where(
+            product.model.id.isNotNull().and(model.recommendPrice.isNotNull())
+                .and(Expressions.numberTemplate(Integer.class, "CAST({0} AS INTEGER)", product.price)
+                    .gt(model.recommendPrice.multiply(0.9)))
+                .and(Expressions.numberTemplate(Integer.class, "CAST({0} AS INTEGER)", product.price)
+                    .lt(model.recommendPrice.multiply(1.1)))
+        ).fetch();
+    for (Product fetch1 : fetch) {
+      System.out.println("fetch1 = " + fetch1);
+    }
+
   }
 
 

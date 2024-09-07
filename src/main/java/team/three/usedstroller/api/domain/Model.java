@@ -26,12 +26,14 @@ public class Model extends BaseTimeEntity {
   private String name;
   private String brand;
   private String price;
+  private Long recommendPrice;
 
 
   @Builder
-  private Model(Long id, String name, String brand,String price) {
+  private Model(Long id, String name, String brand,String price,Long recommendPrice) {
     this.name = name;
     this.brand = brand;
     this.price = price;
+    this.recommendPrice = recommendPrice;
   }
 }
