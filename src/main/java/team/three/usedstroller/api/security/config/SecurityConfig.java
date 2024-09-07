@@ -1,5 +1,7 @@
 package team.three.usedstroller.api.security.config;
 
+import java.time.Duration;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -51,10 +53,10 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
     http
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf(AbstractHttpConfigurer::disable)
         .httpBasic(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable)
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(requests -> requests
             .requestMatchers("/login", "/signup", "/reissue").permitAll()
             .requestMatchers("/mypage", "/mypage/**").hasRole("USER")
@@ -76,12 +78,13 @@ public class SecurityConfig {
     return configuration.getAuthenticationManager();
   }
 
-  @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration corsConfiguration = new CorsConfiguration();
     corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "https://jungmocha.co.kr"));
     corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+    corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
     corsConfiguration.setAllowCredentials(true);
+    corsConfiguration.setMaxAge(Duration.ofDays(1));
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", corsConfiguration);
