@@ -1,5 +1,10 @@
 server:
   port: 8080
+  servlet:
+    context-path: /api
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
 
 spring:
   datasource:
@@ -24,11 +29,6 @@ spring:
         jdbc.batch_size: 100
         order_inserts: true
         order_updates: true
-
-  servlet:
-    multipart:
-      max-file-size: -1
-      max-request-size: -1
 
 springdoc:
   swagger-ui:
