@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import team.three.usedstroller.api.users.dto.AccountDto;
@@ -16,6 +17,7 @@ import team.three.usedstroller.api.users.service.AccountService;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/user")
 public class UsersController {
 
   private final AccountService accountService;
