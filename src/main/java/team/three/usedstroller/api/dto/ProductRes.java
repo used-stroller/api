@@ -59,12 +59,13 @@ public class ProductRes implements Serializable {
   private String content;
 
   private Model model;
+  private String recommendYn;
 
 
   @Builder
   private ProductRes(Long id, String sourceType, String pid, String title, Long price,
       String link, String imgSrc, LocalDateTime createdAt, LocalDateTime updatedAt, int releaseYear,
-      String etc, LocalDate uploadDate, String address, String region, String content,Model model) {
+      String etc, LocalDate uploadDate, String address, String region, String content,Model model,String recommendYn) {
     this.id = id;
     this.sourceType = SourceType.valueOf(sourceType);
     this.pid = pid;

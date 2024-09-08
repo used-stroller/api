@@ -81,6 +81,26 @@ public class ProductRepositoryImpl implements CustomProductRepository {
         .toList();
   }
 
+  @Override
+  public List<ProductRes> getRecommendProductList(FilterReq filter, Pageable pageable) {
+    JPAQuery<Product> jpaQuery = query.select(product)
+        .from(product)
+        .where(applyKeyword(filter.getKeyword()),
+            applySourceType(filter.getSourceType()),
+            applyPriceRange(filter.getMinPrice(), filter.getMaxPrice()),
+            applyRegion(filter.getRegion()),
+            applyBrand(filter.getBrand()),
+            applyModel(filter.getModel()),
+            applyPeriod(filter.getPeriod()),
+            applyRecommendYn(filter.getRecommendYn())
+        );
+        return jpaQuery
+            .fetch()
+            .stream()
+            .map(ProductRes::of)
+            .toList();
+  }
+
   /**
    * 1. 사용자가 직접 동네를 검색하면(region) 자동으로 받아온 당근 지역 필터링을 제외하고 모든 데이터를 기준으로 위치 검색한다.
    * 2. 직접 검색이 없다면, 위경도 값을 기준으로 아래 당근 위치 필터링을 적용한다.(당근 제품만 위치 적용됨)
@@ -177,6 +197,13 @@ public class ProductRepositoryImpl implements CustomProductRepository {
         .anyMatch(order -> order.getProperty().equalsIgnoreCase("uploadDate"))
         ? product.uploadDate.isNotNull()
         : null;
+  }
+
+  private BooleanExpression applyRecommendYn(String isYn) {
+    if (!isYn.isEmpty(sourceType)) {
+      return
+    }
+    return null;
   }
 
   private OrderSpecifier<?>[] getOrderBy(Sort sort) {

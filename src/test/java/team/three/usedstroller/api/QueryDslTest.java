@@ -8,6 +8,7 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,20 +86,33 @@ class QueryDslTest {
 
   @Test
   void recommendPrice(){
-    NumberTemplate<Integer> minPrice = Expressions.numberTemplate(Integer.class, "{0} * {1}", model.recommendPrice, 0.9);
-    System.out.println("minPrice = " + minPrice);
-    NumberTemplate<Integer> maxPrice = Expressions.numberTemplate(Integer.class, "{0} * {1}", model.recommendPrice, 1.1);
-    System.out.println("maxPrice = " + maxPrice);
-    List<Product> fetch = query.selectFrom(product)
-        .leftJoin(model).on(product.model.id.eq(model.id))
+//    List<Product> fetch = query.selectFrom(product)
+//        .leftJoin(model).on(product.model.id.eq(model.id))
+//        .where(
+//                 product.model.id.isNotNull()
+//                .and(model.recommendPrice.isNotNull())
+//                .and(Expressions.numberTemplate(Double.class, "CAST({0} AS DOUBLE)", product.price)
+//                    .gt(model.recommendPrice.multiply(0.9)))
+//                .and(Expressions.numberTemplate(Double.class, "CAST({0} AS DOUBLE)", product.price)
+//                    .lt(model.recommendPrice.multiply(1.1)))
+//        ).fetch();
+
+    List<Product> result = query.selectFrom(product)
+        .leftJoin(product.model, model)
         .where(
-            product.model.id.isNotNull().and(model.recommendPrice.isNotNull())
-                .and(Expressions.numberTemplate(Integer.class, "CAST({0} AS INTEGER)", product.price)
-                    .gt(model.recommendPrice.multiply(0.9)))
-                .and(Expressions.numberTemplate(Integer.class, "CAST({0} AS INTEGER)", product.price)
-                    .lt(model.recommendPrice.multiply(1.1)))
-        ).fetch();
-    for (Product fetch1 : fetch) {
+            product.model.isNotNull(),
+            model.recommendPrice.isNotNull(),
+            // recommendPrice * 0.9를 BigDecimal로 처리한 후 Long으로 변환
+            product.price.gt(
+                Expressions.numberTemplate(BigDecimal.class, "({0} * 0.9)", model.recommendPrice).longValue()
+            ),
+            // recommendPrice * 1.1을 BigDecimal로 처리한 후 Long으로 변환
+            product.price.lt(
+                Expressions.numberTemplate(BigDecimal.class, "({0} * 1.1)", model.recommendPrice).longValue()
+            )
+        )
+        .fetch();
+    for (Product fetch1 : result) {
       System.out.println("fetch1 = " + fetch1);
     }
 
