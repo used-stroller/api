@@ -1,5 +1,6 @@
 package team.three.usedstroller.api.repository;
 
+import static team.three.usedstroller.api.domain.QModel.model;
 import static team.three.usedstroller.api.domain.QProduct.product;
 
 import com.querydsl.core.types.Order;
@@ -9,6 +10,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -19,18 +21,20 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+import team.three.usedstroller.api.domain.Model;
 import team.three.usedstroller.api.domain.Product;
+import team.three.usedstroller.api.domain.QModel;
 import team.three.usedstroller.api.domain.SourceType;
 import team.three.usedstroller.api.dto.FilterReq;
 import team.three.usedstroller.api.dto.ProductRes;
 
-@Repository
+@Service
 @RequiredArgsConstructor
 public class ProductRepositoryImpl implements CustomProductRepository {
-
   private final JPAQueryFactory query;
 
   @Override
@@ -82,23 +86,35 @@ public class ProductRepositoryImpl implements CustomProductRepository {
   }
 
   @Override
-  public List<ProductRes> getRecommendProductList(FilterReq filter, Pageable pageable) {
+  public Page<ProductRes> getRecommendProductList(FilterReq filter,Pageable pageable) {
     JPAQuery<Product> jpaQuery = query.select(product)
         .from(product)
-        .where(applyKeyword(filter.getKeyword()),
-            applySourceType(filter.getSourceType()),
-            applyPriceRange(filter.getMinPrice(), filter.getMaxPrice()),
-            applyRegion(filter.getRegion()),
-            applyBrand(filter.getBrand()),
-            applyModel(filter.getModel()),
-            applyPeriod(filter.getPeriod()),
-            applyRecommendYn(filter.getRecommendYn())
+        .leftJoin(product.model,model)
+        .where(
+            product.model.isNotNull(),
+            model.recommendPrice.isNotNull(),
+            // recommendPrice * 0.9를 BigDecimal로 처리한 후 Long으로 변환
+            product.price.gt(
+                Expressions.numberTemplate(BigDecimal.class, "({0} * 0.7)", model.recommendPrice).longValue()
+            ),
+            // recommendPrice * 1.1을 BigDecimal로 처리한 후 Long으로 변환
+            product.price.lt(
+                Expressions.numberTemplate(BigDecimal.class, "({0} * 1.2)", model.recommendPrice).longValue()
+            ),
+            product.title.notLike("%배시넷").and(product.title.notLike("%베시넷%"))
         );
-        return jpaQuery
-            .fetch()
-            .stream()
-            .map(ProductRes::of)
-            .toList();
+      int totalCount = jpaQuery.fetch().size();
+
+      List<ProductRes> products = jpaQuery
+          .orderBy(getOrderBy(pageable.getSort()))
+          .orderBy(product.uploadDate.desc().nullsLast())
+          .offset(pageable.getOffset())
+          .limit(ObjectUtils.isEmpty(pageable.getPageSize()) ? 10: pageable.getPageSize())
+          .fetch()
+          .stream()
+          .map(ProductRes::of)
+          .toList();
+    return new PageImpl<>(products, pageable, totalCount);
   }
 
   /**
@@ -197,13 +213,6 @@ public class ProductRepositoryImpl implements CustomProductRepository {
         .anyMatch(order -> order.getProperty().equalsIgnoreCase("uploadDate"))
         ? product.uploadDate.isNotNull()
         : null;
-  }
-
-  private BooleanExpression applyRecommendYn(String isYn) {
-    if (!isYn.isEmpty(sourceType)) {
-      return
-    }
-    return null;
   }
 
   private OrderSpecifier<?>[] getOrderBy(Sort sort) {

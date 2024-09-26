@@ -1,3 +1,18 @@
 ### 상품목록
 GET {{host}}/product/list
+Content-Type: application/json; charset=utf-8
 
+### 추천목록
+GET {{host}}/product/list/recommend
+Content-Type: application/json; charset=utf-8
+
+#### 케어톡 - 01. 진단신청 시작 - [신규추가]
+#POST {{host}}/api/care/diagnosis/client/v1/welcome
+#Content-Type: application/json; charset=utf-8
+#Authorization: Bearer {{accessToken}}
+
+#{
+#  "diagnosisId": "{{diagnosisId}}",
+#  "inputDate"  : "20240430",
+#  "inputTime"  : "AM"
+#}

@@ -15,7 +15,7 @@ import lombok.ToString;
 @Entity
 @Getter
 @ToString
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Table(name = "model")
 public class Model extends BaseTimeEntity {
 

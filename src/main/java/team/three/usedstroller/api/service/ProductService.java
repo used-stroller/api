@@ -26,7 +26,7 @@ public class ProductService {
     return new RestPage<>(productRepository.getProducts(filter, pageable));
   }
 
-  public List<ProductRes> getRecommendProductList(FilterReq filterReq, Pageable pageable) {
-    return productRepository.getRecommendProductList(filterReq,pageable);
+  public RestPage<ProductRes> getRecommendProductList(FilterReq filterReq, Pageable pageable) {
+    return new RestPage<>(productRepository.getRecommendProductList(filterReq, pageable));
   }
 }

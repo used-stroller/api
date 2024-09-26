@@ -10,5 +10,5 @@ public interface CustomProductRepository {
 
   Page<ProductRes> getProducts(FilterReq filter, Pageable pageable);
   List<ProductRes> getProductsOnly(FilterReq filter);
-  List<ProductRes> getRecommendProductList(FilterReq filter, Pageable pageable);
+  Page<ProductRes> getRecommendProductList(FilterReq filter, Pageable pageable);
 }
