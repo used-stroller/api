@@ -1,4 +1,4 @@
-package team.three.usedstroller.api.product.repository;
+package team.three.usedstroller.api.repository;
 
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -10,4 +10,5 @@ public interface CustomProductRepository {
 
   Page<ProductRes> getProducts(FilterReq filter, Pageable pageable);
   List<ProductRes> getProductsOnly(FilterReq filter);
+  Page<ProductRes> getRecommendProductList(FilterReq filter, Pageable pageable);
 }

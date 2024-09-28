@@ -24,4 +24,5 @@ public class FilterReq {
   private Integer period;
   private List<String> model;
   private List<String> brand;
+  private String recommendYn;
 }

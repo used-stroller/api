@@ -1,5 +1,6 @@
 package team.three.usedstroller.api.product.repository;
 
+import static team.three.usedstroller.api.product.domain.QModel.model;
 import static team.three.usedstroller.api.product.domain.QProduct.product;
 
 import com.querydsl.core.types.Order;
@@ -9,6 +10,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +28,8 @@ import team.three.usedstroller.api.product.domain.Product;
 import team.three.usedstroller.api.product.domain.SourceType;
 import team.three.usedstroller.api.product.dto.FilterReq;
 import team.three.usedstroller.api.product.dto.ProductRes;
+import team.three.usedstroller.api.repository.CustomProductRepository;
+
 
 @Repository
 @RequiredArgsConstructor
@@ -79,6 +83,38 @@ public class ProductRepositoryImpl implements CustomProductRepository {
         .stream()
         .map(ProductRes::of)
         .toList();
+  }
+
+  @Override
+  public Page<ProductRes> getRecommendProductList(FilterReq filter,Pageable pageable) {
+    JPAQuery<Product> jpaQuery = query.select(product)
+        .from(product)
+        .leftJoin(product.model,model)
+        .where(
+            product.model.isNotNull(),
+            model.recommendPrice.isNotNull(),
+            // recommendPrice * 0.9를 BigDecimal로 처리한 후 Long으로 변환
+            product.price.gt(
+                Expressions.numberTemplate(BigDecimal.class, "({0} * 0.7)", model.recommendPrice).longValue()
+            ),
+            // recommendPrice * 1.1을 BigDecimal로 처리한 후 Long으로 변환
+            product.price.lt(
+                Expressions.numberTemplate(BigDecimal.class, "({0} * 1.2)", model.recommendPrice).longValue()
+            ),
+            product.title.notLike("%배시넷").and(product.title.notLike("%베시넷%"))
+        );
+      int totalCount = jpaQuery.fetch().size();
+
+      List<ProductRes> products = jpaQuery
+          .orderBy(getOrderBy(pageable.getSort()))
+          .orderBy(product.uploadDate.desc().nullsLast())
+          .offset(pageable.getOffset())
+          .limit(ObjectUtils.isEmpty(pageable.getPageSize()) ? 10: pageable.getPageSize())
+          .fetch()
+          .stream()
+          .map(ProductRes::of)
+          .toList();
+    return new PageImpl<>(products, pageable, totalCount);
   }
 
   /**

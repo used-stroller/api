@@ -1,12 +1,24 @@
 package team.three.usedstroller.api;
 
+<<<<<<< HEAD
 
 import static team.three.usedstroller.api.product.domain.QProduct.*;
+=======
+import static team.three.usedstroller.api.domain.QModel.model;
+import static team.three.usedstroller.api.domain.QProduct.product;
+>>>>>>> feature/recommend_price
 
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.math.BigDecimal;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
@@ -22,8 +34,8 @@ import team.three.usedstroller.api.product.repository.ProductRepositoryImpl;
 
 @DataJpaTest
 @Import(QueryDslConfig.class)
-@ActiveProfiles("test")
-//@AutoConfigureTestDatabase(replace = Replace.NONE) //실제 DB연결 해주는 설정, default가 내장형 DB
+@ActiveProfiles("prod")
+@AutoConfigureTestDatabase(replace = Replace.NONE) //실제 DB연결 해주는 설정, default가 내장형 DB
 class QueryDslTest {
 
   @Autowired
@@ -52,12 +64,12 @@ class QueryDslTest {
         .fetch();
   }
 
-  @Test
-  void cotainTest(){
-    FilterReq filter = new FilterReq("",null,null,null,"", "", "전국",null,null,null);
-    Pageable pageable = PageRequest.of(1,1);
-    Page<ProductRes> products = productRepository.getProducts(filter, pageable);
-  }
+//  @Test
+//  void cotainTest(){
+//    FilterReq filter = new FilterReq("",null,null,null,"", "", "전국",null,null,null);
+//    Pageable pageable = PageRequest.of(1,1);
+//    Page<ProductRes> products = productRepository.getProducts(filter, pageable);
+//  }
 
   @Test
   public void subQuery(){
@@ -75,6 +87,30 @@ class QueryDslTest {
     query.select(product.address.concat("_").concat(product.title))
         .from(product)
         .fetch();
+  }
+
+  @Test
+  void recommendPrice(){
+    List<Product> result = query.selectFrom(product)
+        .leftJoin(product.model, model)
+        .where(
+            product.model.isNotNull(),
+            model.recommendPrice.isNotNull(),
+            // recommendPrice * 0.9를 BigDecimal로 처리한 후 Long으로 변환
+            product.price.gt(
+                Expressions.numberTemplate(BigDecimal.class, "({0} * 0.7)", model.recommendPrice).longValue()
+            ),
+            // recommendPrice * 1.1을 BigDecimal로 처리한 후 Long으로 변환
+            product.price.lt(
+                Expressions.numberTemplate(BigDecimal.class, "({0} * 1.2)", model.recommendPrice).longValue()
+            ),
+            product.title.notLike("%배시넷").and(product.title.notLike("%베시넷%"))
+
+        )
+        .fetch();
+    for (Product fetch1 : result) {
+      System.out.println("fetch1 = " + fetch1);
+    }
   }
 
 

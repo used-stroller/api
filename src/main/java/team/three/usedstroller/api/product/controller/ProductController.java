@@ -36,7 +36,8 @@ public class ProductController {
    * 중모차 추천상품 리스트
    */
   @GetMapping("/list/recommend")
-  public void getRecommandProductList() {
+  public RestPage<ProductRes> getRecommendProductList(FilterReq filterReq, PageRequest pageable) {
+    return productService.getRecommendProductList(filterReq, pageable.of());
   }
 
   /**

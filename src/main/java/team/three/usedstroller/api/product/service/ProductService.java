@@ -1,5 +1,6 @@
 package team.three.usedstroller.api.product.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -25,4 +26,7 @@ public class ProductService {
     return new RestPage<>(productRepository.getProducts(filter, pageable));
   }
 
+  public RestPage<ProductRes> getRecommendProductList(FilterReq filterReq, Pageable pageable) {
+    return new RestPage<>(productRepository.getRecommendProductList(filterReq, pageable));
+  }
 }
