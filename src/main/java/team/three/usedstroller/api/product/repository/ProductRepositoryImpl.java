@@ -28,7 +28,6 @@ import team.three.usedstroller.api.product.domain.Product;
 import team.three.usedstroller.api.product.domain.SourceType;
 import team.three.usedstroller.api.product.dto.FilterReq;
 import team.three.usedstroller.api.product.dto.ProductRes;
-import team.three.usedstroller.api.repository.CustomProductRepository;
 
 
 @Repository

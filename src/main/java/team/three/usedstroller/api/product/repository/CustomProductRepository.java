@@ -1,4 +1,4 @@
-package team.three.usedstroller.api.repository;
+package team.three.usedstroller.api.product.repository;
 
 import java.util.List;
 import org.springframework.data.domain.Page;

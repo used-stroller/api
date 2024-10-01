@@ -73,11 +73,22 @@ jar {
     enabled = false
 }
 
-//bootJar {
-//    destinationDirectory = file("../docker-setting/jar-path")
-//}
+// QueryDsl 빌드 옵션
+def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
 
-clean {
-    delete file('build/generated')
-    delete file('../docker-setting/jar-path/api-0.0.1-SNAPSHOT.jar')
+// SourceSet에 querydslDir을 추가
+sourceSets {
+    main.java.srcDirs += [ querydslDir ]
+}
+
+// JavaCompile 작업에서 annotationProcessor 설정
+tasks.withType(JavaCompile).configureEach {
+    options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
+}
+
+// clean 작업 시 생성된 QueryDSL 디렉토리 삭제
+tasks.named('clean') {
+    doLast {
+        delete querydslDir
+    }
 }

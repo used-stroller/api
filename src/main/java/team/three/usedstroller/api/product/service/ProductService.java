@@ -1,6 +1,5 @@
 package team.three.usedstroller.api.product.service;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
