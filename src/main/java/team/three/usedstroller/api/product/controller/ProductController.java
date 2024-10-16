@@ -1,11 +1,15 @@
 package team.three.usedstroller.api.product.controller;
 
 import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import team.three.usedstroller.api.product.dto.FilterReq;
 import team.three.usedstroller.api.product.dto.PageRequest;
 import team.three.usedstroller.api.product.dto.ProductRes;
@@ -50,6 +54,11 @@ public class ProductController {
   @PostMapping("/image-download")
   public void downloadImage(FilterReq filter) throws IOException {
     commonService.downloadImage(filter);
+  }
+
+  @PostMapping("/image/upload")
+  public void uplpoadImage(@RequestPart("files") List<MultipartFile> files){
+     productService.uplpoadImage(files);
   }
 
 //  @GetMapping("/city-name")
