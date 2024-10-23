@@ -6,11 +6,39 @@ Content-Type: application/json; charset=utf-8
 GET {{host}}/product/list/recommend
 Content-Type: application/json; charset=utf-8
 
+### Qna 등록(이미지포함)
+POST {{host}}/api/qna/v1/upload
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="qnaType"
+
+DIRECT_TRANSACTION_RELATED
+
+--boundary
+Content-Disposition: form-data; name="qnaDocs"
+
+멀티파일 테스트 이미지 2개
+
+--boundary
+Content-Disposition: form-data; name="imageFileList"; filename="image-1.jpg";
+Content-Type: image/gif
+
+< C:/random_image/unsamples/image-1.jpg
+
+--boundary
+Content-Disposition: form-data; name="imageFileList"; filename="image-2.jpg"
+Content-Type: image/jpeg
+
+< C:/random_image/unsamples/image-2.jpg
+--boundary--
+
+
 #### 케어톡 - 01. 진단신청 시작 - [신규추가]
 #POST {{host}}/api/care/diagnosis/client/v1/welcome
 #Content-Type: application/json; charset=utf-8
 #Authorization: Bearer {{accessToken}}
-
+#
 #{
 #  "diagnosisId": "{{diagnosisId}}",
 #  "inputDate"  : "20240430",

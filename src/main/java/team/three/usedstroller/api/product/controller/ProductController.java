@@ -10,10 +10,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import team.three.usedstroller.api.product.domain.SourceType;
 import team.three.usedstroller.api.product.dto.FilterReq;
+import team.three.usedstroller.api.product.dto.OptionDto;
 import team.three.usedstroller.api.product.dto.PageRequest;
 import team.three.usedstroller.api.product.dto.ProductRes;
 import team.three.usedstroller.api.product.dto.RestPage;
+import team.three.usedstroller.api.product.dto.req.ProductUploadReq;
 import team.three.usedstroller.api.product.service.CommonService;
 import team.three.usedstroller.api.product.service.ProductService;
 
@@ -36,6 +40,11 @@ public class ProductController {
     return productService.getProducts(filter, pageable.of());
   }
 
+  @GetMapping("/get")
+  public ProductRes getProductDetail(Long id) {
+    return productService.getProductDetail(id);
+  }
+
   /**
    * 중모차 추천상품 리스트
    */
@@ -56,15 +65,30 @@ public class ProductController {
     commonService.downloadImage(filter);
   }
 
-  @PostMapping("/image/upload")
-  public void uplpoadImage(@RequestPart("files") List<MultipartFile> files){
-     productService.uplpoadImage(files);
+  @PostMapping("/register")
+  public void registerProduct(
+       @RequestPart("files") List<MultipartFile> imageList
+      ,@RequestParam("title") String title
+      ,@RequestParam("price") Long price
+      ,@RequestParam("content") String content
+      ,@RequestParam("buyStatus") String buyStatus
+      ,@RequestParam("options") List<OptionDto> options
+      ,@RequestParam("usePeriod") int usePeriod
+      //,@RequestParam("address") String address
+      //,@RequestParam("region") String region  => 주소 api 적용 후 나중에 추가
+  ){
+    ProductUploadReq req = ProductUploadReq.builder()
+        .sourceType(SourceType.JUNGMOCHA)
+        .title(title)
+        .price(price)
+        .content(content)
+        .buyStatus(buyStatus)
+        .options(options)
+        .usePeriod(usePeriod)
+        .order(10)
+        .imageList(imageList)
+        .build();
+
+    productService.registerProduct(req);
   }
-
-//  @GetMapping("/city-name")
-//  @ResponseBody
-//  public GeoCodingAPi getCityName(String lat, String lon) {
-//    ResponseEntity<GeoCodingAPi> cityNameByLotAndLon = reverseGeocodingApi.getCityNameByLotAndLon(lat, lon);
-//  }
-
 }

@@ -8,7 +8,8 @@ public enum SourceType {
 	CARROT("carrot"),
 	SECOND("second"),
 	BUNJANG("bunjang"),
-	JUNGGO("junggo");
+	JUNGGO("junggo"),
+	JUNGMOCHA("jungmocha");
 
 	private String source;
 

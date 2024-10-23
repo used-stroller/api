@@ -16,18 +16,13 @@ public class ImageUploader {
 
   private static final String UPLOAD_DIR = "F:stroller/img/product/";
 
-  public void uploadFile(List<MultipartFile> files) {
+  public String uploadFile(MultipartFile file) {
     StringBuilder sb = new StringBuilder();
-
-    for(MultipartFile file : files) {
-      if(file.isEmpty()){
-        sb.append("Fail to upload").append(file.getOriginalFilename());
-        continue;
-      }
-      try {
+    Path path = Paths.get("");
+    try {
         // 파일 저장 경로 생성
         String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        Path path = Paths.get(UPLOAD_DIR+uniqueFileName);
+        path = Paths.get(UPLOAD_DIR+uniqueFileName);
         Files.createDirectories(path.getParent()); //디렉토리 생성
         Path write = Files.write(path, file.getBytes());// 파일 저장
         log.info("Successfully uploaded image {}",file.getOriginalFilename());
@@ -35,7 +30,7 @@ public class ImageUploader {
         e.printStackTrace();
         sb.append("Fail to upload").append(file.getOriginalFilename());
       }
-    }
+      return path.toAbsolutePath().toString();
   }
 
   public void deleteFile (String fileName) {
