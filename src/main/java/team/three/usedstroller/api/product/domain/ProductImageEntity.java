@@ -29,11 +29,10 @@ public class ProductImageEntity extends BaseTimeEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
   private Long id;
-  private int order;
+  private int order =100;
   private String src;
   private char isDeleted;
 
-  @Column(name = "product_id")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name="product_id")
   private Product product;

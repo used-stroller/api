@@ -65,26 +65,26 @@ public class ProductController {
     commonService.downloadImage(filter);
   }
 
-  @PostMapping("/register")
+  @PostMapping(value="/register", consumes = {"multipart/form-data"})
   public void registerProduct(
-       @RequestPart("files") List<MultipartFile> imageList
+       @RequestPart("imageList") List<MultipartFile> imageList
       ,@RequestParam("title") String title
-      ,@RequestParam("price") Long price
+      ,@RequestParam("price") String price
       ,@RequestParam("content") String content
       ,@RequestParam("buyStatus") String buyStatus
-      ,@RequestParam("options") List<OptionDto> options
-      ,@RequestParam("usePeriod") int usePeriod
+      ,@RequestParam(value = "options",required = false) List<OptionDto> options
+      ,@RequestParam("usePeriod") String usePeriod
       //,@RequestParam("address") String address
       //,@RequestParam("region") String region  => 주소 api 적용 후 나중에 추가
   ){
     ProductUploadReq req = ProductUploadReq.builder()
         .sourceType(SourceType.JUNGMOCHA)
         .title(title)
-        .price(price)
+        .price(Long.valueOf(price))
         .content(content)
         .buyStatus(buyStatus)
         .options(options)
-        .usePeriod(usePeriod)
+        .usePeriod(Integer.parseInt(usePeriod))
         .order(10)
         .imageList(imageList)
         .build();

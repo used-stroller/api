@@ -6,28 +6,42 @@ Content-Type: application/json; charset=utf-8
 GET {{host}}/product/list/recommend
 Content-Type: application/json; charset=utf-8
 
-### Qna 등록(이미지포함)
-POST {{host}}/api/qna/v1/upload
+### 상품등록
+POST {{host}}/product/register
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
-Content-Disposition: form-data; name="qnaType"
-
-DIRECT_TRANSACTION_RELATED
-
---boundary
-Content-Disposition: form-data; name="qnaDocs"
-
-멀티파일 테스트 이미지 2개
+Content-Disposition: form-data; name="title"
+제목입니당
 
 --boundary
-Content-Disposition: form-data; name="imageFileList"; filename="image-1.jpg";
+Content-Disposition: form-data; name="price"
+2000
+
+--boundary
+Content-Disposition: form-data; name="content"
+본문내용
+
+--boundary
+Content-Disposition: form-data; name="buyStatus"
+1
+
+#--boundary
+#Content-Disposition: form-data; name="options"
+#[]
+
+--boundary
+Content-Disposition: form-data; name="usePeriod"
+1
+
+--boundary
+Content-Disposition: form-data; name="imageList"; filename="image-1.jpg";
 Content-Type: image/gif
 
 < C:/random_image/unsamples/image-1.jpg
 
 --boundary
-Content-Disposition: form-data; name="imageFileList"; filename="image-2.jpg"
+Content-Disposition: form-data; name="imageList"; filename="image-2.jpg"
 Content-Type: image/jpeg
 
 < C:/random_image/unsamples/image-2.jpg
