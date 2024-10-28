@@ -69,6 +69,10 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+tasks.withType(Test) {
+    jvmArgs '-Dfile.encoding=UTF-8'
+}
+
 jar {
     enabled = false
 }
