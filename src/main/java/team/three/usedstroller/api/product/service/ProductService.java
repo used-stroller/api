@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import team.three.usedstroller.api.common.utils.ImageUploader;
 import team.three.usedstroller.api.product.domain.ProductImageEntity;
 import team.three.usedstroller.api.product.domain.Product;
+import team.three.usedstroller.api.product.domain.SourceType;
 import team.three.usedstroller.api.product.dto.FilterReq;
 import team.three.usedstroller.api.product.dto.ProductRes;
 import team.three.usedstroller.api.product.dto.RestPage;
@@ -51,13 +52,16 @@ public class ProductService {
 
     // 상품 저장
     Product product = Product.builder()
-        .sourceType(req.getSourceType())
+        .sourceType(SourceType.JUNGMOCHA)
         .title(req.getTitle())
         .price(req.getPrice())
         .content(req.getContent())
         .buyStatus(req.getBuyStatus())
-        .order(req.getOrder())
+        .orderSeq(10)
         .usePeriod(req.getUsePeriod())
+        .address("")
+        .etc("")
+        .region("")
         .build();
     productRepository.save(product);
 
@@ -68,7 +72,8 @@ public class ProductService {
     for (MultipartFile file : imageList) {
       ProductImageEntity imageEntity = ProductImageEntity.builder()
           .src(imageUploader.uploadFile(file))
-          .order(i++)
+          .isDeleted('N')
+          .orderSeq(i++)
           .product(product)
           .build();
       productImageRepository.save(imageEntity);
@@ -77,6 +82,7 @@ public class ProductService {
     // product 테이블 src => 첫번째 이미지로 저장
     ProductImageEntity imageEntity = productImageRepository.findFirstByProductId(product.getId());
     product.setImgSrc(imageEntity.getSrc());
+    product.setLink("/product/get/"+product.getId());
     productRepository.save(product);
   }
 }

@@ -69,5 +69,5 @@ public class Product extends BaseTimeEntity {
 
 	private String buyStatus;
 	private int usePeriod;
-	private int order;
+	private int orderSeq;
 }

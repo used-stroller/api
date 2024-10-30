@@ -67,25 +67,23 @@ public class ProductController {
 
   @PostMapping(value="/register", consumes = {"multipart/form-data"})
   public void registerProduct(
-       @RequestPart("imageList") List<MultipartFile> imageList
+       @RequestPart(value = "imageList",required = false) List<MultipartFile> imageList
       ,@RequestParam("title") String title
       ,@RequestParam("price") String price
       ,@RequestParam("content") String content
       ,@RequestParam("buyStatus") String buyStatus
-      ,@RequestParam(value = "options",required = false) List<OptionDto> options
+      ,@RequestParam(value = "options",required = false) List<String> options
       ,@RequestParam("usePeriod") String usePeriod
       //,@RequestParam("address") String address
       //,@RequestParam("region") String region  => 주소 api 적용 후 나중에 추가
   ){
     ProductUploadReq req = ProductUploadReq.builder()
-        .sourceType(SourceType.JUNGMOCHA)
         .title(title)
         .price(Long.valueOf(price))
         .content(content)
         .buyStatus(buyStatus)
         .options(options)
         .usePeriod(Integer.parseInt(usePeriod))
-        .order(10)
         .imageList(imageList)
         .build();
 

@@ -53,7 +53,7 @@ public class ProductUploadReq implements Serializable {
   //private String address;
   //private String region;
   private String buyStatus;
-  private List<OptionDto> options;
+  private List<String> options;
   private int usePeriod;
   private int order;
   private List<MultipartFile> imageList;

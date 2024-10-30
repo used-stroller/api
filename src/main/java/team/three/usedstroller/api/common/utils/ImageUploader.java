@@ -14,7 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 public class ImageUploader {
 
-  private static final String UPLOAD_DIR = "F:stroller/img/product/";
+  private static final String UPLOAD_DIR = "/stroller/img/product/";
+  //private static final String UPLOAD_DIR = "/home/stroller/images/product/";
 
   public String uploadFile(MultipartFile file) {
     StringBuilder sb = new StringBuilder();
