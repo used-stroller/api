@@ -11,6 +11,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class ImageDto {
-	private String path;
-	private int order;
+	private String id;
+	private String src;
+	private String orderSeq;
 }

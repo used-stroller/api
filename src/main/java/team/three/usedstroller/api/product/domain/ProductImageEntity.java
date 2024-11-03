@@ -29,7 +29,7 @@ public class ProductImageEntity extends BaseTimeEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
   private Long id;
-  private int orderSeq =100;
+  private int orderSeq;
   private String src;
   private char isDeleted;
 

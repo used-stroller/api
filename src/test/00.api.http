@@ -2,6 +2,10 @@
 GET {{host}}/product/list
 Content-Type: application/json; charset=utf-8
 
+### 상품상세 조회
+GET {{host}}/product/get?id=14
+Content-Type: application/json; charset=utf-8
+
 ### 이미지 테스트
 GET {{host}}/image/1bc9f07a-e4ca-40f0-a267-98f5215a39f1_KakaoTalk_20241018_222333026_08.jpg
 Content-Type: application/json; charset=utf-8
@@ -46,6 +50,46 @@ Content-Type: image/gif
 
 --boundary
 Content-Disposition: form-data; name="imageList"; filename="image-2.jpg"
+Content-Type: image/jpeg
+
+< C:/random_image/unsamples/image-2.jpg
+--boundary--
+
+### multiImage 업로드
+POST {{host}}/file/multipartFile/modify
+Content-Type: multipart/form-data; boundary=boundary
+Authorization: Bearer {{accessToken}}
+
+--boundary
+Content-Disposition: form-data; name="existingImages"
+
+  {
+    "id": "610",
+    "orderSeq": 0
+  },
+  {
+    "id": "612",
+    "orderSeq": 2
+  }
+
+--boundary
+Content-Disposition: form-data; name="deletedImages"
+
+"611", "613"
+
+--boundary
+Content-Disposition: form-data; name="newImageData"
+
+{"index":1,"filename":"image-1.jpg"},{"index":3,"filename":"image-2.jpg"}
+
+--boundary
+Content-Disposition: form-data; name="newImages"; filename="image-1.jpg";
+Content-Type: image/gif
+
+< C:/random_image/unsamples/image-1.jpg
+
+--boundary
+Content-Disposition: form-data; name="newImages"; filename="image-2.jpg"
 Content-Type: image/jpeg
 
 < C:/random_image/unsamples/image-2.jpg

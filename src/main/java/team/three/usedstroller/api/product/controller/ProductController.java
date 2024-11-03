@@ -1,7 +1,9 @@
 package team.three.usedstroller.api.product.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,13 +13,12 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import team.three.usedstroller.api.product.domain.SourceType;
 import team.three.usedstroller.api.product.dto.FilterReq;
-import team.three.usedstroller.api.product.dto.OptionDto;
 import team.three.usedstroller.api.product.dto.PageRequest;
 import team.three.usedstroller.api.product.dto.ProductRes;
 import team.three.usedstroller.api.product.dto.RestPage;
 import team.three.usedstroller.api.product.dto.req.ProductUploadReq;
+import team.three.usedstroller.api.product.dto.res.ProductDetailDto;
 import team.three.usedstroller.api.product.service.CommonService;
 import team.three.usedstroller.api.product.service.ProductService;
 
@@ -40,8 +41,9 @@ public class ProductController {
     return productService.getProducts(filter, pageable.of());
   }
 
+  @Operation(summary = "상품 상세 데이터")
   @GetMapping("/get")
-  public ProductRes getProductDetail(Long id) {
+  public ProductDetailDto getProductDetail(Long id) {
     return productService.getProductDetail(id);
   }
 
@@ -89,4 +91,18 @@ public class ProductController {
 
     productService.registerProduct(req);
   }
+
+
+  @Operation(summary = "상품 수정")
+  @PostMapping(value = "/file/multipartFile/modify",consumes = {"multipart/form-data"})
+  public void multipartFileUpload(
+      @RequestPart(value = "newImages",required = false) List<MultipartFile> newImages, // 새로 input 된 파일
+      @RequestParam(value = "newImageData",required = false) String newImageData, // input된 이미지의 index 정보
+      @RequestParam("existingImages") String existingImages, // DB에 있었던 이미지
+      @RequestParam(value = "deletedImages",required = false) Set deletedImages, // 삭제된 image id 값
+      @RequestParam(value = "productId") Long productId
+  ) {
+    productService.modify(newImages,existingImages,deletedImages,newImageData,productId);
+  }
+
 }
