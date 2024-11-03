@@ -14,16 +14,13 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 public class ImageUploader {
 
-  private static final String UPLOAD_DIR = "/stroller/img/product/";
-  //private static final String UPLOAD_DIR = "/home/stroller/images/product/";
-
-  public String uploadFile(MultipartFile file) {
+  public String uploadFile(MultipartFile file,String filePath) {
     StringBuilder sb = new StringBuilder();
     Path path = Paths.get("");
     try {
         // 파일 저장 경로 생성
         String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        path = Paths.get(UPLOAD_DIR+uniqueFileName);
+        path = Paths.get(filePath+uniqueFileName);
         Files.createDirectories(path.getParent()); //디렉토리 생성
         Path write = Files.write(path, file.getBytes());// 파일 저장
         log.info("Successfully uploaded image {}",file.getOriginalFilename());
@@ -34,9 +31,9 @@ public class ImageUploader {
       return path.toAbsolutePath().toString();
   }
 
-  public void deleteFile (String fileName) {
+  public void deleteFile (String fileName,String filePath) {
     try {
-      Path path = Paths.get(UPLOAD_DIR+fileName);
+      Path path = Paths.get(filePath+fileName);
       File file = path.toFile();
 
       if(file.exists()){

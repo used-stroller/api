@@ -1,5 +1,7 @@
 package team.three.usedstroller.api.product.service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -53,6 +55,7 @@ public class ProductService {
     // 상품 저장
     Product product = Product.builder()
         .sourceType(SourceType.JUNGMOCHA)
+        .uploadDate(LocalDate.now())
         .title(req.getTitle())
         .price(req.getPrice())
         .content(req.getContent())
@@ -68,10 +71,12 @@ public class ProductService {
 
     // image 테이블 저장
     List<MultipartFile> imageList = req.getImageList();
+    //String UPLOAD_DIR = "/home/stroller/images/product/"+product.getId()+"/";
+    String UPLOAD_DIR = "F:/stroller/image/product/"+product.getId()+"/";
     int i=0;
     for (MultipartFile file : imageList) {
       ProductImageEntity imageEntity = ProductImageEntity.builder()
-          .src(imageUploader.uploadFile(file))
+          .src(imageUploader.uploadFile(file,UPLOAD_DIR))
           .isDeleted('N')
           .orderSeq(i++)
           .product(product)
