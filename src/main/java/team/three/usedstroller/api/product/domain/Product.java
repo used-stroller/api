@@ -62,7 +62,6 @@ public class Product extends BaseTimeEntity {
 
 	@Column(columnDefinition = "text")
 	private String content;
-	private String status;
 
 	@ManyToOne
 	@JoinColumn(name = "model_id")
