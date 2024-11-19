@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,8 @@ import lombok.ToString;
 import team.three.usedstroller.api.common.domain.BaseTimeEntity;
 
 @Entity
+@Builder
+@AllArgsConstructor
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -54,25 +57,9 @@ public class Product extends BaseTimeEntity {
 	@Column(columnDefinition = "text")
 	private String content;
 
+	private String status;
+
 	@ManyToOne
 	@JoinColumn(name = "model_id")
 	private Model model;
-
-	@Builder
-	private Product(SourceType sourceType, String pid, String title, String link, Long price, String imgSrc, String address,
-	                int releaseYear, String etc, LocalDate uploadDate, String region, String content) {
-		this.sourceType = sourceType;
-		this.pid = pid;
-		this.title = title;
-		this.link = link;
-		this.price = price;
-		this.imgSrc = imgSrc;
-		this.address = address;
-		this.releaseYear = releaseYear;
-		this.etc = etc;
-		this.uploadDate = uploadDate;
-		this.region = region;
-		this.content = content;
-	}
-
 }

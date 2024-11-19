@@ -40,7 +40,8 @@ public class ProductRepositoryImpl implements CustomProductRepository {
   public Page<ProductRes> getProducts(FilterReq filter, Pageable pageable) {
     JPAQuery<Product> jpaQuery = query.select(product)
         .from(product)
-        .where(applyKeyword(filter.getKeyword()),
+        .where(product.status.eq("Ongoing"),
+            applyKeyword(filter.getKeyword()),
             applySourceType(filter.getSourceType()),
             applyPriceRange(filter.getMinPrice(), filter.getMaxPrice()),
             applyDefaultRegion(filter.getRegion(), filter.getFixedAddress(), filter.getDetailAddress()),
@@ -100,7 +101,8 @@ public class ProductRepositoryImpl implements CustomProductRepository {
             product.price.lt(
                 Expressions.numberTemplate(BigDecimal.class, "({0} * 1.2)", model.recommendPrice).longValue()
             ),
-            product.title.notLike("%배시넷").and(product.title.notLike("%베시넷%"))
+            product.title.notLike("%배시넷").and(product.title.notLike("%베시넷%")),
+            product.status.eq("Ongoing")
         );
       int totalCount = jpaQuery.fetch().size();
 
