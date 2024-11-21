@@ -40,7 +40,8 @@ public class ProductRepositoryImpl implements CustomProductRepository {
   public Page<ProductRes> getProducts(FilterReq filter, Pageable pageable) {
     JPAQuery<Product> jpaQuery = query.select(product)
         .from(product)
-        .where(applyKeyword(filter.getKeyword()),
+        .where(product.sourceType.ne(SourceType.CARROT).or(product.sourceType.eq(SourceType.CARROT).and(product.status.eq("Ongoing"))),
+            applyKeyword(filter.getKeyword()),
             applySourceType(filter.getSourceType()),
             applyPriceRange(filter.getMinPrice(), filter.getMaxPrice()),
             applyDefaultRegion(filter.getRegion(), filter.getFixedAddress(), filter.getDetailAddress()),
@@ -193,7 +194,7 @@ public class ProductRepositoryImpl implements CustomProductRepository {
     if (!CollectionUtils.isEmpty(sourceType)) {
       return product.sourceType.in(sourceType);
     }
-    return product.sourceType.ne(SourceType.CARROT).or(product.sourceType.eq(SourceType.CARROT).and(product.status.eq("Ongoing")));
+    return null;
   }
 
   private BooleanExpression applyKeyword(String keyword) {
