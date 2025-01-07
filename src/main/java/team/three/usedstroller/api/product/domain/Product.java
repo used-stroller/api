@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,6 +23,7 @@ import lombok.Setter;
 import lombok.ToString;
 import team.three.usedstroller.api.common.domain.BaseTimeEntity;
 import team.three.usedstroller.api.product.dto.OptionDto;
+import team.three.usedstroller.api.users.domain.Account;
 
 @Entity
 @Getter
@@ -70,4 +72,9 @@ public class Product extends BaseTimeEntity {
 	private String buyStatus;
 	private int usePeriod;
 	private int orderSeq;
+
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "account_id")
+	private Account account;
 }

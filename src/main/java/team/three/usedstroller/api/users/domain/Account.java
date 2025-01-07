@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,8 @@ import team.three.usedstroller.api.users.dto.Authority;
 
 @Getter
 @Entity
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Account extends BaseTimeEntity {
 
@@ -28,25 +31,11 @@ public class Account extends BaseTimeEntity {
   private String password;
   private String nickname;
   private String address;
+  private String kakaoId;
+  private String name;
+  private String image;
   @Enumerated(EnumType.STRING)
   private Authority role;
-
-  @Builder
-  public Account(String email, String password, String nickname, String address, Authority role) {
-    this.email = email;
-    this.password = password;
-    this.nickname = nickname;
-    this.address = address;
-    this.role = role;
-  }
-
-  public Account(String email, String password) {
-    this.email = email;
-    this.password = password;
-    this.nickname = "";
-    this.address = "";
-    this.role = Authority.ROLE_USER;
-  }
 
   public void updateNickname(String nickname) {
     this.nickname = nickname;

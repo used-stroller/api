@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import team.three.usedstroller.api.users.dto.AccountDto;
+import team.three.usedstroller.api.users.dto.LoginWrapperDto;
 import team.three.usedstroller.api.users.dto.ResultDto;
 import team.three.usedstroller.api.users.service.AccountService;
 
@@ -44,6 +45,14 @@ public class UsersController {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     String email = (String) authentication.getPrincipal();
     accountService.updateAccount(email, accountDto);
+    return ResponseEntity.ok().body(true);
+  }
+
+  @PostMapping("/api/auth/kakao")
+  @ResponseStatus(HttpStatus.CREATED)
+  public ResponseEntity<Boolean> kakaoLogin(@RequestBody LoginWrapperDto loginResult) {
+    System.out.println("loginResult = " + loginResult.getLoginResult());
+    accountService.loginByKakao(loginResult);
     return ResponseEntity.ok().body(true);
   }
 

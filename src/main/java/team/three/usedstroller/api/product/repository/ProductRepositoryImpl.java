@@ -48,7 +48,8 @@ public class ProductRepositoryImpl implements CustomProductRepository {
             applyBrand(filter.getBrand()),
             applyModel(filter.getModel()),
             applyPeriod(filter.getPeriod()),
-            applyNotNullUploadDate(pageable.getSort()));
+            applyNotNullUploadDate(pageable.getSort()))
+        .orderBy(product.orderSeq.asc().nullsLast());
 
     int totalCount = jpaQuery.fetch().size();
 

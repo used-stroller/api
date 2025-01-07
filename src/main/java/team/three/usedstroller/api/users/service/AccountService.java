@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import team.three.usedstroller.api.users.domain.Account;
 import team.three.usedstroller.api.users.dto.AccountDto;
+import team.three.usedstroller.api.users.dto.LoginWrapperDto;
 import team.three.usedstroller.api.users.dto.ResultDto;
 import team.three.usedstroller.api.users.repository.AccountRepository;
 
@@ -27,7 +28,7 @@ public class AccountService {
     if (exists) {
       return ResultDto.of(HttpStatus.BAD_REQUEST, false, "이미 존재하는 이메일입니다.");
     }
-    Account account = new Account(email, password);
+    Account account = Account.builder().email(email).password(password).build();
     account.updatePassword(passwordEncoder.encode(password));
     Account saved = accountRepository.save(account);
     if (!ObjectUtils.isEmpty(saved)) {
@@ -49,5 +50,22 @@ public class AccountService {
         .orElseThrow(() -> new UsernameNotFoundException(email));
     account.changeNickName(accountDto.getNickname());
     account.changeAddress(accountDto.getAddress());
+  }
+
+  public void loginByKakao(LoginWrapperDto loginResult) {
+    // 기존회원 리다이렉트
+    String kakaoId = loginResult.getLoginResult().getUser().getKakaoId();
+    if(accountRepository.existsAccountByKakaoId(kakaoId)){
+      System.out.println("기존회원입니다.");
+      return;
+    }
+    Account newAccount = Account.builder()
+        .kakaoId(kakaoId)
+        .image(loginResult.getLoginResult().getUser().getImage())
+        .name(loginResult.getLoginResult().getUser().getName())
+        .email(kakaoId+loginResult.getLoginResult().getUser().getName())
+        .password("")
+        .build();
+    accountRepository.save(newAccount);
   }
 }
