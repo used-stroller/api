@@ -1,15 +1,15 @@
 package team.three.usedstroller.api.security.config;
 
+import static team.three.usedstroller.api.common.jwt.EndPointConf.NOT_JWT_AUTH_ENDPOINT_LIST;
+
 import java.time.Duration;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,15 +21,14 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import team.three.usedstroller.api.security.filters.CustomLogoutFilter;
-import team.three.usedstroller.api.security.filters.JwtFilter;
-import team.three.usedstroller.api.security.filters.LoginFilter;
+import team.three.usedstroller.api.common.jwt.JwtAccessDeniedHandler;
+import team.three.usedstroller.api.common.jwt.JwtAuthenticationEntryPoint;
+import team.three.usedstroller.api.common.jwt.JwtTokenProvider;
+import team.three.usedstroller.api.security.filters.JwtAuthenticationFilter;
 import team.three.usedstroller.api.security.repository.RefreshTokenRepository;
-import team.three.usedstroller.api.security.utils.JwtUtil;
 
 @Slf4j
 @EnableScheduling
@@ -38,9 +37,11 @@ import team.three.usedstroller.api.security.utils.JwtUtil;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final JwtUtil jwtUtil;
   private final RefreshTokenRepository refreshTokenRepository;
   private final AuthenticationConfiguration authenticationConfiguration;
+  private final JwtTokenProvider jwtTokenProvider;
+  private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+  private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
   /**
    * security 필터를 거치지 않는다. 보통 html이나 css, image 등 정적자원들을 주로 설정한다.
@@ -63,9 +64,12 @@ public class SecurityConfig {
             .requestMatchers("/admin/**").hasRole("ADMIN")
             .anyRequest().authenticated()
         )
-        .addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class)
-        .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository), UsernamePasswordAuthenticationFilter.class)
-        .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository), LogoutFilter.class)
+        .exceptionHandling(exceptions -> exceptions
+            .authenticationEntryPoint(jwtAuthenticationEntryPoint) // Use your custom entry point
+            .accessDeniedHandler(jwtAccessDeniedHandler)
+        )
+
+        .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 
@@ -95,10 +99,10 @@ public class SecurityConfig {
   public PasswordEncoder passwordEncoder() {
     return PasswordEncoderFactories.createDelegatingPasswordEncoder();
   }
-
-  @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
-  public void reissueToken() {
-    refreshTokenRepository.deleteAllExpiredToken(new Date(System.currentTimeMillis()));
-    log.info("만료된 RefreshToken 모두 삭제 완료");
-  }
+//
+//  @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
+//  public void reissueToken() {
+//    refreshTokenRepository.deleteAllExpiredToken(new Date(System.currentTimeMillis()));
+//    log.info("만료된 RefreshToken 모두 삭제 완료");
+//  }
 }

@@ -1,24 +1,34 @@
 package team.three.usedstroller.api.users.service;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import team.three.usedstroller.api.common.jwt.JwtTokenProvider;
 import team.three.usedstroller.api.users.domain.Account;
 import team.three.usedstroller.api.users.dto.AccountDto;
 import team.three.usedstroller.api.users.dto.LoginWrapperDto;
+import team.three.usedstroller.api.users.dto.LoginWrapperDto.LoginResultDto.UserDto;
+import team.three.usedstroller.api.users.dto.ResponseLoginDto;
+import team.three.usedstroller.api.users.dto.ResponseLoginTokenDto;
 import team.three.usedstroller.api.users.dto.ResultDto;
 import team.three.usedstroller.api.users.repository.AccountRepository;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AccountService {
 
   private final AccountRepository accountRepository;
   private final PasswordEncoder passwordEncoder;
+  private final JwtTokenProvider jwtTokenProvider;
 
   @Transactional
   public ResultDto createUser(AccountDto accountDto) {
@@ -52,18 +62,36 @@ public class AccountService {
     account.changeAddress(accountDto.getAddress());
   }
 
-  public void loginByKakao(LoginWrapperDto loginResult) {
+  public void loginOrSignUp(LoginWrapperDto loginResult, HttpServletResponse response) {
     // 기존회원 리다이렉트
     String kakaoId = loginResult.getLoginResult().getUser().getKakaoId();
-    if(accountRepository.existsAccountByKakaoId(kakaoId)){
-      System.out.println("기존회원입니다.");
-      return;
+    if(!accountRepository.existsAccountByKakaoId(kakaoId)) {
+      saveNewUserInfo(loginResult, kakaoId);
     }
+
+    Optional<Account> accountEntity = accountRepository.findByKakaoId(kakaoId);
+
+    // 토큰 생성
+    ResponseLoginTokenDto responseLoginTokenDto = jwtTokenProvider.generateTokenDto(accountEntity.get());
+
+    Cookie cookie = new Cookie("jwt", responseLoginTokenDto.getAccessToken());
+    cookie.setHttpOnly(true);
+    cookie.setPath("/");
+    cookie.setMaxAge(60*60); // 1시간
+
+    response.addCookie(cookie);
+
+    return ResponseLoginDto.builder()
+
+        .build();
+  }
+
+  private void saveNewUserInfo(LoginWrapperDto loginResult, String kakaoId) {
     Account newAccount = Account.builder()
         .kakaoId(kakaoId)
         .image(loginResult.getLoginResult().getUser().getImage())
         .name(loginResult.getLoginResult().getUser().getName())
-        .email(kakaoId+loginResult.getLoginResult().getUser().getName())
+        .email(kakaoId + loginResult.getLoginResult().getUser().getName())
         .password("")
         .build();
     accountRepository.save(newAccount);

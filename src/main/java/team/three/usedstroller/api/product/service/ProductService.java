@@ -108,8 +108,8 @@ public class ProductService {
 
     // image 테이블 저장
     List<MultipartFile> imageList = req.getImageList();
-    //String UPLOAD_DIR = "/home/stroller/images/product/"+product.getId()+"/";
-    String UPLOAD_DIR = "F:/stroller/image/product/"+product.getId()+"/";
+    String UPLOAD_DIR = "/home/stroller/images/product/"+product.getId()+"/";
+//    String UPLOAD_DIR = "F:/stroller/image/product/"+product.getId()+"/";
     int i=0;
     for (MultipartFile file : imageList) {
       ProductImageEntity imageEntity = ProductImageEntity.builder()
@@ -124,7 +124,7 @@ public class ProductService {
     // product 테이블 src => 첫번째 이미지로 저장
     ProductImageEntity imageEntity = productImageRepository.findFirstByProductId(product.getId());
     product.setImgSrc(imageEntity.getSrc());
-    product.setLink("/product/get/"+product.getId());
+    product.setLink("/product/"+product.getId());
     productRepository.save(product);
   }
 

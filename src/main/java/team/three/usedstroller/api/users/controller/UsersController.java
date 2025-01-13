@@ -1,5 +1,6 @@
 package team.three.usedstroller.api.users.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,9 +51,9 @@ public class UsersController {
 
   @PostMapping("/api/auth/kakao")
   @ResponseStatus(HttpStatus.CREATED)
-  public ResponseEntity<Boolean> kakaoLogin(@RequestBody LoginWrapperDto loginResult) {
+  public ResponseEntity<Boolean> kakaoLogin(@RequestBody LoginWrapperDto loginResult, HttpServletResponse response) {
     System.out.println("loginResult = " + loginResult.getLoginResult());
-    accountService.loginByKakao(loginResult);
+    accountService.loginOrSignUp(loginResult,response);
     return ResponseEntity.ok().body(true);
   }
 
