@@ -9,7 +9,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import team.three.usedstroller.api.common.dto.ResponseDto;
+import team.three.usedstroller.api.error.ApiErrorCode;
+import team.three.usedstroller.api.error.ApiException;
+import team.three.usedstroller.api.error.CustomException;
+
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -82,5 +89,24 @@ public class ProductLogAop {
     }
     log.info("======================================================================================");
     return result;
+  }
+
+  @AfterThrowing(pointcut = "execution(public * team.three.usedstroller.api.product.controller..*(..))", throwing = "exception")
+  public void afterThrowing(JoinPoint joinPoint, Throwable exception) {
+    ResponseEntity<?> responseEntity;
+    if (exception instanceof CustomException customException) { // CustomException
+      log.info("Handled RuntimeException in Aspect: " + exception.getMessage());
+      responseEntity = ResponseDto.toResponseEntity(customException.getApiErrorCode());
+    }else if (exception instanceof ApiException apiException) { // apiException
+      responseEntity = ResponseDto.toResponseEntity(apiException.getError());
+    } else {
+      responseEntity = ResponseDto.toResponseEntity(ApiErrorCode.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR");
+    }
+    try {
+      log.info("### RES : " + objectMapper.writeValueAsString(responseEntity.getBody()));
+    } catch (JsonProcessingException e) {
+      log.error("Exception", e);
+    }
+    log.info("======================================================================================");
   }
 }

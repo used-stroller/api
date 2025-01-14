@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import team.three.usedstroller.api.common.dto.ResponseDto;
 import team.three.usedstroller.api.users.dto.AccountDto;
 import team.three.usedstroller.api.users.dto.LoginWrapperDto;
+import team.three.usedstroller.api.users.dto.ResponseLoginDto;
 import team.three.usedstroller.api.users.dto.ResultDto;
 import team.three.usedstroller.api.users.service.AccountService;
 
@@ -32,12 +35,10 @@ public class UsersController {
   }
 
   @GetMapping("/mypage")
-  @ResponseStatus(HttpStatus.OK)
-  public ResponseEntity<AccountDto> mypage() {
+  public ResponseEntity<ResponseDto<AccountDto>> mypage() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String email = (String) authentication.getPrincipal();
-    AccountDto accountDto = accountService.getAccountByEmail(email);
-    return ResponseEntity.ok().body(accountDto);
+    Long accountId = (Long) authentication.getPrincipal();
+    return ResponseDto.toResponseEntity(accountService.getMyPage(accountId));
   }
 
   @PostMapping("/mypage/update")
@@ -51,10 +52,9 @@ public class UsersController {
 
   @PostMapping("/api/auth/kakao")
   @ResponseStatus(HttpStatus.CREATED)
-  public ResponseEntity<Boolean> kakaoLogin(@RequestBody LoginWrapperDto loginResult, HttpServletResponse response) {
+  public ResponseEntity<ResponseDto<ResponseLoginDto>> kakaoLogin(@RequestBody LoginWrapperDto loginResult, HttpServletResponse response) {
     System.out.println("loginResult = " + loginResult.getLoginResult());
-    accountService.loginOrSignUp(loginResult,response);
-    return ResponseEntity.ok().body(true);
+    return ResponseDto.toResponseEntity(accountService.loginOrSignUp(loginResult,response));
   }
 
 }

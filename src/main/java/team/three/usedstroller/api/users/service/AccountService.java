@@ -6,12 +6,18 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import team.three.usedstroller.api.common.jwt.JwtTokenProvider;
+import team.three.usedstroller.api.error.ApiErrorCode;
+import team.three.usedstroller.api.error.ApiException;
 import team.three.usedstroller.api.users.domain.Account;
 import team.three.usedstroller.api.users.dto.AccountDto;
 import team.three.usedstroller.api.users.dto.LoginWrapperDto;
@@ -62,27 +68,39 @@ public class AccountService {
     account.changeAddress(accountDto.getAddress());
   }
 
-  public void loginOrSignUp(LoginWrapperDto loginResult, HttpServletResponse response) {
-    // 기존회원 리다이렉트
+  public ResponseLoginDto loginOrSignUp(LoginWrapperDto loginResult, HttpServletResponse response) {
+    // 1. 회원가입(신규)
     String kakaoId = loginResult.getLoginResult().getUser().getKakaoId();
     if(!accountRepository.existsAccountByKakaoId(kakaoId)) {
       saveNewUserInfo(loginResult, kakaoId);
     }
 
-    Optional<Account> accountEntity = accountRepository.findByKakaoId(kakaoId);
+    // 2. Authentication 객체 저장
+    Account accountEntity = accountRepository.findByKakaoId(kakaoId).orElseThrow(
+        () -> new ApiException(ApiErrorCode.MEMBER_NOT_FOUND)
+    );
+    Authentication authentication = new UsernamePasswordAuthenticationToken(
+        accountEntity.getId(),
+        null,
+        AuthorityUtils.createAuthorityList("ROLE_USER")
+    );
+    SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    // 토큰 생성
-    ResponseLoginTokenDto responseLoginTokenDto = jwtTokenProvider.generateTokenDto(accountEntity.get());
+    // 3. 토큰 생성(신규&기존)
+    ResponseLoginTokenDto responseLoginTokenDto = jwtTokenProvider.generateTokenDto(accountEntity);
 
+    // 4. 토큰 응답(쿠키 set)
     Cookie cookie = new Cookie("jwt", responseLoginTokenDto.getAccessToken());
     cookie.setHttpOnly(true);
     cookie.setPath("/");
     cookie.setMaxAge(60*60); // 1시간
-
     response.addCookie(cookie);
 
     return ResponseLoginDto.builder()
-
+        .responseLoginToken(responseLoginTokenDto)
+        .kakaoId(accountEntity.getKakaoId())
+        .image(accountEntity.getImage())
+        .name(accountEntity.getName())
         .build();
   }
 
@@ -96,4 +114,7 @@ public class AccountService {
         .build();
     accountRepository.save(newAccount);
   }
+
+  // public ApiErrorCode getMyPage(Long accountId) {
+  // }
 }

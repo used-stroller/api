@@ -4,12 +4,14 @@ import static team.three.usedstroller.api.common.jwt.EndPointConf.NOT_JWT_AUTH_E
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -99,10 +101,10 @@ public class SecurityConfig {
   public PasswordEncoder passwordEncoder() {
     return PasswordEncoderFactories.createDelegatingPasswordEncoder();
   }
-//
-//  @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
-//  public void reissueToken() {
-//    refreshTokenRepository.deleteAllExpiredToken(new Date(System.currentTimeMillis()));
-//    log.info("만료된 RefreshToken 모두 삭제 완료");
-//  }
+
+ @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
+ public void reissueToken() {
+   refreshTokenRepository.deleteAllExpiredToken(new Date(System.currentTimeMillis()));
+   log.info("만료된 RefreshToken 모두 삭제 완료");
+ }
 }

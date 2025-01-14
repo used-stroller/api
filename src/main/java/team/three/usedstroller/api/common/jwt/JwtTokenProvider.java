@@ -32,8 +32,8 @@ import team.three.usedstroller.api.users.dto.ResponseLoginTokenDto;
 @Component
 public class JwtTokenProvider {
   private static final String AUTHORITIES_KEY = "auth";
-  public static final String MEMBER_KEY  = "memberId";
-  public static final String MEMBER_IDX  = "IDX";
+  public static final String MEMBER_ID  = "memberId";
+  public static final String KAKAO_ID  = "IDX";
   public static final String MEMBER_NAME = "NAME";
 
   private static final String BEARER_TYPE = "Bearer";
@@ -55,8 +55,8 @@ public class JwtTokenProvider {
     // Access Token 생성
     Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
     String accessToken = Jwts.builder()
-        .claim(MEMBER_KEY     , account.getId())
-        .claim(MEMBER_IDX     , account.getKakaoId())
+        .claim(MEMBER_ID     , account.getId())
+        .claim(KAKAO_ID     , account.getKakaoId())
         .claim(MEMBER_NAME    , account.getName())
         .setExpiration(accessTokenExpiresIn)        // payload "exp": 1516239022 (예시)
         .signWith(key, SignatureAlgorithm.HS512)    // header  "alg": "HS512"
@@ -88,10 +88,10 @@ public class JwtTokenProvider {
     Collection<? extends GrantedAuthority> authorities = Stream.of(
             Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                 .map(SimpleGrantedAuthority::new),
-            Arrays.stream(claims.get(MEMBER_KEY).toString().split(","))
-                .map(key -> new SimpleGrantedAuthority(MEMBER_KEY + "=" + key)),
-            Arrays.stream(claims.get(MEMBER_IDX).toString().split(","))
-                .map(key -> new SimpleGrantedAuthority(MEMBER_IDX + "=" + key)),
+            Arrays.stream(claims.get(MEMBER_ID).toString().split(","))
+                .map(key -> new SimpleGrantedAuthority(MEMBER_ID + "=" + key)),
+            Arrays.stream(claims.get(KAKAO_ID).toString().split(","))
+                .map(key -> new SimpleGrantedAuthority(KAKAO_ID + "=" + key)),
             Arrays.stream(claims.get(MEMBER_NAME).toString().split(","))
                 .map(key -> new SimpleGrantedAuthority(MEMBER_NAME + "=" + key))
         ).flatMap(stream -> stream)
@@ -137,8 +137,8 @@ public class JwtTokenProvider {
       return null;
     }
     Map<String, Object> tokenData = new HashMap<>();
-    tokenData.put(MEMBER_KEY,  claims.get(MEMBER_KEY));
-    tokenData.put(MEMBER_IDX,  claims.get(MEMBER_IDX));
+    tokenData.put(MEMBER_ID,  claims.get(MEMBER_ID));
+    tokenData.put(KAKAO_ID,  claims.get(KAKAO_ID));
     tokenData.put(MEMBER_NAME, claims.get(MEMBER_NAME));
     return tokenData;
   }
