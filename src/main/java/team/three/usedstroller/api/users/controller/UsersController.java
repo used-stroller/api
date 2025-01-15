@@ -18,6 +18,7 @@ import team.three.usedstroller.api.users.dto.AccountDto;
 import team.three.usedstroller.api.users.dto.LoginWrapperDto;
 import team.three.usedstroller.api.users.dto.ResponseLoginDto;
 import team.three.usedstroller.api.users.dto.ResultDto;
+import team.three.usedstroller.api.users.dto.res.MyPageDto;
 import team.three.usedstroller.api.users.service.AccountService;
 
 @RestController
@@ -35,10 +36,8 @@ public class UsersController {
   }
 
   @GetMapping("/mypage")
-  public ResponseEntity<ResponseDto<AccountDto>> mypage() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    Long accountId = (Long) authentication.getPrincipal();
-    return ResponseDto.toResponseEntity(accountService.getMyPage(accountId));
+  public ResponseEntity<ResponseDto<MyPageDto>> mypage() {
+    return ResponseDto.toResponseEntity(accountService.getMyPage());
   }
 
   @PostMapping("/mypage/update")

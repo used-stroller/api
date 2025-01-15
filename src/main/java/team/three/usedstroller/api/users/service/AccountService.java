@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import team.three.usedstroller.api.common.jwt.JwtTokenProvider;
+import team.three.usedstroller.api.common.utils.SecurityUtil;
 import team.three.usedstroller.api.error.ApiErrorCode;
 import team.three.usedstroller.api.error.ApiException;
 import team.three.usedstroller.api.users.domain.Account;
@@ -25,7 +26,9 @@ import team.three.usedstroller.api.users.dto.LoginWrapperDto.LoginResultDto.User
 import team.three.usedstroller.api.users.dto.ResponseLoginDto;
 import team.three.usedstroller.api.users.dto.ResponseLoginTokenDto;
 import team.three.usedstroller.api.users.dto.ResultDto;
+import team.three.usedstroller.api.users.dto.res.MyPageDto;
 import team.three.usedstroller.api.users.repository.AccountRepository;
+import team.three.usedstroller.api.users.repository.CustomAccountRepository;
 
 @Service
 @Slf4j
@@ -35,6 +38,7 @@ public class AccountService {
   private final AccountRepository accountRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtTokenProvider jwtTokenProvider;
+  private final CustomAccountRepository customAccountRepository;
 
   @Transactional
   public ResultDto createUser(AccountDto accountDto) {
@@ -115,6 +119,23 @@ public class AccountService {
     accountRepository.save(newAccount);
   }
 
-  // public ApiErrorCode getMyPage(Long accountId) {
-  // }
+  public MyPageDto getMyPage() {
+
+    // 회원정보 조회
+    Long accountId = SecurityUtil.getAccountId();
+    Account account = accountRepository.findById(accountId).orElseThrow(() -> new ApiException(ApiErrorCode.MEMBER_NOT_FOUND));
+
+    // 관심상품 조회
+    customAccountRepository.
+
+    MyPageDto.builder()
+        .accountId(account.getId())
+        .name(account.getName())
+        .image(account.getImage())
+        .kakaoId(account.getKakaoId())
+        .favorites()
+        .sellingList()
+        .build();
+
+  }
 }

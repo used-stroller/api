@@ -1,7 +1,6 @@
 package team.three.usedstroller.api.product.repository;
-
-import static team.three.usedstroller.api.product.domain.QModel.model;
-import static team.three.usedstroller.api.product.domain.QProduct.product;
+import static team.three.usedstroller.api.product.domain.QModel.*;
+import static team.three.usedstroller.api.product.domain.QProduct.*;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
