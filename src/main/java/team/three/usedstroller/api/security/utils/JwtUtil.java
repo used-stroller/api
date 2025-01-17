@@ -1,19 +1,19 @@
-//package team.three.usedstroller.api.security.utils;
+// package team.three.usedstroller.api.security.utils;
 //
 //
-//import io.jsonwebtoken.JwtException;
-//import io.jsonwebtoken.Jwts;
-//import io.jsonwebtoken.security.Keys;
-//import jakarta.annotation.PostConstruct;
-//import java.nio.charset.StandardCharsets;
-//import java.util.Date;
-//import javax.crypto.SecretKey;
-//import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.stereotype.Component;
-//import team.three.usedstroller.api.users.dto.Authority;
+// import io.jsonwebtoken.JwtException;
+// import io.jsonwebtoken.Jwts;
+// import io.jsonwebtoken.security.Keys;
+// import jakarta.annotation.PostConstruct;
+// import java.nio.charset.StandardCharsets;
+// import java.util.Date;
+// import javax.crypto.SecretKey;
+// import org.springframework.beans.factory.annotation.Value;
+// import org.springframework.stereotype.Component;
+// import team.three.usedstroller.api.users.dto.Authority;
 //
-//@Component
-//public class JwtUtil {
+// @Component
+// public class JwtUtil {
 //
 //  @Value("${jwt.secret}")
 //  private String secret;
@@ -114,4 +114,4 @@
 //        .get(ROLE, String.class);
 //  }
 //
-//}
+// }
