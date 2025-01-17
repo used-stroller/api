@@ -50,6 +50,6 @@ apiNinjas:
 #웹훅테스트
 
 jwt:
-  secret: eyJzdWIiOiJqdW5nbW9jaGEiLCJhdXRoIjoidGVhbTMifQ
+  secret: VrGOz0YASc62/8N/lr1GkTfzG+npn/yAcq5iUkXyQ3UOsdVweA89FKATWaGgSxArj132iVW5QYC+241ZOIqrmw==
   access-expiration: 3600000 # 60분
   refresh-expiration: 604800000 # 7일

@@ -91,9 +91,11 @@ public class AccountService {
 
     // 4. 토큰 응답(쿠키 set)
     Cookie cookie = new Cookie("jwt", responseLoginTokenDto.getAccessToken());
-    cookie.setHttpOnly(true);
+    //cookie.setHttpOnly(true);
+    cookie.setDomain("localhost");
     cookie.setPath("/");
     cookie.setMaxAge(60*60); // 1시간
+    cookie.setSecure(false); // HTTPS 환경에서만 쿠기 추카
     response.addCookie(cookie);
 
     return ResponseLoginDto.builder()
