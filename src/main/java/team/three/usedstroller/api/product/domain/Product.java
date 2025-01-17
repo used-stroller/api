@@ -71,6 +71,7 @@ public class Product extends BaseTimeEntity {
 
 	private String buyStatus;
 	private int usePeriod;
+	@Column(name = "order_seq")
 	private int orderSeq;
 
 

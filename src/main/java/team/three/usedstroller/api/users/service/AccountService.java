@@ -2,7 +2,6 @@ package team.three.usedstroller.api.users.service;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -38,7 +37,6 @@ public class AccountService {
   private final AccountRepository accountRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtTokenProvider jwtTokenProvider;
-  private final CustomAccountRepository customAccountRepository;
 
   @Transactional
   public ResultDto createUser(AccountDto accountDto) {
@@ -128,16 +126,17 @@ public class AccountService {
     Account account = accountRepository.findById(accountId).orElseThrow(() -> new ApiException(ApiErrorCode.MEMBER_NOT_FOUND));
 
     // 관심상품 조회
-    customAccountRepository.
+//    customAccountRepositor.
 
     MyPageDto.builder()
         .accountId(account.getId())
         .name(account.getName())
         .image(account.getImage())
         .kakaoId(account.getKakaoId())
-        .favorites()
-        .sellingList()
+        .favorites(null)
+        .sellingList(null)
         .build();
 
+    return null;
   }
 }

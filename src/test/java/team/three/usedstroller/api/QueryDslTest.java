@@ -16,13 +16,16 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import team.three.usedstroller.api.common.config.QueryDslConfig;
+import team.three.usedstroller.api.product.domain.FavoriteEntity;
 import team.three.usedstroller.api.product.domain.Product;
 import team.three.usedstroller.api.product.domain.QProduct;
 import team.three.usedstroller.api.product.repository.ProductRepositoryImpl;
+import team.three.usedstroller.api.users.repository.AccountRepository;
+import team.three.usedstroller.api.users.repository.FavoriteRepository;
 
 @DataJpaTest
 @Import(QueryDslConfig.class)
-@ActiveProfiles("prod")
+@ActiveProfiles("local")
 @AutoConfigureTestDatabase(replace = Replace.NONE) //실제 DB연결 해주는 설정, default가 내장형 DB
 class QueryDslTest {
 
@@ -30,6 +33,11 @@ class QueryDslTest {
   JPAQueryFactory query;
   @Autowired
   ProductRepositoryImpl productRepository;
+  @Autowired
+  AccountRepository accountRepository;
+
+  @Autowired
+  FavoriteRepository favoriteRepository;
 
   @Test
   void findById() {
@@ -98,6 +106,24 @@ class QueryDslTest {
         .fetch();
     for (Product fetch1 : result) {
       System.out.println("fetch1 = " + fetch1);
+    }
+  }
+
+  @Test
+  void getFavorite() {
+    List<Product> favorites = accountRepository.getFavorites(3L);
+    for (Product favorite : favorites) {
+      System.out.println("favorite.toString() = " + favorite);
+      
+    }
+  }
+
+  @Test
+  void selectAll() {
+    List<FavoriteEntity> all = favoriteRepository.findAll();
+    for (FavoriteEntity favoriteEntity : all) {
+      System.out.println("favoriteEntity = " + favoriteEntity);
+      
     }
   }
 
