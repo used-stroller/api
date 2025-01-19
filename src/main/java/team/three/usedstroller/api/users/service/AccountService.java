@@ -125,10 +125,10 @@ public class AccountService {
     Long accountId = SecurityUtil.getAccountId();
     Account account = accountRepository.findById(accountId).orElseThrow(() -> new ApiException(ApiErrorCode.MEMBER_NOT_FOUND));
 
-    // 관심상품 조회
+    // 관심상품 조회 todo
 //    customAccountRepositor.
 
-    MyPageDto.builder()
+    return MyPageDto.builder()
         .accountId(account.getId())
         .name(account.getName())
         .image(account.getImage())
@@ -136,7 +136,5 @@ public class AccountService {
         .favorites(null)
         .sellingList(null)
         .build();
-
-    return null;
   }
 }

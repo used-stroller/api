@@ -80,14 +80,8 @@ public class JwtTokenProvider {
     // 토큰 복호화
     Claims claims = parseClaims(accessToken);
 
-    if (claims.get(AUTHORITIES_KEY) == null) {
-      throw new RuntimeException("권한 정보가 없는 토큰입니다.");
-    }
-
     // 클레임에서 권한 정보 가져오기
     Collection<? extends GrantedAuthority> authorities = Stream.of(
-            Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-                .map(SimpleGrantedAuthority::new),
             Arrays.stream(claims.get(MEMBER_ID).toString().split(","))
                 .map(key -> new SimpleGrantedAuthority(MEMBER_ID + "=" + key)),
             Arrays.stream(claims.get(KAKAO_ID).toString().split(","))
@@ -96,10 +90,12 @@ public class JwtTokenProvider {
                 .map(key -> new SimpleGrantedAuthority(MEMBER_NAME + "=" + key))
         ).flatMap(stream -> stream)
         .collect(Collectors.toList());
+    String memberId = authorities.stream().filter(auth -> auth.getAuthority().startsWith(MEMBER_ID + "="))
+            .map(auth -> auth.getAuthority().substring(MEMBER_ID.length() +1))
+                .findFirst().orElse("defalutUser");
 
     // UserDetails 객체를 만들어서 Authentication 리턴
-    UserDetails principal = new User(claims.getSubject(), "", authorities);
-
+    UserDetails principal = new User(memberId, "", authorities);
     return new UsernamePasswordAuthenticationToken(principal, "", authorities);
   }
 

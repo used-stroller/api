@@ -41,18 +41,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
     // 인증제외 endpoint permitall 되었어도 토큰 유효하면 setAuth 처리
     String jwt = resolveToken(request);
+    log.info("jwt={}",jwt);
 
     if (jwt != null && jwtTokenProvider.validateToken(jwt)) {
       Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
       SecurityContextHolder.getContext().setAuthentication(authentication);
     }
-
     // permitAll 경우 인증 처리 없이 요청을 다음 필터로 넘기고 끝
     if (permitAll) {
       filterChain.doFilter(request, response);
       return;
     }
 
+    log.info("jwt필터통과");
     // 나머지 경우 필터 체인 실행 (인증 필요 endpoint)
     filterChain.doFilter(request, response);
   }
