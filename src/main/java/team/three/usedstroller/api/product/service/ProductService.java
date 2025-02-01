@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import team.three.usedstroller.api.common.utils.ImageUploader;
+import team.three.usedstroller.api.error.ApiErrorCode;
+import team.three.usedstroller.api.error.ApiException;
 import team.three.usedstroller.api.product.domain.ProductImageEntity;
 import team.three.usedstroller.api.product.domain.Product;
 import team.three.usedstroller.api.product.domain.ProductOption;
@@ -68,6 +70,7 @@ public class ProductService {
         .title(e.get().getTitle())
         .buyStatus(e.get().getBuyStatus())
         .imageList(images)
+        .usePeriod(e.get().getUsePeriod())
         .content(e.get().getContent())
         .build();
   }
@@ -79,7 +82,7 @@ public class ProductService {
   }
 
   private List<ImageDto> getImages(Long id) {
-    List<ProductImageEntity> imageListEntities = productImageRepository.findByProductId(id);
+    List<ProductImageEntity> imageListEntities = productImageRepository.findByProductIdAndIsDeleted(id,'N');
     List<ImageDto> images = imageListEntities.stream()
         .map(entity -> new ImageDto(entity.getId().toString(),entity.getSrc(),String.valueOf(entity.getOrderSeq())))
         .collect(Collectors.toList());
@@ -126,6 +129,11 @@ public class ProductService {
     product.setImgSrc(imageEntity.getSrc());
     product.setLink("/product/"+product.getId());
     productRepository.save(product);
+
+
+    // option 테이블 저장
+
+
   }
 
   public void modify(List<MultipartFile> newImages, String existringImages, Set deletedImages, String newImageData, Long productId) {
@@ -169,5 +177,67 @@ public class ProductService {
       log.error("parsing 에러 : {}" , e.getMessage());
     }
     return imagesDto;
+  }
+
+  @Transactional
+  public void modifyProduct(ProductUploadReq req) {
+    Product product = productRepository.findById(req.getId()).orElseThrow(
+        ()-> new ApiException(ApiErrorCode.PRODUCT_NOT_FOUND)
+    );
+        product.setTitle(req.getTitle());
+        product.setPrice(req.getPrice());
+        product.setContent(req.getContent());
+        product.setBuyStatus(req.getBuyStatus());
+        product.setUsePeriod(req.getUsePeriod());
+
+    // image 테이블 저장
+    List<MultipartFile> imageList = req.getImageList();
+    String UPLOAD_DIR = "/home/stroller/images/product/"+product.getId()+"/";
+//    String UPLOAD_DIR = "F:/stroller/image/product/"+product.getId()+"/";
+    Integer lastSeq = productImageRepository.findMaxOrderSeqByProductId(req.getId());
+    if(imageList !=null) {
+      for (MultipartFile file : imageList) {
+        if(file.isEmpty()){
+          continue;
+        }
+        ProductImageEntity imageEntity = ProductImageEntity.builder()
+            .src(imageUploader.uploadFile(file,UPLOAD_DIR))
+            .isDeleted('N')
+            .orderSeq(++lastSeq)
+            .product(product)
+            .build();
+        productImageRepository.save(imageEntity);
+      }
+    }
+
+    // product 테이블 src => 첫번째 이미지로 저장
+    ProductImageEntity imageEntity = productImageRepository.findFirstByProductId(product.getId());
+    product.setImgSrc(imageEntity.getSrc());
+    product.setLink("/product/"+product.getId());
+    productRepository.save(product);
+
+    // 이미지 삭제
+    if (req.getDeleted() != null && !req.getDeleted().isEmpty()) {
+      for (Integer id : req.getDeleted()) {
+        ProductImageEntity productImg = productImageRepository.findById(Long.valueOf(id))
+            .orElseThrow(
+                () -> new ApiException(ApiErrorCode.PRODUCT_NOT_FOUND)
+            );
+        productImg.setIsDeleted('Y');
+      }
+    }
+
+    // option 테이블 저장
+    productOptionRepository.deleteByProductId(req.getId());
+    if (req.getOptions() != null && !req.getOptions().isEmpty()) {
+      for (Integer option : req.getOptions()) {
+        productOptionRepository.save(
+            ProductOption.builder()
+                .product(product)
+                .optionId(Long.valueOf(option))
+                .build()
+        );
+      }
+    }
   }
 }

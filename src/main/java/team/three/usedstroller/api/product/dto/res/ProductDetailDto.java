@@ -17,7 +17,7 @@ public class ProductDetailDto {
   private String region;
   private String title;
   private String buyStatus;
-  private Long usePeriod;
+  private int usePeriod;
   private List<ImageDto> imageList;
   private List<Long> options;
 }

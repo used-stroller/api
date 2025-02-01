@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,8 +44,8 @@ public class ProductController {
   }
 
   @Operation(summary = "상품 상세 데이터")
-  @GetMapping("/get")
-  public ProductDetailDto getProductDetail(Long id) {
+  @GetMapping("/get/{id}")
+  public ProductDetailDto getProductDetail(@PathVariable("id") Long id) {
     return productService.getProductDetail(id);
   }
 
@@ -74,7 +76,7 @@ public class ProductController {
       ,@RequestParam("price") String price
       ,@RequestParam("content") String content
       ,@RequestParam("buyStatus") String buyStatus
-      ,@RequestParam(value = "options",required = false) List<String> options
+      ,@RequestParam(value = "options",required = false) List<Integer> options
       ,@RequestParam("usePeriod") String usePeriod
       //,@RequestParam("address") String address
       //,@RequestParam("region") String region  => 주소 api 적용 후 나중에 추가
@@ -92,6 +94,35 @@ public class ProductController {
     productService.registerProduct(req);
   }
 
+  @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+  @PostMapping(value="/modify", consumes = {"multipart/form-data"})
+  public void modifyProduct(
+       @RequestPart(value = "imageList",required = false) List<MultipartFile> imageList
+      ,@RequestParam("id") Long id
+      ,@RequestParam("title") String title
+      ,@RequestParam("price") String price
+      ,@RequestParam("content") String content
+      ,@RequestParam("buyStatus") String buyStatus
+      ,@RequestParam(value = "options",required = false) List<Integer> options
+      ,@RequestParam("usePeriod") String usePeriod
+      ,@RequestParam(value = "deleted",required =false) List<Integer> deleted
+      //,@RequestParam("address") String address
+      //,@RequestParam("region") String region  => 주소 api 적용 후 나중에 추가
+  ){
+    ProductUploadReq req = ProductUploadReq.builder()
+        .id(id)
+        .title(title)
+        .price(Long.valueOf(price))
+        .content(content)
+        .buyStatus(buyStatus)
+        .options(options)
+        .usePeriod(Integer.parseInt(usePeriod))
+        .imageList(imageList)
+        .deleted(deleted)
+        .build();
+
+    productService.modifyProduct(req);
+  }
 
   @Operation(summary = "상품 수정")
   @PostMapping(value = "/file/multipartFile/modify",consumes = {"multipart/form-data"})

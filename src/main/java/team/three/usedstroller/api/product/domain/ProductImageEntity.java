@@ -13,11 +13,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import team.three.usedstroller.api.common.domain.BaseTimeEntity;
 
 @Entity
 @Getter
+@Setter
 @ToString
 @NoArgsConstructor
 @Builder
