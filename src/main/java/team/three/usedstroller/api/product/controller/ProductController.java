@@ -124,6 +124,16 @@ public class ProductController {
     productService.modifyProduct(req);
   }
 
+  @PostMapping(value = "/favorite/add")
+  public void addFavoriteProduct(Long productId) {
+    productService.addFavoriteProdruct(productId);
+  }
+
+  @PostMapping(value = "/favorite/delete")
+  public void deleteFavoriteProduct(Long productId) {
+    productService.deleteFavoriteProduct(productId);
+  }
+
   @Operation(summary = "상품 수정")
   @PostMapping(value = "/file/multipartFile/modify",consumes = {"multipart/form-data"})
   public void multipartFileUpload(
