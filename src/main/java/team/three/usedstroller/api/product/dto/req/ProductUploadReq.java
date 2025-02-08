@@ -1,8 +1,10 @@
 package team.three.usedstroller.api.product.dto.req;
 
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -53,9 +55,9 @@ public class ProductUploadReq implements Serializable {
   //private String address;
   //private String region;
   private String buyStatus;
-  private List<Integer> options;
+  private List<Integer> options = new ArrayList<>();
   private List<Integer> deleted;
   private int usePeriod;
   private int order;
-  private List<MultipartFile> imageList;
+  private List<MultipartFile> imageList = new ArrayList<>();;
 }

@@ -90,7 +90,7 @@ public class ProductService {
   }
 
   @Transactional
-  public void registerProduct(ProductUploadReq req) {
+  public Long registerProduct(ProductUploadReq req) {
 
     // 상품 저장
     Product product = Product.builder()
@@ -105,23 +105,24 @@ public class ProductService {
         .address("")
         .etc("")
         .region("")
+        .isDeleted('N')
         .build();
     productRepository.save(product);
 
 
     // image 테이블 저장
     List<MultipartFile> imageList = req.getImageList();
-    String UPLOAD_DIR = "/home/stroller/images/product/"+product.getId()+"/";
-//    String UPLOAD_DIR = "F:/stroller/image/product/"+product.getId()+"/";
-    int i=0;
-    for (MultipartFile file : imageList) {
-      ProductImageEntity imageEntity = ProductImageEntity.builder()
-          .src(imageUploader.uploadFile(file,UPLOAD_DIR))
-          .isDeleted('N')
-          .orderSeq(i++)
-          .product(product)
-          .build();
-      productImageRepository.save(imageEntity);
+        String UPLOAD_DIR = "/home/stroller/images/product/"+product.getId()+"/";
+  //    String UPLOAD_DIR = "F:/stroller/image/product/"+product.getId()+"/";
+        int i=0;
+        for (MultipartFile file : imageList) {
+          ProductImageEntity imageEntity = ProductImageEntity.builder()
+              .src(imageUploader.uploadFile(file,UPLOAD_DIR))
+              .isDeleted('N')
+              .orderSeq(i++)
+              .product(product)
+              .build();
+          productImageRepository.save(imageEntity);
     }
 
     // product 테이블 src => 첫번째 이미지로 저장
@@ -132,8 +133,17 @@ public class ProductService {
 
 
     // option 테이블 저장
-
-
+    if (req.getOptions() != null && !req.getOptions().isEmpty()) {
+      for (Integer option : req.getOptions()) {
+        productOptionRepository.save(
+            ProductOption.builder()
+                .product(product)
+                .optionId(Long.valueOf(option))
+                .build()
+        );
+      }
+    }
+    return product.getId();
   }
 
   public void modify(List<MultipartFile> newImages, String existringImages, Set deletedImages, String newImageData, Long productId) {
@@ -239,5 +249,13 @@ public class ProductService {
         );
       }
     }
+  }
+
+  @Transactional
+  public void deleteProduct(Long id) {
+    Product product = productRepository.findById(id).orElseThrow(
+        () -> new ApiException(ApiErrorCode.PRODUCT_NOT_FOUND)
+    );
+    product.setIsDeleted('Y');
   }
 }

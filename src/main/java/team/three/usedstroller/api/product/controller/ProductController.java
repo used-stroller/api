@@ -1,10 +1,17 @@
 package team.three.usedstroller.api.product.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -69,10 +76,10 @@ public class ProductController {
     commonService.downloadImage(filter);
   }
 
-  @PostMapping(value="/register", consumes = {"multipart/form-data"})
-  public void registerProduct(
+  @PostMapping(value="/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<?> registerProduct(
        @RequestPart(value = "imageList",required = false) List<MultipartFile> imageList
-      ,@RequestParam("title") String title
+      ,@RequestParam("title") @NotBlank(message = "제목을 입력해주세요.") String title
       ,@RequestParam("price") String price
       ,@RequestParam("content") String content
       ,@RequestParam("buyStatus") String buyStatus
@@ -91,11 +98,10 @@ public class ProductController {
         .imageList(imageList)
         .build();
 
-    productService.registerProduct(req);
+    return ResponseEntity.ok().body(productService.registerProduct(req));
   }
 
-  @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
-  @PostMapping(value="/modify", consumes = {"multipart/form-data"})
+  @PostMapping(value="/modify", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public void modifyProduct(
        @RequestPart(value = "imageList",required = false) List<MultipartFile> imageList
       ,@RequestParam("id") Long id
@@ -122,6 +128,11 @@ public class ProductController {
         .build();
 
     productService.modifyProduct(req);
+  }
+
+  @PostMapping("/delete")
+  public void deleteProduct(@RequestParam("id") Long id) {
+    productService.deleteProduct(id);
   }
 
   @Operation(summary = "상품 수정")

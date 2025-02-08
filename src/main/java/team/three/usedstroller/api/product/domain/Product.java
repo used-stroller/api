@@ -79,4 +79,5 @@ public class Product extends BaseTimeEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "account_id")
 	private Account account;
+	private char isDeleted;
 }
