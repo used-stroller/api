@@ -11,3 +11,9 @@ spring:
     redis:
       host: localhost
       port: 6379
+
+logging:
+  level:
+    ROOT: info
+    org.springframework.jdbc: debug
+    org.springframework.security: debug

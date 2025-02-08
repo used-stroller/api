@@ -130,9 +130,19 @@ public class ProductController {
     productService.modifyProduct(req);
   }
 
+
   @PostMapping("/delete")
   public void deleteProduct(@RequestParam("id") Long id) {
     productService.deleteProduct(id);
+  }
+  @PostMapping(value = "/favorite/add")
+  public void addFavoriteProduct(Long productId) {
+    productService.addFavoriteProdruct(productId);
+  }
+
+  @PostMapping(value = "/favorite/delete")
+  public void deleteFavoriteProduct(Long productId) {
+    productService.deleteFavoriteProduct(productId);
   }
 
   @Operation(summary = "상품 수정")

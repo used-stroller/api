@@ -18,8 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import team.three.usedstroller.api.common.utils.ImageUploader;
+import team.three.usedstroller.api.common.utils.SecurityUtil;
 import team.three.usedstroller.api.error.ApiErrorCode;
 import team.three.usedstroller.api.error.ApiException;
+import team.three.usedstroller.api.product.domain.FavoriteEntity;
 import team.three.usedstroller.api.product.domain.ProductImageEntity;
 import team.three.usedstroller.api.product.domain.Product;
 import team.three.usedstroller.api.product.domain.ProductOption;
@@ -33,6 +35,7 @@ import team.three.usedstroller.api.product.dto.res.ProductDetailDto;
 import team.three.usedstroller.api.product.repository.ProductImageRepository;
 import team.three.usedstroller.api.product.repository.ProductOptionRepository;
 import team.three.usedstroller.api.product.repository.ProductRepository;
+import team.three.usedstroller.api.users.repository.FavoriteRepository;
 
 @Service
 @Slf4j
@@ -44,6 +47,7 @@ public class ProductService {
   private final ImageUploader imageUploader;
   private final ProductImageRepository productImageRepository;
   private final ProductOptionRepository productOptionRepository;
+  private final FavoriteRepository favoriteRepository;
 
 //  @Cacheable(value = "products",
 //      key = "{#filter, #pageable}",
@@ -57,9 +61,11 @@ public class ProductService {
   }
 
   public ProductDetailDto getProductDetail(Long id) {
+
     Optional<Product> e = productRepository.findById(id);
     List<Long> options = getOptions(id);
     List<ImageDto> images = getImages(id);
+    boolean favorite = favoriteRepository.findByProductIdAndAccountId(e.get().getId(), SecurityUtil.getAccountId()).isPresent();
 
     return ProductDetailDto.builder()
         .createdAt(e.get().getCreatedAt())
@@ -257,5 +263,20 @@ public class ProductService {
         () -> new ApiException(ApiErrorCode.PRODUCT_NOT_FOUND)
     );
     product.setIsDeleted('Y');
+  }
+
+  public void addFavoriteProdruct(Long productId) {
+    Long memberId = SecurityUtil.getAccountId();
+    favoriteRepository.save(
+        FavoriteEntity.builder()
+            .productId(productId)
+            .accountId(memberId)
+            .build());
+  }
+
+  @Transactional
+  public void deleteFavoriteProduct(Long productId) {
+    Long memberId = SecurityUtil.getAccountId();
+    favoriteRepository.deleteByProductIdAndAccountId(productId,memberId);
   }
 }

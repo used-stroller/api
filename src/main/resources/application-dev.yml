@@ -1,0 +1,17 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    #    url: jdbc:h2:mem:testdb
+    #    username: sa
+    #    password:
+    #    driver-class-name: org.h2.Driver
+    url: jdbc:postgresql://192.168.200.112:5432/
+    username: postgres
+    password: stroller3jo
+    driver-class-name: org.postgresql.Driver
+
+logging:
+  level:
+    ROOT: info
