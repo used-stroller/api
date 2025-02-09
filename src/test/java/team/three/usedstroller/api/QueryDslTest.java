@@ -8,6 +8,7 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -125,6 +126,12 @@ class QueryDslTest {
       System.out.println("favoriteEntity = " + favoriteEntity);
       
     }
+  }
+
+  @Test
+  void isExist() {
+    boolean present = favoriteRepository.findByProductIdAndAccountId(29916L, 3L).isPresent();
+    System.out.println("present = " + present);
   }
 
 

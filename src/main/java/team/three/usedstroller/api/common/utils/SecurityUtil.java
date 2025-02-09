@@ -9,8 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 public class SecurityUtil {
 	public static Long getAccountId() {
-		final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-		return Long.parseLong(userDetails.getUsername());
+		return AuthContextStore.getUserContext("accountId");
 	}
 }

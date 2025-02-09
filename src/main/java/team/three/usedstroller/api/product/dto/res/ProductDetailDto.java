@@ -20,5 +20,6 @@ public class ProductDetailDto {
   private int usePeriod;
   private List<ImageDto> imageList;
   private List<Long> options;
+//  private boolean favorite;
 }
 

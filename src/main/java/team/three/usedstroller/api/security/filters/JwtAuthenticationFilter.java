@@ -5,16 +5,21 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import team.three.usedstroller.api.common.jwt.EndPointConf;
 import team.three.usedstroller.api.common.jwt.JwtTokenProvider;
+import team.three.usedstroller.api.common.utils.AuthContextStore;
+import team.three.usedstroller.api.common.utils.SecurityUtil;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -46,6 +51,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     if (jwt != null && jwtTokenProvider.validateToken(jwt)) {
       Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
       SecurityContextHolder.getContext().setAuthentication(authentication);
+      Long accountId = this.getAccountId();
+      AuthContextStore.setUserContext("accountId",accountId);
     }
     // permitAll 경우 인증 처리 없이 요청을 다음 필터로 넘기고 끝
     if (permitAll) {
@@ -65,5 +72,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return bearerToken.substring(BEARER_PREFIX.length());
     }
     return null;
+  }
+
+  public Long getAccountId() {
+    final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    return Long.parseLong(userDetails.getUsername());
   }
 }
