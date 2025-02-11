@@ -35,7 +35,9 @@ import team.three.usedstroller.api.product.dto.res.ProductDetailDto;
 import team.three.usedstroller.api.product.repository.ProductImageRepository;
 import team.three.usedstroller.api.product.repository.ProductOptionRepository;
 import team.three.usedstroller.api.product.repository.ProductRepository;
+import team.three.usedstroller.api.users.dto.res.MyPageDto;
 import team.three.usedstroller.api.users.repository.FavoriteRepository;
+import team.three.usedstroller.api.users.service.AccountService;
 
 @Service
 @Slf4j
@@ -48,8 +50,9 @@ public class ProductService {
   private final ProductImageRepository productImageRepository;
   private final ProductOptionRepository productOptionRepository;
   private final FavoriteRepository favoriteRepository;
+  private final AccountService accountService;
 
-//  @Cacheable(value = "products",
+  //  @Cacheable(value = "products",
 //      key = "{#filter, #pageable}",
 //      unless = "#result == null")
   public RestPage<ProductRes> getProducts(FilterReq filter, Pageable pageable) {
@@ -66,6 +69,7 @@ public class ProductService {
     List<Long> options = getOptions(id);
     List<ImageDto> images = getImages(id);
     boolean favorite = favoriteRepository.findByProductIdAndAccountId(e.get().getId(), SecurityUtil.getAccountId()).isPresent();
+    MyPageDto myPageDto = accountService.getMyPage();
 
     return ProductDetailDto.builder()
         .createdAt(e.get().getCreatedAt())
@@ -78,6 +82,8 @@ public class ProductService {
         .imageList(images)
         .usePeriod(e.get().getUsePeriod())
         .content(e.get().getContent())
+        .favorite(favorite)
+        .myPageDto(myPageDto)
         .build();
   }
 

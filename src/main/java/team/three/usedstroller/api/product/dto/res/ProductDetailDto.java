@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Data;
 import team.three.usedstroller.api.product.dto.ImageDto;
+import team.three.usedstroller.api.users.dto.res.MyPageDto;
 
 @Data
 @Builder
@@ -20,6 +21,7 @@ public class ProductDetailDto {
   private int usePeriod;
   private List<ImageDto> imageList;
   private List<Long> options;
-//  private boolean favorite;
+  private boolean favorite;
+  private MyPageDto myPageDto;
 }
 
