@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,7 +37,9 @@ import team.three.usedstroller.api.product.dto.res.ProductDetailDto;
 import team.three.usedstroller.api.product.repository.ProductImageRepository;
 import team.three.usedstroller.api.product.repository.ProductOptionRepository;
 import team.three.usedstroller.api.product.repository.ProductRepository;
+import team.three.usedstroller.api.users.domain.Account;
 import team.three.usedstroller.api.users.dto.res.MyPageDto;
+import team.three.usedstroller.api.users.repository.AccountRepository;
 import team.three.usedstroller.api.users.repository.FavoriteRepository;
 import team.three.usedstroller.api.users.service.AccountService;
 
@@ -50,7 +54,7 @@ public class ProductService {
   private final ProductImageRepository productImageRepository;
   private final ProductOptionRepository productOptionRepository;
   private final FavoriteRepository favoriteRepository;
-  private final AccountService accountService;
+  private final AccountRepository accountRepository;
 
   //  @Cacheable(value = "products",
 //      key = "{#filter, #pageable}",
@@ -68,9 +72,10 @@ public class ProductService {
     Optional<Product> e = productRepository.findById(id);
     List<Long> options = getOptions(id);
     List<ImageDto> images = getImages(id);
-    boolean favorite = favoriteRepository.findByProductIdAndAccountId(e.get().getId(), SecurityUtil.getAccountId()).isPresent();
-    MyPageDto myPageDto = accountService.getMyPage();
+    log.info("Before getAccountId: {}", SecurityContextHolder.getContext().getAuthentication());
 
+    Account account = e.get().getAccount();
+//    boolean favorite = favoriteRepository.findByProductIdAndAccountId(e.get().getId(),SecurityUtil.getAccountId()).isPresent();
     return ProductDetailDto.builder()
         .createdAt(e.get().getCreatedAt())
         .updatedAt(e.get().getUpdatedAt())
@@ -82,8 +87,12 @@ public class ProductService {
         .imageList(images)
         .usePeriod(e.get().getUsePeriod())
         .content(e.get().getContent())
-        .favorite(favorite)
-        .myPageDto(myPageDto)
+        .myPageDto(MyPageDto.builder()
+            .accountId(account.getId())
+            .image(account.getImage())
+            .name(account.getName())
+            .build())
+//        .favorite(favorite)
         .build();
   }
 
