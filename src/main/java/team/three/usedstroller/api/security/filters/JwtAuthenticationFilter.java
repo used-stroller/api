@@ -2,6 +2,7 @@ package team.three.usedstroller.api.security.filters;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -46,8 +47,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     log.info("jwt={}",jwt);
 
     if (jwt != null && jwtTokenProvider.validateToken(jwt)) {
-      Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
-      SecurityContextHolder.getContext().setAuthentication(authentication);
+        Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        log.info("authentication 설정됨={}",authentication);
     }
     // permitAll 경우 인증 처리 없이 요청을 다음 필터로 넘기고 끝
     if (permitAll) {
@@ -58,6 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     log.info("jwt필터통과");
     // 나머지 경우 필터 체인 실행 (인증 필요 endpoint)
     filterChain.doFilter(request, response);
+    log.info("🔄 필터 실행 후 SecurityContext: {}", SecurityContextHolder.getContext().getAuthentication());
   }
 
   // Request Header 에서 토큰 정보를 꺼내오기
@@ -66,6 +69,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
       return bearerToken.substring(BEARER_PREFIX.length());
     }
+
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+      for (Cookie cookie : cookies) {
+        if (cookie.getName().equals("jwt")) {
+          return cookie.getValue();
+        }
+      }
+    }
+
     return null;
   }
 }

@@ -9,11 +9,14 @@ import java.util.List;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,16 +70,19 @@ public class ProductService {
     return new RestPage<>(productRepository.getRecommendProductList(filterReq, pageable));
   }
 
-  public ProductDetailDto getProductDetail(Long id) {
+  @Async("securityAsyncExecutor")  // @Async에서 지정한 Executor 사용
+  public CompletableFuture<ProductDetailDto> getProductDetail(Long id, Authentication authentication) {
+    log.info("getDetail함수 실행됨");
 
     Optional<Product> e = productRepository.findById(id);
     List<Long> options = getOptions(id);
     List<ImageDto> images = getImages(id);
-    log.info("Before getAccountId: {}", SecurityContextHolder.getContext().getAuthentication());
+
+    log.info("Before getAccountId: {}", authentication);
 
     Account account = e.get().getAccount();
-//    boolean favorite = favoriteRepository.findByProductIdAndAccountId(e.get().getId(),SecurityUtil.getAccountId()).isPresent();
-    return ProductDetailDto.builder()
+
+    ProductDetailDto productDetailDto = ProductDetailDto.builder()
         .createdAt(e.get().getCreatedAt())
         .updatedAt(e.get().getUpdatedAt())
         .region(e.get().getRegion())
@@ -92,9 +98,39 @@ public class ProductService {
             .image(account.getImage())
             .name(account.getName())
             .build())
-//        .favorite(favorite)
         .build();
+
+    return CompletableFuture.completedFuture(productDetailDto);
   }
+//  public ProductDetailDto getProductDetail(Long id) {
+//    log.info("getDetail함수 실행됨");
+//
+//    Optional<Product> e = productRepository.findById(id);
+//    List<Long> options = getOptions(id);
+//    List<ImageDto> images = getImages(id);
+//    log.info("Before getAccountId: {}", SecurityContextHolder.getContext().getAuthentication());
+//
+//    Account account = e.get().getAccount();
+////    boolean favorite = favoriteRepository.findByProductIdAndAccountId(e.get().getId(),SecurityUtil.getAccountId()).isPresent();
+//    return ProductDetailDto.builder()
+//        .createdAt(e.get().getCreatedAt())
+//        .updatedAt(e.get().getUpdatedAt())
+//        .region(e.get().getRegion())
+//        .options(options)
+//        .price(e.get().getPrice())
+//        .title(e.get().getTitle())
+//        .buyStatus(e.get().getBuyStatus())
+//        .imageList(images)
+//        .usePeriod(e.get().getUsePeriod())
+//        .content(e.get().getContent())
+//        .myPageDto(MyPageDto.builder()
+//            .accountId(account.getId())
+//            .image(account.getImage())
+//            .name(account.getName())
+//            .build())
+////        .favorite(favorite)
+//        .build();
+//  }
 
   private List<Long> getOptions(Long id) {
     List<ProductOption> optionEntities = productOptionRepository.findByProductId(id);

@@ -5,14 +5,12 @@ import jakarta.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,8 +50,10 @@ public class ProductController {
 
   @Operation(summary = "상품 상세 데이터")
   @GetMapping("/get/{id}")
-  public ProductDetailDto getProductDetail(@PathVariable("id") Long id) {
-    return productService.getProductDetail(id);
+  public CompletableFuture<ProductDetailDto> getProductDetail(@PathVariable("id") Long id) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    System.out.println("authentication = " + authentication);
+    return productService.getProductDetail(id,authentication);
   }
 
   /**

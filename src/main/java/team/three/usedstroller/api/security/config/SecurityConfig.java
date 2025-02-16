@@ -57,6 +57,8 @@ public class SecurityConfig {
   public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
     http
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .securityContext(context -> context.requireExplicitSave(true)) // SecurityContext 명시적 저장 설정
+        .anonymous(AbstractHttpConfigurer::disable) // 익명 인증 비활성화, AnonymousAuthenticationFilter가 익명사용자로 덮어씌움 
         .csrf(AbstractHttpConfigurer::disable)
         .httpBasic(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable)
