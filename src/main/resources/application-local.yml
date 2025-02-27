@@ -11,6 +11,9 @@ spring:
     redis:
       host: localhost
       port: 6379
+    mongodb:
+      uri: mongodb://localhost:27017/chatdb
+    #      uri: mongodb://username:password@your-mongo-host:27017/chatdb 원격서버의 경우
 
 logging:
   level:
