@@ -60,7 +60,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     log.info("jwt필터통과");
     // 나머지 경우 필터 체인 실행 (인증 필요 endpoint)
     filterChain.doFilter(request, response);
-    log.info("🔄 필터 실행 후 SecurityContext: {}", SecurityContextHolder.getContext().getAuthentication());
   }
 
   // Request Header 에서 토큰 정보를 꺼내오기

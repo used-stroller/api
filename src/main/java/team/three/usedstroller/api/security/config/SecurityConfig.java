@@ -50,7 +50,7 @@ public class SecurityConfig {
    */
   @Bean
   public WebSecurityCustomizer webSecurityCustomizer() {
-    return webSecurity -> webSecurity.ignoring().requestMatchers("/product/**","/image/**");
+    return webSecurity -> webSecurity.ignoring().requestMatchers("/image/**");
   }
 
   @Bean
@@ -63,7 +63,7 @@ public class SecurityConfig {
         .httpBasic(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(requests -> requests
-            .requestMatchers("/login", "/user/signup", "/reissue","/user/api/auth/kakao","/error").permitAll()
+            .requestMatchers("product/list/**","product/get/**","/login", "/user/signup", "/reissue","/user/api/auth/kakao","/error").permitAll()
             .anyRequest().authenticated()
         )
         .exceptionHandling(exceptions -> exceptions

@@ -2,6 +2,7 @@ package team.three.usedstroller.api.product.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.security.Security;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
@@ -49,7 +51,6 @@ import team.three.usedstroller.api.users.service.AccountService;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ProductService {
 
   private final ProductRepository productRepository;
@@ -58,6 +59,9 @@ public class ProductService {
   private final ProductOptionRepository productOptionRepository;
   private final FavoriteRepository favoriteRepository;
   private final AccountRepository accountRepository;
+
+  @Value("${file.upload-dir}")
+  private String basicPath;
 
   //  @Cacheable(value = "products",
 //      key = "{#filter, #pageable}",
@@ -70,49 +74,20 @@ public class ProductService {
     return new RestPage<>(productRepository.getRecommendProductList(filterReq, pageable));
   }
 
-  @Async("securityAsyncExecutor")  // @Async에서 지정한 Executor 사용
-  public CompletableFuture<ProductDetailDto> getProductDetail(Long id, Authentication authentication) {
-    log.info("getDetail함수 실행됨");
-
-    Optional<Product> e = productRepository.findById(id);
-    List<Long> options = getOptions(id);
-    List<ImageDto> images = getImages(id);
-
-    log.info("Before getAccountId: {}", authentication);
-
-    Account account = e.get().getAccount();
-
-    ProductDetailDto productDetailDto = ProductDetailDto.builder()
-        .createdAt(e.get().getCreatedAt())
-        .updatedAt(e.get().getUpdatedAt())
-        .region(e.get().getRegion())
-        .options(options)
-        .price(e.get().getPrice())
-        .title(e.get().getTitle())
-        .buyStatus(e.get().getBuyStatus())
-        .imageList(images)
-        .usePeriod(e.get().getUsePeriod())
-        .content(e.get().getContent())
-        .myPageDto(MyPageDto.builder()
-            .accountId(account.getId())
-            .image(account.getImage())
-            .name(account.getName())
-            .build())
-        .build();
-
-    return CompletableFuture.completedFuture(productDetailDto);
-  }
-//  public ProductDetailDto getProductDetail(Long id) {
+//  @Async("securityAsyncExecutor")  // @Async에서 지정한 Executor 사용
+//  public CompletableFuture<ProductDetailDto> getProductDetail(Long id, Authentication authentication) {
 //    log.info("getDetail함수 실행됨");
 //
 //    Optional<Product> e = productRepository.findById(id);
 //    List<Long> options = getOptions(id);
 //    List<ImageDto> images = getImages(id);
-//    log.info("Before getAccountId: {}", SecurityContextHolder.getContext().getAuthentication());
+//
+//    log.info("Before getAccountId: {}", authentication);
 //
 //    Account account = e.get().getAccount();
-////    boolean favorite = favoriteRepository.findByProductIdAndAccountId(e.get().getId(),SecurityUtil.getAccountId()).isPresent();
-//    return ProductDetailDto.builder()
+//    boolean favorite = favoriteRepository.findByProductIdAndAccountId(e.get().getId(),SecurityUtil.getAccountId()).isPresent();
+//
+//    ProductDetailDto productDetailDto = ProductDetailDto.builder()
 //        .createdAt(e.get().getCreatedAt())
 //        .updatedAt(e.get().getUpdatedAt())
 //        .region(e.get().getRegion())
@@ -128,9 +103,42 @@ public class ProductService {
 //            .image(account.getImage())
 //            .name(account.getName())
 //            .build())
-////        .favorite(favorite)
 //        .build();
+//
+//    return CompletableFuture.completedFuture(productDetailDto);
 //  }
+  public ProductDetailDto getProductDetail(Long id) {
+    boolean favorite = false;
+    Optional<Product> e = productRepository.findById(id);
+    List<Long> options = getOptions(id);
+    List<ImageDto> images = getImages(id);
+    // 로그인 한 유저
+    boolean login = SecurityContextHolder.getContext().getAuthentication() == null ? false : true;
+    if (login) {
+     favorite = favoriteRepository.findByProductIdAndAccountId(e.get().getId(),SecurityUtil.getAccountId()).isPresent();
+    }
+
+    Account account = e.get().getAccount();
+    return ProductDetailDto.builder()
+        .id(e.get().getId())
+        .createdAt(e.get().getCreatedAt())
+        .updatedAt(e.get().getUpdatedAt())
+        .region(e.get().getRegion())
+        .options(options)
+        .price(e.get().getPrice())
+        .title(e.get().getTitle())
+        .buyStatus(e.get().getBuyStatus())
+        .imageList(images)
+        .usePeriod(e.get().getUsePeriod())
+        .content(e.get().getContent())
+        .myPageDto(MyPageDto.builder()
+            .accountId(account.getId())
+            .image(account.getImage())
+            .name(account.getName())
+            .build())
+        .favorite(favorite)
+        .build();
+  }
 
   private List<Long> getOptions(Long id) {
     List<ProductOption> optionEntities = productOptionRepository.findByProductId(id);
@@ -148,7 +156,8 @@ public class ProductService {
 
   @Transactional
   public Long registerProduct(ProductUploadReq req) {
-
+    Long accountId = SecurityUtil.getAccountId();
+    Optional<Account> account = accountRepository.findById(accountId);
     // 상품 저장
     Product product = Product.builder()
         .sourceType(SourceType.JUNGMOCHA)
@@ -163,14 +172,14 @@ public class ProductService {
         .etc("")
         .region("")
         .isDeleted('N')
+        .account(account.get())
         .build();
     productRepository.save(product);
 
 
     // image 테이블 저장
     List<MultipartFile> imageList = req.getImageList();
-        String UPLOAD_DIR = "/home/stroller/images/product/"+product.getId()+"/";
-  //    String UPLOAD_DIR = "F:/stroller/image/product/"+product.getId()+"/";
+       String UPLOAD_DIR =basicPath +product.getId()+"/";
         int i=0;
         for (MultipartFile file : imageList) {
           ProductImageEntity imageEntity = ProductImageEntity.builder()
@@ -203,36 +212,6 @@ public class ProductService {
     return product.getId();
   }
 
-  public void modify(List<MultipartFile> newImages, String existringImages, Set deletedImages, String newImageData, Long productId) {
-
-    List<ImageDto> existingDto = parseToImageDto(existringImages);
-    List<ImageDto> newImageDataDto = parseToImageDto(newImageData);
-    existingDto = existingDto.stream().filter(image -> !deletedImages.contains(image.getId())).collect(
-        Collectors.toList());
-    Product product = productRepository.findById(productId).orElse(null);
-
-    //String UPLOAD_DIR = "/home/stroller/images/product/"+product.getId()+"/";
-    String UPLOAD_DIR = "F:/stroller/image/product/"+productId+"/";
-    // 각 새 이미지와 메타 데이터 매핑
-    for (int i = 0; i<newImages.size(); i++) {
-      MultipartFile file = newImages.get(i);
-      imageUploader.uploadFile(file,UPLOAD_DIR);
-      productImageRepository.save(ProductImageEntity.builder()
-              .orderSeq(Integer.parseInt(newImageDataDto.get(i).getOrderSeq()))
-              .src(newImageDataDto.get(i).getSrc())
-              .product(product)
-          .build());
-
-      // 기존 이미지 인덱스 업데이트
-
-
-      // 삭제된 이미지 처리
-
-
-      // product save()
-    }
-  }
-
   private List<ImageDto> parseToImageDto (String str) {
     ObjectMapper objectMapper = new ObjectMapper();
     List<ImageDto> imagesDto = new ArrayList<>();
@@ -251,6 +230,14 @@ public class ProductService {
     Product product = productRepository.findById(req.getId()).orElseThrow(
         ()-> new ApiException(ApiErrorCode.PRODUCT_NOT_FOUND)
     );
+
+    // 유저와 상품소유주 다르면 Exception
+    Long ownerId = product.getAccount().getId();
+    Long userId = SecurityUtil.getAccountId();
+    if(ownerId != userId) {
+      throw new ApiException(ApiErrorCode.NOT_PRODUCT_OWNER);
+    }
+
         product.setTitle(req.getTitle());
         product.setPrice(req.getPrice());
         product.setContent(req.getContent());
@@ -259,8 +246,7 @@ public class ProductService {
 
     // image 테이블 저장
     List<MultipartFile> imageList = req.getImageList();
-    String UPLOAD_DIR = "/home/stroller/images/product/"+product.getId()+"/";
-//    String UPLOAD_DIR = "F:/stroller/image/product/"+product.getId()+"/";
+    String UPLOAD_DIR = basicPath+product.getId()+"/";
     Integer lastSeq = productImageRepository.findMaxOrderSeqByProductId(req.getId());
     if(imageList !=null) {
       for (MultipartFile file : imageList) {
@@ -316,7 +302,8 @@ public class ProductService {
     product.setIsDeleted('Y');
   }
 
-  public void addFavoriteProdruct(Long productId) {
+  @Transactional
+  public void addFavoriteProduct(Long productId) {
     Long memberId = SecurityUtil.getAccountId();
     favoriteRepository.save(
         FavoriteEntity.builder()
@@ -330,4 +317,33 @@ public class ProductService {
     Long memberId = SecurityUtil.getAccountId();
     favoriteRepository.deleteByProductIdAndAccountId(productId,memberId);
   }
+
+
+//  public void modify(List<MultipartFile> newImages, String existringImages, Set deletedImages, String newImageData, Long productId) {
+//
+//    List<ImageDto> existingDto = parseToImageDto(existringImages);
+//    List<ImageDto> newImageDataDto = parseToImageDto(newImageData);
+//    existingDto = existingDto.stream().filter(image -> !deletedImages.contains(image.getId())).collect(
+//        Collectors.toList());
+//    Product product = productRepository.findById(productId).orElse(null);
+//    String UPLOAD_DIR = basicPath+productId+"/";
+//    // 각 새 이미지와 메타 데이터 매핑
+//    for (int i = 0; i<newImages.size(); i++) {
+//      MultipartFile file = newImages.get(i);
+//      imageUploader.uploadFile(file,UPLOAD_DIR);
+//      productImageRepository.save(ProductImageEntity.builder()
+//          .orderSeq(Integer.parseInt(newImageDataDto.get(i).getOrderSeq()))
+//          .src(newImageDataDto.get(i).getSrc())
+//          .product(product)
+//          .build());
+//
+//      // 기존 이미지 인덱스 업데이트
+//
+//
+//      // 삭제된 이미지 처리
+//
+//
+//      // product save()
+//    }
+//  }
 }

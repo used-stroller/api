@@ -15,6 +15,7 @@ public enum ApiErrorCode {
   INVALID_REQUEST             (HttpStatus.BAD_REQUEST,  "E40003" , "잘못된 요청입니다."),
   MEMBER_NOT_FOUND            (HttpStatus.BAD_REQUEST,  "E40050" , "존재하지 않은 회원입니다."),
   PRODUCT_NOT_FOUND            (HttpStatus.BAD_REQUEST,  "E40051" , "상품정보가 없습니다."),
+  NOT_PRODUCT_OWNER            (HttpStatus.BAD_REQUEST,  "E40052" , "상품소유주가 아닙니다."),
 
   // 401 UNAUTHORIZED
   INVALID_TOKEN               (HttpStatus.UNAUTHORIZED, "E40100" , "토큰이 유효하지 않습니다."),

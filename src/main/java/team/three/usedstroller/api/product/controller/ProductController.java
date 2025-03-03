@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -50,10 +52,8 @@ public class ProductController {
 
   @Operation(summary = "상품 상세 데이터")
   @GetMapping("/get/{id}")
-  public CompletableFuture<ProductDetailDto> getProductDetail(@PathVariable("id") Long id) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    System.out.println("authentication = " + authentication);
-    return productService.getProductDetail(id,authentication);
+  public ProductDetailDto getProductDetail(@PathVariable("id") Long id) {
+    return productService.getProductDetail(id);
   }
 
   /**
@@ -136,25 +136,25 @@ public class ProductController {
     productService.deleteProduct(id);
   }
   @PostMapping(value = "/favorite/add")
-  public void addFavoriteProduct(Long productId) {
-    productService.addFavoriteProdruct(productId);
+  public void addFavoriteProduct(@RequestBody Map<String, Long> request) {
+    productService.addFavoriteProduct(request.get("productId"));
   }
 
   @PostMapping(value = "/favorite/delete")
-  public void deleteFavoriteProduct(Long productId) {
-    productService.deleteFavoriteProduct(productId);
+  public void deleteFavoriteProduct(@RequestBody Map<String, Long> request) {
+    productService.deleteFavoriteProduct(request.get("productId"));
   }
 
-  @Operation(summary = "상품 수정")
-  @PostMapping(value = "/file/multipartFile/modify",consumes = {"multipart/form-data"})
-  public void multipartFileUpload(
-      @RequestPart(value = "newImages",required = false) List<MultipartFile> newImages, // 새로 input 된 파일
-      @RequestParam(value = "newImageData",required = false) String newImageData, // input된 이미지의 index 정보
-      @RequestParam("existingImages") String existingImages, // DB에 있었던 이미지
-      @RequestParam(value = "deletedImages",required = false) Set deletedImages, // 삭제된 image id 값
-      @RequestParam(value = "productId") Long productId
-  ) {
-    productService.modify(newImages,existingImages,deletedImages,newImageData,productId);
-  }
+//  @Operation(summary = "상품 수정")
+//  @PostMapping(value = "/file/multipartFile/modify",consumes = {"multipart/form-data"})
+//  public void multipartFileUpload(
+//      @RequestPart(value = "newImages",required = false) List<MultipartFile> newImages, // 새로 input 된 파일
+//      @RequestParam(value = "newImageData",required = false) String newImageData, // input된 이미지의 index 정보
+//      @RequestParam("existingImages") String existingImages, // DB에 있었던 이미지
+//      @RequestParam(value = "deletedImages",required = false) Set deletedImages, // 삭제된 image id 값
+//      @RequestParam(value = "productId") Long productId
+//  ) {
+//    productService.modify(newImages,existingImages,deletedImages,newImageData,productId);
+//  }
 
 }

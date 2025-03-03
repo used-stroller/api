@@ -20,3 +20,6 @@ logging:
     ROOT: info
     org.springframework.jdbc: debug
     org.springframework.security: debug
+
+file:
+  upload-dir: F:\\stroller\\image\\product\\
