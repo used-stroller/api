@@ -1,0 +1,132 @@
+### 상품목록
+GET {{host}}/product/list
+Content-Type: application/json; charset=utf-8
+
+### 상품상세 조회
+GET {{host}}/product/get/4
+Content-Type: application/json; charset=utf-8
+
+### 이미지 테스트
+GET {{host}}/image/1bc9f07a-e4ca-40f0-a267-98f5215a39f1_KakaoTalk_20241018_222333026_08.jpg
+Content-Type: application/json; charset=utf-8
+
+### 추천목록
+GET {{host}}/product/list/recommend
+Content-Type: application/json; charset=utf-8
+
+### 상품등록
+POST {{host}}/product/register
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="title"
+제목입니당
+
+--boundary
+Content-Disposition: form-data; name="price"
+2000
+
+--boundary
+Content-Disposition: form-data; name="content"
+본문내용
+
+--boundary
+Content-Disposition: form-data; name="buyStatus"
+1
+
+#--boundary
+#Content-Disposition: form-data; name="options"
+#[]
+
+--boundary
+Content-Disposition: form-data; name="usePeriod"
+1
+
+--boundary
+Content-Disposition: form-data; name="imageList"; filename="image-1.jpg";
+Content-Type: image/gif
+
+< C:/random_image/unsamples/image-1.jpg
+
+--boundary
+Content-Disposition: form-data; name="imageList"; filename="image-2.jpg"
+Content-Type: image/jpeg
+
+< C:/random_image/unsamples/image-2.jpg
+--boundary--
+
+### multiImage 업로드
+POST {{host}}/file/multipartFile/modify
+Content-Type: multipart/form-data; boundary=boundary
+Authorization: Bearer {{accessToken}}
+
+--boundary
+Content-Disposition: form-data; name="existingImages"
+
+  {
+    "id": "610",
+    "orderSeq": 0
+  },
+  {
+    "id": "612",
+    "orderSeq": 2
+  }
+
+--boundary
+Content-Disposition: form-data; name="deletedImages"
+
+"611", "613"
+
+--boundary
+Content-Disposition: form-data; name="newImageData"
+
+{"index":1,"filename":"image-1.jpg"},{"index":3,"filename":"image-2.jpg"}
+
+--boundary
+Content-Disposition: form-data; name="newImages"; filename="image-1.jpg";
+Content-Type: image/gif
+
+< C:/random_image/unsamples/image-1.jpg
+
+--boundary
+Content-Disposition: form-data; name="newImages"; filename="image-2.jpg"
+Content-Type: image/jpeg
+
+< C:/random_image/unsamples/image-2.jpg
+--boundary--
+
+### 상품상태변경
+POST {{host}}/product/change/status
+Content-Type: application/json; charset=utf-8
+
+{
+"id" : 4,
+"statusType" : "Reserved"
+}
+
+### 상품상태변경
+POST {{host}}/product/favorite/add
+Content-Type: application/json; charset=utf-8
+
+{
+  "productId" : 4
+}
+
+### 상품상태변경
+POST {{host}}/product/favorite/delete
+Content-Type: application/json; charset=utf-8
+
+{
+  "productId" : 4
+}
+
+#### 케어톡 - 01. 진단신청 시작 - [신규추가]
+#POST {{host}}/api/care/diagnosis/client/v1/welcome
+#Content-Type: application/json; charset=utf-8
+#Authorization: Bearer {{accessToken}}
+#
+#{
+#  "diagnosisId": "{{diagnosisId}}",
+#  "inputDate"  : "20240430",
+#  "inputTime"  : "AM"
+#}

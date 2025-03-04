@@ -22,10 +22,12 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import okhttp3.Response;
 import team.three.usedstroller.api.product.dto.FilterReq;
 import team.three.usedstroller.api.product.dto.PageRequest;
 import team.three.usedstroller.api.product.dto.ProductRes;
 import team.three.usedstroller.api.product.dto.RestPage;
+import team.three.usedstroller.api.product.dto.req.ChangeStatusReq;
 import team.three.usedstroller.api.product.dto.req.ProductUploadReq;
 import team.three.usedstroller.api.product.dto.res.ProductDetailDto;
 import team.three.usedstroller.api.product.service.CommonService;
@@ -144,6 +146,18 @@ public class ProductController {
   public void deleteFavoriteProduct(@RequestBody Map<String, Long> request) {
     productService.deleteFavoriteProduct(request.get("productId"));
   }
+
+  @PostMapping(value = "/change/status")
+  public ResponseEntity<?> changeProductStatus(@RequestBody ChangeStatusReq request) {
+    productService.changeStatus(request);
+    return ResponseEntity.ok().build();
+  }
+
+
+
+
+
+
 
 //  @Operation(summary = "상품 수정")
 //  @PostMapping(value = "/file/multipartFile/modify",consumes = {"multipart/form-data"})

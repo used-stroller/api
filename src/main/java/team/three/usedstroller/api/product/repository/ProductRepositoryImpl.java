@@ -20,20 +20,24 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import team.three.usedstroller.api.product.domain.Product;
+import team.three.usedstroller.api.product.domain.QProduct;
 import team.three.usedstroller.api.product.domain.SourceType;
 import team.three.usedstroller.api.product.dto.FilterReq;
 import team.three.usedstroller.api.product.dto.ProductRes;
-
+import team.three.usedstroller.api.users.domain.QAccount;
 
 @Repository
 @RequiredArgsConstructor
 public class ProductRepositoryImpl implements CustomProductRepository {
 
   private final JPAQueryFactory query;
+  private final QProduct product = QProduct.product;
+  private final QAccount account = QAccount.account;
 
   @Override
   public Page<ProductRes> getProducts(FilterReq filter, Pageable pageable) {
@@ -116,6 +120,23 @@ public class ProductRepositoryImpl implements CustomProductRepository {
           .map(ProductRes::of)
           .toList();
     return new PageImpl<>(products, pageable, totalCount);
+  }
+
+  @Override
+  public List<Product> getProductListByAccountId(long accountId) {
+	  return query.select(product)
+        .from(product)
+        .leftJoin(product.account,account).fetchJoin()
+        .where(product.account.id.eq(accountId))
+        .fetch();
+  }
+
+  @Override
+  public List<Product> findAllById(List<Long> ids) {
+    return query.selectFrom(product)
+        .leftJoin(product.account, account).fetchJoin()
+        .where(product.id.in(ids))
+        .fetch();
   }
 
   /**

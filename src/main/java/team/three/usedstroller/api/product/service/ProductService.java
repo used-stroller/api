@@ -37,6 +37,7 @@ import team.three.usedstroller.api.product.dto.FilterReq;
 import team.three.usedstroller.api.product.dto.ImageDto;
 import team.three.usedstroller.api.product.dto.ProductRes;
 import team.three.usedstroller.api.product.dto.RestPage;
+import team.three.usedstroller.api.product.dto.req.ChangeStatusReq;
 import team.three.usedstroller.api.product.dto.req.ProductUploadReq;
 import team.three.usedstroller.api.product.dto.res.ProductDetailDto;
 import team.three.usedstroller.api.product.repository.ProductImageRepository;
@@ -51,6 +52,7 @@ import team.three.usedstroller.api.users.service.AccountService;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class ProductService {
 
   private final ProductRepository productRepository;
@@ -63,9 +65,6 @@ public class ProductService {
   @Value("${file.upload-dir}")
   private String basicPath;
 
-  //  @Cacheable(value = "products",
-//      key = "{#filter, #pageable}",
-//      unless = "#result == null")
   public RestPage<ProductRes> getProducts(FilterReq filter, Pageable pageable) {
     return new RestPage<>(productRepository.getProducts(filter, pageable));
   }
@@ -74,39 +73,6 @@ public class ProductService {
     return new RestPage<>(productRepository.getRecommendProductList(filterReq, pageable));
   }
 
-//  @Async("securityAsyncExecutor")  // @Async에서 지정한 Executor 사용
-//  public CompletableFuture<ProductDetailDto> getProductDetail(Long id, Authentication authentication) {
-//    log.info("getDetail함수 실행됨");
-//
-//    Optional<Product> e = productRepository.findById(id);
-//    List<Long> options = getOptions(id);
-//    List<ImageDto> images = getImages(id);
-//
-//    log.info("Before getAccountId: {}", authentication);
-//
-//    Account account = e.get().getAccount();
-//    boolean favorite = favoriteRepository.findByProductIdAndAccountId(e.get().getId(),SecurityUtil.getAccountId()).isPresent();
-//
-//    ProductDetailDto productDetailDto = ProductDetailDto.builder()
-//        .createdAt(e.get().getCreatedAt())
-//        .updatedAt(e.get().getUpdatedAt())
-//        .region(e.get().getRegion())
-//        .options(options)
-//        .price(e.get().getPrice())
-//        .title(e.get().getTitle())
-//        .buyStatus(e.get().getBuyStatus())
-//        .imageList(images)
-//        .usePeriod(e.get().getUsePeriod())
-//        .content(e.get().getContent())
-//        .myPageDto(MyPageDto.builder()
-//            .accountId(account.getId())
-//            .image(account.getImage())
-//            .name(account.getName())
-//            .build())
-//        .build();
-//
-//    return CompletableFuture.completedFuture(productDetailDto);
-//  }
   public ProductDetailDto getProductDetail(Long id) {
     boolean favorite = false;
     Optional<Product> e = productRepository.findById(id);
@@ -318,8 +284,13 @@ public class ProductService {
     favoriteRepository.deleteByProductIdAndAccountId(productId,memberId);
   }
 
+  @Transactional
+  public void changeStatus(ChangeStatusReq request) {
+    Product productEntity = productRepository.findById(request.getId()).orElseThrow(() -> new ApiException(ApiErrorCode.PRODUCT_NOT_FOUND));
+    productEntity.setStatus(request.getStatusType());
+  }
 
-//  public void modify(List<MultipartFile> newImages, String existringImages, Set deletedImages, String newImageData, Long productId) {
+  //  public void modify(List<MultipartFile> newImages, String existringImages, Set deletedImages, String newImageData, Long productId) {
 //
 //    List<ImageDto> existingDto = parseToImageDto(existringImages);
 //    List<ImageDto> newImageDataDto = parseToImageDto(newImageData);
@@ -346,4 +317,37 @@ public class ProductService {
 //      // product save()
 //    }
 //  }
+  //  @Async("securityAsyncExecutor")  // @Async에서 지정한 Executor 사용
+  //  public CompletableFuture<ProductDetailDto> getProductDetail(Long id, Authentication authentication) {
+  //    log.info("getDetail함수 실행됨");
+  //
+  //    Optional<Product> e = productRepository.findById(id);
+  //    List<Long> options = getOptions(id);
+  //    List<ImageDto> images = getImages(id);
+  //
+  //    log.info("Before getAccountId: {}", authentication);
+  //
+  //    Account account = e.get().getAccount();
+  //    boolean favorite = favoriteRepository.findByProductIdAndAccountId(e.get().getId(),SecurityUtil.getAccountId()).isPresent();
+  //
+  //    ProductDetailDto productDetailDto = ProductDetailDto.builder()
+  //        .createdAt(e.get().getCreatedAt())
+  //        .updatedAt(e.get().getUpdatedAt())
+  //        .region(e.get().getRegion())
+  //        .options(options)
+  //        .price(e.get().getPrice())
+  //        .title(e.get().getTitle())
+  //        .buyStatus(e.get().getBuyStatus())
+  //        .imageList(images)
+  //        .usePeriod(e.get().getUsePeriod())
+  //        .content(e.get().getContent())
+  //        .myPageDto(MyPageDto.builder()
+  //            .accountId(account.getId())
+  //            .image(account.getImage())
+  //            .name(account.getName())
+  //            .build())
+  //        .build();
+  //
+  //    return CompletableFuture.completedFuture(productDetailDto);
+  //  }
 }

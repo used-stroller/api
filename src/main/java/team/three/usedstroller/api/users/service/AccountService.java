@@ -1,5 +1,8 @@
 package team.three.usedstroller.api.users.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,9 @@ import team.three.usedstroller.api.common.jwt.JwtTokenProvider;
 import team.three.usedstroller.api.common.utils.SecurityUtil;
 import team.three.usedstroller.api.error.ApiErrorCode;
 import team.three.usedstroller.api.error.ApiException;
+import team.three.usedstroller.api.product.domain.FavoriteEntity;
+import team.three.usedstroller.api.product.domain.Product;
+import team.three.usedstroller.api.product.repository.ProductRepository;
 import team.three.usedstroller.api.users.domain.Account;
 import team.three.usedstroller.api.users.dto.AccountDto;
 import team.three.usedstroller.api.users.dto.LoginWrapperDto;
@@ -28,15 +34,19 @@ import team.three.usedstroller.api.users.dto.ResultDto;
 import team.three.usedstroller.api.users.dto.res.MyPageDto;
 import team.three.usedstroller.api.users.repository.AccountRepository;
 import team.three.usedstroller.api.users.repository.CustomAccountRepository;
+import team.three.usedstroller.api.users.repository.FavoriteRepository;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class AccountService {
 
   private final AccountRepository accountRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtTokenProvider jwtTokenProvider;
+  private final FavoriteRepository favoriteRepository;
+  private final ProductRepository productRepository;
 
   @Transactional
   public ResultDto createUser(AccountDto accountDto) {
@@ -119,22 +129,28 @@ public class AccountService {
     accountRepository.save(newAccount);
   }
 
+  @Transactional
   public MyPageDto getMyPage() {
 
     // 회원정보 조회
     Long accountId = SecurityUtil.getAccountId();
     Account account = accountRepository.findById(accountId).orElseThrow(() -> new ApiException(ApiErrorCode.MEMBER_NOT_FOUND));
 
-    // 관심상품 조회 todo
-//    customAccountRepositor.
+    // 관심상품 목록
+    List<FavoriteEntity> favorites = favoriteRepository.findByAccountId(accountId);
+    List<Long> ids = favorites.stream().map(FavoriteEntity::getProductId).toList();
+    List<Product> favoriteProducts = productRepository.findAllById(ids);
+    
+    // 판매상품 목록
+    List<Product> sellingProducts = productRepository.getProductListByAccountId(accountId);
 
     return MyPageDto.builder()
         .accountId(account.getId())
         .name(account.getName())
         .image(account.getImage())
         .kakaoId(account.getKakaoId())
-        .favorites(null)
-        .sellingList(null)
+        .favorites(favoriteProducts)
+        .sellingList(sellingProducts)
         .build();
   }
 }

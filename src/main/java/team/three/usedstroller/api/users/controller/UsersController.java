@@ -52,7 +52,6 @@ public class UsersController {
   @PostMapping("/api/auth/kakao")
   @ResponseStatus(HttpStatus.CREATED)
   public ResponseEntity<ResponseDto<ResponseLoginDto>> kakaoLogin(@RequestBody LoginWrapperDto loginResult, HttpServletResponse response) {
-    System.out.println("loginResult = " + loginResult.getLoginResult());
     return ResponseDto.toResponseEntity(accountService.loginOrSignUp(loginResult,response));
   }
 
