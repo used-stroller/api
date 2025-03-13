@@ -14,7 +14,7 @@ spring:
 
 logging:
   level:
-    ROOT: debug
+    ROOT: info
 
 file:
   upload-dir: /home/stroller/images/product/
