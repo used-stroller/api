@@ -25,4 +25,5 @@ public class FilterReq {
   private List<String> model;
   private List<String> brand;
   private String recommendYn;
+  private Integer orderSeq;
 }
