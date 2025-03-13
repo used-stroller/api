@@ -166,7 +166,7 @@ public class ProductService {
 
     // option 테이블 저장
     if (req.getOptions() != null && !req.getOptions().isEmpty()) {
-      for (Integer option : req.getOptions()) {
+      for (String option : req.getOptions()) {
         productOptionRepository.save(
             ProductOption.builder()
                 .product(product)
@@ -237,7 +237,7 @@ public class ProductService {
 
     // 이미지 삭제
     if (req.getDeleted() != null && !req.getDeleted().isEmpty()) {
-      for (Integer id : req.getDeleted()) {
+      for (String id : req.getDeleted()) {
         ProductImageEntity productImg = productImageRepository.findById(Long.valueOf(id))
             .orElseThrow(
                 () -> new ApiException(ApiErrorCode.PRODUCT_NOT_FOUND)
@@ -249,7 +249,7 @@ public class ProductService {
     // option 테이블 저장
     productOptionRepository.deleteByProductId(req.getId());
     if (req.getOptions() != null && !req.getOptions().isEmpty()) {
-      for (Integer option : req.getOptions()) {
+      for (String option : req.getOptions()) {
         productOptionRepository.save(
             ProductOption.builder()
                 .product(product)

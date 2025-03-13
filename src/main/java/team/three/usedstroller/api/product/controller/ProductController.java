@@ -85,7 +85,7 @@ public class ProductController {
       ,@RequestParam("price") String price
       ,@RequestParam("content") String content
       ,@RequestParam("buyStatus") String buyStatus
-      ,@RequestParam(value = "options",required = false) List<Integer> options
+      ,@RequestParam(value = "options",required = false) List<String> options
       ,@RequestParam("usePeriod") String usePeriod
       //,@RequestParam("address") String address
       //,@RequestParam("region") String region  => 주소 api 적용 후 나중에 추가
@@ -106,19 +106,19 @@ public class ProductController {
   @PostMapping(value="/modify", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public void modifyProduct(
        @RequestPart(value = "imageList",required = false) List<MultipartFile> imageList
-      ,@RequestParam("id") Long id
+      ,@RequestParam("id") String id
       ,@RequestParam("title") String title
       ,@RequestParam("price") String price
       ,@RequestParam("content") String content
       ,@RequestParam("buyStatus") String buyStatus
-      ,@RequestParam(value = "options",required = false) List<Integer> options
+      ,@RequestParam(value = "options",required = false) List<String> options
       ,@RequestParam("usePeriod") String usePeriod
-      ,@RequestParam(value = "deleted",required =false) List<Integer> deleted
+      ,@RequestParam(value = "deleted",required =false) List<String> deleted
       //,@RequestParam("address") String address
       //,@RequestParam("region") String region  => 주소 api 적용 후 나중에 추가
   ){
     ProductUploadReq req = ProductUploadReq.builder()
-        .id(id)
+        .id(Long.parseLong(id))
         .title(title)
         .price(Long.valueOf(price))
         .content(content)
