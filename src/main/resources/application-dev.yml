@@ -15,3 +15,7 @@ spring:
 logging:
   level:
     ROOT: info
+
+cookie:
+  domain:
+    host: localhost

@@ -23,5 +23,6 @@ public class ProductDetailDto {
   private List<Long> options;
   private boolean favorite;
   private MyPageDto myPageDto;
+  private Long sellerId;
 }
 

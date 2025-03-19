@@ -84,7 +84,7 @@ public class ProductService {
      favorite = favoriteRepository.findByProductIdAndAccountId(e.get().getId(),SecurityUtil.getAccountId()).isPresent();
     }
 
-    Account account = e.get().getAccount();
+    Optional<Account> account = accountRepository.findById(SecurityUtil.getAccountId());
     return ProductDetailDto.builder()
         .id(e.get().getId())
         .createdAt(e.get().getCreatedAt())
@@ -98,11 +98,12 @@ public class ProductService {
         .usePeriod(e.get().getUsePeriod())
         .content(e.get().getContent())
         .myPageDto(MyPageDto.builder()
-            .accountId(account.getId())
-            .image(account.getImage())
-            .name(account.getName())
+            .accountId(account.get().getId())
+            .image(account.get().getImage())
+            .name(account.get().getName())
             .build())
         .favorite(favorite)
+        .sellerId(e.get().getAccount().getId())
         .build();
   }
 

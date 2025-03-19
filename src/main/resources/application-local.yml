@@ -23,3 +23,7 @@ logging:
 
 file:
   upload-dir: F:\\stroller\\image\\product\\
+
+cookie:
+  domain:
+    host: localhost

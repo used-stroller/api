@@ -7,6 +7,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -47,6 +48,9 @@ public class AccountService {
   private final JwtTokenProvider jwtTokenProvider;
   private final FavoriteRepository favoriteRepository;
   private final ProductRepository productRepository;
+
+  @Value("${cookie.domain.host}")
+  String COOKIE_HOST;
 
   @Transactional
   public ResultDto createUser(AccountDto accountDto) {
@@ -104,7 +108,7 @@ public class AccountService {
     // 4. 토큰 응답(쿠키 set)
     Cookie cookie = new Cookie("jwt", responseLoginTokenDto.getAccessToken());
     //cookie.setHttpOnly(true);
-    cookie.setDomain("jungmocha.co.kr");
+    cookie.setDomain(COOKIE_HOST);
     cookie.setPath("/");
     cookie.setMaxAge(60*60); // 1시간
     cookie.setSecure(false); // HTTPS 환경에서만 쿠기 추카

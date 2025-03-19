@@ -18,3 +18,7 @@ logging:
 
 file:
   upload-dir: /home/stroller/images/product/
+
+cookie:
+  domain:
+    host: jungmocha.co.kr
