@@ -45,6 +45,7 @@ import team.three.usedstroller.api.product.repository.ProductOptionRepository;
 import team.three.usedstroller.api.product.repository.ProductRepository;
 import team.three.usedstroller.api.users.domain.Account;
 import team.three.usedstroller.api.users.dto.res.MyPageDto;
+import team.three.usedstroller.api.users.dto.res.SellerDto;
 import team.three.usedstroller.api.users.repository.AccountRepository;
 import team.three.usedstroller.api.users.repository.FavoriteRepository;
 import team.three.usedstroller.api.users.service.AccountService;
@@ -75,35 +76,45 @@ public class ProductService {
 
   public ProductDetailDto getProductDetail(Long id) {
     boolean favorite = false;
-    Optional<Product> e = productRepository.findById(id);
+    Optional<Product> product = productRepository.findById(id);
     List<Long> options = getOptions(id);
     List<ImageDto> images = getImages(id);
     // 로그인 한 유저
     boolean login = SecurityContextHolder.getContext().getAuthentication() == null ? false : true;
     if (login) {
-     favorite = favoriteRepository.findByProductIdAndAccountId(e.get().getId(),SecurityUtil.getAccountId()).isPresent();
+     favorite = favoriteRepository.findByProductIdAndAccountId(product.get().getId(),SecurityUtil.getAccountId()).isPresent();
     }
 
-    Optional<Account> account = accountRepository.findById(SecurityUtil.getAccountId());
+
+    Long sellerId = product.get().getAccount().getId();
+    Optional<Account> seller = accountRepository.findById(sellerId);
+    MyPageDto myPageDto = new MyPageDto();
+    // 접속자 정보
+    if(login) {
+      Optional<Account> account = accountRepository.findById(SecurityUtil.getAccountId());
+      myPageDto.setAccountId(account.get().getId());
+      myPageDto.setName(account.get().getName());
+    }
     return ProductDetailDto.builder()
-        .id(e.get().getId())
-        .createdAt(e.get().getCreatedAt())
-        .updatedAt(e.get().getUpdatedAt())
-        .region(e.get().getRegion())
+        .id(product.get().getId())
+        .createdAt(product.get().getCreatedAt())
+        .updatedAt(product.get().getUpdatedAt())
+        .region(product.get().getRegion())
         .options(options)
-        .price(e.get().getPrice())
-        .title(e.get().getTitle())
-        .buyStatus(e.get().getBuyStatus())
+        .price(product.get().getPrice())
+        .title(product.get().getTitle())
+        .buyStatus(product.get().getBuyStatus())
         .imageList(images)
-        .usePeriod(e.get().getUsePeriod())
-        .content(e.get().getContent())
-        .myPageDto(MyPageDto.builder()
-            .accountId(account.get().getId())
-            .image(account.get().getImage())
-            .name(account.get().getName())
+        .usePeriod(product.get().getUsePeriod())
+        .content(product.get().getContent())
+        .seller(SellerDto.builder()
+            .accountId(seller.get().getId())
+            .image(seller.get().getImage())
+            .name(seller.get().getName())
             .build())
+        .myPageDto(myPageDto)
         .favorite(favorite)
-        .sellerId(e.get().getAccount().getId())
+        .sellerId(product.get().getAccount().getId())
         .build();
   }
 

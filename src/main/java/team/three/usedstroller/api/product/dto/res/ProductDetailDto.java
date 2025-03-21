@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import team.three.usedstroller.api.product.dto.ImageDto;
 import team.three.usedstroller.api.users.dto.res.MyPageDto;
+import team.three.usedstroller.api.users.dto.res.SellerDto;
 
 @Data
 @Builder
@@ -23,6 +24,7 @@ public class ProductDetailDto {
   private List<Long> options;
   private boolean favorite;
   private MyPageDto myPageDto;
+  private SellerDto seller;
   private Long sellerId;
 }
 
