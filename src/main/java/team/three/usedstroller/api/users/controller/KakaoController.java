@@ -26,7 +26,7 @@ public class KakaoController {
 
   private final AccountService accountService;
 
-  @PostMapping("/api/auth/kakao")
+  @PostMapping("/api/backend/auth/kakao")
   @ResponseStatus(HttpStatus.CREATED)
   public ResponseEntity<ResponseDto<ResponseLoginDto>> kakaoLogin(@RequestBody LoginWrapperDto loginResult, HttpServletResponse response) {
     return ResponseDto.toResponseEntity(accountService.loginOrSignUp(loginResult,response));
