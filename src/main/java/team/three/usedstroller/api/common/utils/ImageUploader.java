@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ImageUploader {
 
   public String uploadFile(MultipartFile file,String filePath,Long productId) {
-    String src = "/image/prorduct/"+productId+"/";
+    String src = "/image/product/"+productId+"/";
     StringBuilder sb = new StringBuilder();
     Path path = Paths.get("");
     try {
