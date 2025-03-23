@@ -161,7 +161,7 @@ public class ProductService {
         int i=0;
         for (MultipartFile file : imageList) {
           ProductImageEntity imageEntity = ProductImageEntity.builder()
-              .src(imageUploader.uploadFile(file,UPLOAD_DIR))
+              .src(imageUploader.uploadFile(file,UPLOAD_DIR, product.getId()))
               .isDeleted('N')
               .orderSeq(i++)
               .product(product)
@@ -232,7 +232,7 @@ public class ProductService {
           continue;
         }
         ProductImageEntity imageEntity = ProductImageEntity.builder()
-            .src(imageUploader.uploadFile(file,UPLOAD_DIR))
+            .src(imageUploader.uploadFile(file,UPLOAD_DIR,product.getId()))
             .isDeleted('N')
             .orderSeq(++lastSeq)
             .product(product)

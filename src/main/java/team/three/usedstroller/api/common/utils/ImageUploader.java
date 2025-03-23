@@ -14,7 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 public class ImageUploader {
 
-  public String uploadFile(MultipartFile file,String filePath) {
+  public String uploadFile(MultipartFile file,String filePath,Long productId) {
+    String src = "/image/prorduct/"+productId+"/";
     StringBuilder sb = new StringBuilder();
     Path path = Paths.get("");
     try {
@@ -23,12 +24,13 @@ public class ImageUploader {
         path = Paths.get(filePath+uniqueFileName);
         Files.createDirectories(path.getParent()); //디렉토리 생성
         Path write = Files.write(path, file.getBytes());// 파일 저장
+        src = src + uniqueFileName;
         log.info("Successfully uploaded image {}",file.getOriginalFilename());
       } catch (Exception e){
         e.printStackTrace();
         sb.append("Fail to upload").append(file.getOriginalFilename());
       }
-      return path.toAbsolutePath().toString();
+      return src;
   }
 
   public void deleteFile (String fileName,String filePath) {
