@@ -43,7 +43,8 @@ public class ProductRepositoryImpl implements CustomProductRepository {
   public Page<ProductRes> getProducts(FilterReq filter, Pageable pageable) {
     JPAQuery<Product> jpaQuery = query.select(product)
         .from(product)
-        .where(product.sourceType.ne(SourceType.CARROT).or(product.sourceType.eq(SourceType.CARROT).and(product.status.eq("Ongoing")).and(product.isDeleted.eq('N'))),
+        .where(product.isDeleted.eq('N'),
+            product.sourceType.ne(SourceType.CARROT).or(product.sourceType.eq(SourceType.CARROT).and(product.status.eq("Ongoing"))),
             applyKeyword(filter.getKeyword()),
             applySourceType(filter.getSourceType()),
             applyPriceRange(filter.getMinPrice(), filter.getMaxPrice()),
