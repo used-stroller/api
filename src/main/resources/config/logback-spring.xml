@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds">
+    <!-- Spring의 logging.level.root 값을 가져와서 LOG_LEVEL 변수로 사용 -->
+    <springProperty scope="context" name="LOG_LEVEL" source="logging.level.root"/>
+
+    <!-- 로그 파일 저장 경로 설정. log.path 프로퍼티가 있으면 사용, 없으면 현재 디렉토리 하위 logs 디렉토리 -->
+    <property name="LOG_PATH" value="./logs/${log.path:-}"/>
+
+    <!-- 로그 파일 이름 설정 -->
+    <property name="LOG_FILE_NAME" value="app-api"/>
+
+    <!-- 로그 출력 형식 설정 -->
+    <property name="LOG_PATTERN" value="%-5level %d{yy-MM-dd HH:mm:ss}[%thread] [%logger{0}:%line] - %msg%n"/>
+
+    <!-- 콘솔 로그 설정 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- 커스텀 필터 설정 (예: 로컬에서만 특정 로그 출력 등) -->
+        <filter class="team.three.usedstroller.common.LogbackFilter"/>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 파일 로그 설정 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 로그 파일 경로 및 이름 -->
+        <file>${LOG_PATH}/${LOG_FILE_NAME}.log</file>
+
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+
+        <!-- 날짜 + 크기 기반 롤링 정책 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 로그 파일 이름 패턴: 일별로 구분하고, 인덱스도 붙음 -->
+            <fileNamePattern>${LOG_PATH}/${LOG_FILE_NAME}.%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+
+            <!-- 하루에 파일 용량이 10MB 넘으면 분할 저장 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+
+            <!-- 최대 보관 기간: 30일 -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 필요 없는 로그 레벨 끄기 (로그 noise 줄이기) -->
+    <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="OFF"/>
+    <logger name="org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport" level="OFF"/>
+    <logger name="org.springframework.data.repository.config.RepositoryConfigurationDelegate" level="OFF"/>
+    <logger name="org.springframework.security.web.DefaultSecurityFilterChain" level="OFF"/>
+    <logger name="jdbc"                                   level="OFF"/>
+    <logger name="jdbc.sqlonly"                           level="OFF"/>
+    <logger name="jdbc.sqltiming"                         level="OFF"/>
+    <logger name="jdbc.audit"                             level="OFF"/>
+    <logger name="jdbc.resultset"                         level="OFF"/>
+    <logger name="jdbc.resultsettable"                    level="OFF"/>
+    <logger name="jdbc.connection"                        level="OFF"/>
+    <logger name="org.springframework.boot.autoconfigure" level="OFF"/>
+    <logger name="org.hibernate"                          level="OFF"/>
+    <logger name="com.zaxxer.hikari"                      level="OFF"/>
+
+    <!-- AOP 로그는 INFO 레벨로 활성화 -->
+    <logger name="team.three.usedstroller.api.common.aop.ProductLogAop"     level="INFO"/>
+
+    <!-- local 환경에서는 콘솔만 출력 -->
+    <springProfile name="local">
+        <root level="${LOG_LEVEL}">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- dev 환경에서는 콘솔 + 파일 로그 출력 -->
+    <springProfile name="dev">
+        <root level="${LOG_LEVEL}">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- prod 환경도 콘솔 + 파일 로그 출력 -->
+    <springProfile name="prod">
+        <root level="${LOG_LEVEL}">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+</configuration>
