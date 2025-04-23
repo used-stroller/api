@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,8 @@ import team.three.usedstroller.api.common.domain.BaseTimeEntity;
 @Getter
 @ToString
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 @Table(name = "model")
 public class Model extends BaseTimeEntity {
 
@@ -24,17 +27,24 @@ public class Model extends BaseTimeEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
   private Long id;
-  private String name;
+  private String launched;
+  private String country;
   private String brand;
-  private String price;
+  private String name;
+  private Long minAge;
+  private Long maxAge;
+  private String foldingType;
+  private Boolean newBornAvailable;
+  private Long newPrice;
+  private Long usedPrice;
   private Long recommendPrice;
+  private float weight;
+  private String weightType;
+  private String strollerType;
+  private String size;
+  private String reclining;
+  private Boolean carryOn;
+  private Boolean twin;
+  private String etc;
 
-
-  @Builder
-  private Model(Long id, String name, String brand,String price,Long recommendPrice) {
-    this.name = name;
-    this.brand = brand;
-    this.price = price;
-    this.recommendPrice = recommendPrice;
-  }
 }
