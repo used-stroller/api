@@ -11,7 +11,7 @@ GET {{host}}/image/1bc9f07a-e4ca-40f0-a267-98f5215a39f1_KakaoTalk_20241018_22233
 Content-Type: application/json; charset=utf-8
 
 ### 추천목록
-GET {{host}}/product/list/recommend
+GET {{host}}/api/product/list/recommend
 Content-Type: application/json; charset=utf-8
 
 ### 상품등록

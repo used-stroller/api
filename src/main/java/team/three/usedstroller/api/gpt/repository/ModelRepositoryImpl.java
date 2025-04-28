@@ -1,0 +1,25 @@
+package team.three.usedstroller.api.gpt.repository;
+
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+import team.three.usedstroller.api.gpt.dto.UserInputReqDto;
+import team.three.usedstroller.api.product.domain.Model;
+import team.three.usedstroller.api.product.domain.QModel;
+
+@Repository
+@RequiredArgsConstructor
+public class ModelRepositoryImpl {
+
+	private final JPAQueryFactory query;
+	private final QModel model = QModel.model;
+
+	private List<Model> filterByHardCondition(UserInputReqDto req) {
+		JPAQuery<Model> jpaQuery = query
+				.selectFrom(model)
+				.where();
+		return jpaQuery.fetch();
+	}
+}
