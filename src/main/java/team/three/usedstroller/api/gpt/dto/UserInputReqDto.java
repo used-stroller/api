@@ -1,5 +1,8 @@
 package team.three.usedstroller.api.gpt.dto;
 
+import lombok.Getter;
+
+@Getter
 public class UserInputReqDto {
   private Long age;
   private Long minPrice;

@@ -1,20 +1,46 @@
 package team.three.usedstroller.api.gpt.service;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
 import team.three.usedstroller.api.gpt.dto.UserInputReqDto;
+import team.three.usedstroller.api.gpt.repository.ModelRepositoryImpl;
+import team.three.usedstroller.api.product.domain.Model;
 
 @Service
+@RequiredArgsConstructor
 public class GptService {
+
+  private final ModelRepositoryImpl modelRepositoryImpl;
 
   @Transactional
   public void recommend(UserInputReqDto req) {
     
     // 후보 추리기
     // 1. 하드조건(연령, 가격, 유모차 타입,쌍둥이)
+    List<Model> models = modelRepositoryImpl.filterByHardCondition(req);
+    Map<Model,Integer> modelScores = new HashMap<>();
+    // 2. 소프트 조건(무게타입,기내반입, 유저 텍스트) 25점, 25점, 50점
+    for (Model model : models) {
+      int score = 0;
+      // 무게선호도
+      if (model.getWeightType().equals(req.getWeightType().toString())) {
+          score = score+25;
+      }
+
+      // 기내반입선호도
+      if (model.getCarryOn().equals(req.getCarryOn())) {
+          score = score+25;
+      }
+      // 기타요청 정확도
 
 
-    // 2. 소프트 조건(무게타입,기내반입, 유저 텍스트)
-
+      modelScores.put(model, score);
+    }
 
     // 3. 부가정보 조회
 
@@ -29,6 +55,16 @@ public class GptService {
 
 
   }
+
+  public String buildUserTextPrompt(Long modelId, String userText) {
+    // 후기 리스트
+    getReview();
+
+
+    StringBuilder sb = new StringBuilder();
+    sb.append()
+  }
+
   
   public String buildPrompt(UserInputReqDto req) {
     StringBuilder sb = new StringBuilder();
