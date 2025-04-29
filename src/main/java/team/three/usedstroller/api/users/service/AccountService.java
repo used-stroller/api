@@ -1,7 +1,6 @@
 package team.three.usedstroller.api.users.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,16 +24,14 @@ import team.three.usedstroller.api.error.ApiException;
 import team.three.usedstroller.api.product.domain.FavoriteEntity;
 import team.three.usedstroller.api.product.domain.Product;
 import team.three.usedstroller.api.product.repository.ProductRepository;
-import team.three.usedstroller.api.users.domain.Account;
+import team.three.usedstroller.api.users.entity.Account;
 import team.three.usedstroller.api.users.dto.AccountDto;
 import team.three.usedstroller.api.users.dto.LoginWrapperDto;
-import team.three.usedstroller.api.users.dto.LoginWrapperDto.LoginResultDto.UserDto;
 import team.three.usedstroller.api.users.dto.ResponseLoginDto;
 import team.three.usedstroller.api.users.dto.ResponseLoginTokenDto;
 import team.three.usedstroller.api.users.dto.ResultDto;
 import team.three.usedstroller.api.users.dto.res.MyPageDto;
 import team.three.usedstroller.api.users.repository.AccountRepository;
-import team.three.usedstroller.api.users.repository.CustomAccountRepository;
 import team.three.usedstroller.api.users.repository.FavoriteRepository;
 
 @Service

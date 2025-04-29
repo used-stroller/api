@@ -12,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
-import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,8 +21,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import team.three.usedstroller.api.common.domain.BaseTimeEntity;
-import team.three.usedstroller.api.product.dto.OptionDto;
-import team.three.usedstroller.api.users.domain.Account;
+import team.three.usedstroller.api.users.entity.Account;
 
 @Entity
 @Getter

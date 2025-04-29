@@ -1,4 +1,4 @@
-package team.three.usedstroller.api.users.domain;
+package team.three.usedstroller.api.users.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

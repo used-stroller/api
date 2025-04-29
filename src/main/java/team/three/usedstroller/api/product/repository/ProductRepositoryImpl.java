@@ -1,6 +1,5 @@
 package team.three.usedstroller.api.product.repository;
 import static team.three.usedstroller.api.product.domain.QModel.*;
-import static team.three.usedstroller.api.product.domain.QProduct.*;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -20,7 +19,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -29,7 +27,7 @@ import team.three.usedstroller.api.product.domain.QProduct;
 import team.three.usedstroller.api.product.domain.SourceType;
 import team.three.usedstroller.api.product.dto.FilterReq;
 import team.three.usedstroller.api.product.dto.ProductRes;
-import team.three.usedstroller.api.users.domain.QAccount;
+import team.three.usedstroller.api.users.entity.QAccount;
 
 @Repository
 @RequiredArgsConstructor

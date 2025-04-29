@@ -2,23 +2,16 @@ package team.three.usedstroller.api.product.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.security.Security;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,12 +36,11 @@ import team.three.usedstroller.api.product.dto.res.ProductDetailDto;
 import team.three.usedstroller.api.product.repository.ProductImageRepository;
 import team.three.usedstroller.api.product.repository.ProductOptionRepository;
 import team.three.usedstroller.api.product.repository.ProductRepository;
-import team.three.usedstroller.api.users.domain.Account;
+import team.three.usedstroller.api.users.entity.Account;
 import team.three.usedstroller.api.users.dto.res.MyPageDto;
 import team.three.usedstroller.api.users.dto.res.SellerDto;
 import team.three.usedstroller.api.users.repository.AccountRepository;
 import team.three.usedstroller.api.users.repository.FavoriteRepository;
-import team.three.usedstroller.api.users.service.AccountService;
 
 @Service
 @Slf4j

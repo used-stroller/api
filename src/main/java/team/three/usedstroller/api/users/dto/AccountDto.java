@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
-import team.three.usedstroller.api.users.domain.Account;
+import team.three.usedstroller.api.users.entity.Account;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

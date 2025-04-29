@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import team.three.usedstroller.api.users.domain.Account;
+import team.three.usedstroller.api.users.entity.Account;
 import team.three.usedstroller.api.users.dto.AccountContext;
 import team.three.usedstroller.api.users.dto.AccountDto;
 import team.three.usedstroller.api.users.repository.AccountRepository;
