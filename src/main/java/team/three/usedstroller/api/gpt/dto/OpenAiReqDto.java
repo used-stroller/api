@@ -11,7 +11,7 @@ import team.three.usedstroller.api.enums.WeightType;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserInputReqDto {
+public class OpenAiReqDto {
   private Long age;
   private Long maxPriceNew;
   private Long maxPriceUsed;

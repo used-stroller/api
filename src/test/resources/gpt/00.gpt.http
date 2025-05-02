@@ -1,0 +1,23 @@
+###
+POST {{host}}/api/gpt/recommend
+Content-Type: application/json; charset=utf-8
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4NzIzMTQiLCJOQU1FIjoi7J2064-Z7ZuIIiwiZXhwIjoxNzQ2MTc2NTMzfQ.iAy4pK0Vw6AHRulkSHEkt6pMevDsAt_VMokpu3LdTSJz4HeSR_lW2l4b8_W79Ru-O4SlLq6KvRshUgwrjUqx_g
+
+{
+  "age": 7,
+  "maxPriceNew": 1000000,
+  "maxPriceUsed": 500000,
+  "twin": false,
+  "type":"CONVERTIBLE",
+  "weightType": "NORMAL",
+  "carryOn": false,
+  "userText": "디자인 이쁘고, 가격도 적당하고, 폴딩이 쉬웠으면 좋겠음"
+}
+#### 상품상태변경
+#POST {{host}}/product/change/status
+#Content-Type: application/json; charset=utf-8
+#
+#{
+#"id" : 4,
+#"statusType" : "Reserved"
+#}

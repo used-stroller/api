@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import reactor.core.publisher.Flux;
 import team.three.usedstroller.api.common.dto.ResponseDto;
 import team.three.usedstroller.api.gpt.dto.UserInputReqDto;
 import team.three.usedstroller.api.gpt.service.GptService;
@@ -37,9 +39,9 @@ public class GptController {
 
   private final GptService gptService;
 
-  @GetMapping("/recommend")
-  public ResponseEntity<ResponseDto<?>> recommendStroller(UserInputReqDto req) {
-    return gptService.recommend(req);
+  @PostMapping(value = "/recommend", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  public Flux<String> recommendStroller(@RequestBody UserInputReqDto req) {
+      return gptService.recommendAndStream(req);
   }
 
 }

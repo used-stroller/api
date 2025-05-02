@@ -24,38 +24,23 @@ public class ModelRepositoryImpl {
 				.where(
 					model.minAge.loe(req.getAge()),
 					model.maxAge.goe(req.getAge()),
-					(newPriceBetween(req.getMinPrice(), req.getMaxPrice())
-						.or(usedPriceBetween(req.getMinPrice(), req.getMaxPrice()))),
+					(newPriceBelow(req.getMaxPriceNew())
+						.or(usedPriceBelow(req.getMaxPriceUsed()))),
 					model.twin.eq(req.getTwin()),
 					model.strollerType.eq(req.getType().toString())
-				);
+				)
+				.limit(10)
+			;
+
 		return jpaQuery.fetch();
 	}
 
-	private BooleanExpression newPriceBetween(Long minPrice,Long maxPrice) {
-		if(minPrice != null && maxPrice != null) {
-			return model.newPrice.between(minPrice, maxPrice);
-		}
-		if(minPrice != null) {
-			return model.newPrice.goe(minPrice);
-		}
-		if(maxPrice != null) {
-			return model.newPrice.loe(maxPrice);
-		}
-		return null;
+	private BooleanExpression newPriceBelow(Long maxPrice) {
+		return (maxPrice != null) ? model.newPrice.loe(maxPrice) : null;
 	}
 
-	private BooleanExpression usedPriceBetween(Long minPrice,Long maxPrice) {
-		if(minPrice != null && maxPrice != null) {
-			return model.usedPrice.between(minPrice, maxPrice);
-		}
-		if(minPrice != null) {
-			return model.usedPrice.goe(minPrice);
-		}
-		if(maxPrice != null) {
-			return model.usedPrice.loe(maxPrice);
-		}
-		return null;
+	private BooleanExpression usedPriceBelow(Long maxPrice) {
+		return (maxPrice != null) ? model.usedPrice.loe(maxPrice) : null;
 	}
 
 }

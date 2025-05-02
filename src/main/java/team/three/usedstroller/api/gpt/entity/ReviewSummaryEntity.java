@@ -75,4 +75,7 @@ public class ReviewSummaryEntity extends BaseTimeEntity {
   @Column(name = "carry_on")
   Boolean carryOn;
 
+  @Column(name = "model_id")
+  Long modelId;
+
 }

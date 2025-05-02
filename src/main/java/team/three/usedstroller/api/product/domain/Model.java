@@ -46,5 +46,6 @@ public class Model extends BaseTimeEntity {
   private Boolean carryOn;
   private Boolean twin;
   private String etc;
+  private String ImageUrl;
 
 }

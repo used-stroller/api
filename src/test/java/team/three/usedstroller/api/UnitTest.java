@@ -8,6 +8,8 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import org.junit.jupiter.api.Test;
 
+import team.three.usedstroller.api.gpt.dto.OpenAiReqDto;
+
 public class UnitTest {
 
   @Test
