@@ -1,10 +1,11 @@
 package team.three.usedstroller.api.gpt.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,20 +13,11 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import team.three.usedstroller.api.enums.StrollerType;
-import team.three.usedstroller.api.enums.WeightType;
 import team.three.usedstroller.api.gpt.dto.GptMessage;
 import team.three.usedstroller.api.gpt.dto.GptRequest;
 import team.three.usedstroller.api.gpt.dto.GptResponse;
-import team.three.usedstroller.api.gpt.dto.OpenAiReqDto;
 import team.three.usedstroller.api.gpt.dto.UserInputReqDto;
 import team.three.usedstroller.api.gpt.entity.ReviewSummaryEntity;
 import team.three.usedstroller.api.gpt.repository.ModelRepositoryImpl;
@@ -141,7 +133,7 @@ public class GptService {
 
   public Flux<String> streamGptApi(String userPrompt) {
     Map<String, Object> request = Map.of(
-        "model","gpt-3.5-turbo",
+        "model","gpt-4o",
         "messages",List.of(
             Map.of(
                 "role","user",
@@ -161,6 +153,10 @@ public class GptService {
             })
         )
         .bodyToFlux(String.class)
+        .doOnSubscribe(sub -> log.info("▶️ GPT 요청 시작됨"))
+        .doOnNext(line -> log.info(" GPT 응답 원본: {}", line))
+        .doOnError(e -> log.error("GPT WebClient 오류 발생", e))
+        .doOnComplete(() -> log.info("GPT 스트림 완료"))
         .flatMap(line -> Flux.fromArray(line.split("\n"))) // 여러 줄로 온 경우 분리
         .filter(line -> line.startsWith("data: ")) // "data: " 로 시작하는 줄만 추출
         .map(line -> line.substring("data: ".length())) // 앞 prefix 제거
@@ -191,39 +187,39 @@ public class GptService {
 
     // 1. 시스템 역할 안내
     sb.append("[system 역할 안내]\n");
-    sb.append("넌 유모차 전문가야. 사용자 조건과 유모차 모델 정보, 후기 요약을 참고해 가장 적합한 유모차를 1개 추천해줘. 추천 이유도 함께 설명해줘. 그리고 모델에 맞는 내가 첨부한 이미지url도 같이 보여줘.\n");
-    sb.append("답변이 끝나면 다음을 추가해:\n");
-    sb.append("- 사용자 답변과 주제 연관성 있는 후속질문 2~3개를 작성한다.\n");
-    sb.append("- 후속질문은 번호를 붙이고, 선택형 문장으로 작성한다.\n");
-    sb.append("- 후속질문은 답변과 자연스럽게 이어질 수 있게 만든다.\n\n");
+    sb.append("넌 유모차 전문가야. 사용자 조건과 유모차 모델 정보, 후기 요약을 참고해 최적의 유모차 1개를 추천해줘.\n");
+    sb.append("1순위 모델과 2순위 모델을 반드시 모두 비교해줘. 두 모델 각각의 장단점을 비교 분석한 뒤, 어떤 모델이 더 적합한지 최종 추천을 내려줘.\n");
+    sb.append("답변 마지막에 주제와 자연스럽게 이어지는 후속질문 2~3개를 번호로 제시해줘.\n\n");
+//    sb.append("- 사용자 답변과 주제 연관성 있는 후속질문 2~3개를 작성한다.\n");
+//    sb.append("- 후속질문은 번호를 붙이고, 선택형 문장으로 작성한다.\n");
+//    sb.append("- 후속질문은 답변과 자연스럽게 이어질 수 있게 만든다.\n\n");
 
     // 2. 답변 출력 포맷 안내
     sb.append("[답변 출력 포맷]\n");
-    sb.append("1. \n");
-    sb.append("**모델명**  \n");
-    sb.append("![모델명](선택된 모델 이미지 URL) 형식으로 삽입\n");
-    sb.append("2. 추천 유모차 및 이유 설명\n");
-    sb.append("3. 후속질문 2~3개 제시 (번호 붙여서)\n");
-    sb.append("4. [더 많은 중고 유모차를 보고 싶다면 클릭](https://jungmocha.co.kr)\n\n");
+    sb.append("1. **모델명**  \n");
+    sb.append("   ![모델명](이미지 URL)\n");
+    sb.append("2. 추천 이유 설명\n");
+    sb.append("3. 후속 질문 (번호 붙임, 선택형 문장)\n");
+    sb.append("4. [더 많은 중고 유모차 보러가기](https://jungmocha.co.kr)\n\n");
+
 
     
     // 3. 사용자 조건
     sb.append("[사용자 조건]\n");
     sb.append("- 아이 개월수: ").append(input.getAge()).append("개월\n");
-    sb.append("- 쌍둥이 여부: ").append(input.getTwin()? "예" : "아니오").append("\n");
+    sb.append("- 쌍둥이 : ").append(input.getTwin()? "예" : "아니오").append("\n");
     sb.append("- 신제품 최대 가격: ").append(input.getMaxPriceNew()).append("원\n");
     sb.append("- 중고제품 최대 가격: ").append(input.getMaxPriceUsed()).append("원\n");
     sb.append("- 유모차 타입: ").append(input.getType()).append("\n");
     sb.append("- 유모차 무게: ").append(input.getWeightType()).append("\n");
-    sb.append("- 기내반입 여부: ").append(input.getCarryOn() ? "예" : "아니오").append("\n");
-    sb.append("- 기타 요청: ").append(input.getUserText()).append("\n\n");
+    sb.append("- 기내반입  ").append(input.getCarryOn() ? "예" : "아니오").append("\n");
+    sb.append("- 기타 : ").append(input.getUserText()).append("\n\n");
 
     // 4. 후보 모델 정보
     sb.append("[후보 모델 정보]\n");
-    int index = 1;
-    for (Model model : candidates) {
-      List<ReviewSummaryEntity>  reviews = reviewSummaryRepository.findRandom3ByModelId(model.getId());
-
+    for (int i = 0; i < candidates.size(); i++) {
+      List<ReviewSummaryEntity>  reviews = reviewSummaryRepository.findRandom3ByModelId(candidates.get(i).getId());
+      String rank = (i == 0) ? "1순위" : "2순위";
       // sb.append(index++).append(". ").append(model.getBrand()).append(" ").append(model.getName()).append(" (").append(model.getBrand()).append(")\n");
       // sb.append("- 유모차 타입: ").append(model.getStrollerType()).append("\n");
       // sb.append("- 출시년도: ").append(model.getLaunched()).append("년\n");
@@ -237,6 +233,7 @@ public class GptService {
       // sb.append("- 기내반입 여부: ").append(model.getCarryOn()).append("\n");
       // sb.append("- 쌍둥이 여부: ").append(model.getTwin()).append("\n");
       // sb.append("- 이미지: ").append(model.getImageUrl()).append("\n");
+      sb.append(rank).append(" - ").append(candidates.get(i).getBrand()).append(" ").append(candidates.get(i).getName()).append("\n");
       sb.append("- 후기 요약:\n");
       for(ReviewSummaryEntity review : reviews) {
         String cleaned = cleanSummaryPrefix(review.getSummary());
@@ -246,10 +243,12 @@ public class GptService {
 
     // 5. 질문
     sb.append("[질문]\n");
-    sb.append("위 조건에 가장 적합한 유모차를 추천해줘. 이유도 함께 설명해줘.\n");
-    sb.append("- 답변할 때 30~40대 어머님들이 좋아할 따뜻하고 친근한 말투로 작성하라.\n");
-    sb.append("- 문장은 부드럽지만 신뢰감 있게, 실제 사용 상황을 떠올리게 설명하라.\n");
-    sb.append("- 감성 키워드(소중한 시간, 아가와의 외출 등)를 자연스럽게 포함하라.\n");
+    sb.append("위 두 모델은 각각 어떤 장단점이 있는지 설명해줘.\n");
+    sb.append("두 모델을 비교한 후, 사용자 조건에 가장 적합한 유모차 1개를 최종 추천해줘.\n");
+    sb.append("두 모델 모두 꼭 언급해주고, 비교 설명은 상세히 해줘.\n");
+    sb.append("- 어머님 타겟의 따뜻하고 신뢰감 있는 말투로.\n");
+    sb.append("- 문장은 부드럽지만 신뢰감 있게, 실제 사용 상황을 떠올리게 설명해줘.\n");
+    sb.append("- 감성 키워드 '소중한 시간', '아가와의 외출'을 포함해줘.\n");
 
     return sb.toString();
   }

@@ -1,7 +1,5 @@
 package team.three.usedstroller.api.security.config;
 
-import static team.three.usedstroller.api.common.jwt.EndPointConf.NOT_JWT_AUTH_ENDPOINT_LIST;
-
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Date;
@@ -63,7 +61,7 @@ public class SecurityConfig {
         .httpBasic(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(requests -> requests
-            .requestMatchers("/api/product/list/**","/api/product/get/**","/login", "/api/user/signup", "/reissue","/api/auth/kakao/**","/api/backend/auth/kakao/**","/api/auth/callback/**","/error").permitAll()
+            .requestMatchers("/api/product/list/**","/api/product/get/**","/login", "/api/user/signup", "/reissue","/api/auth/kakao/**","/api/backend/auth/kakao/**","/api/auth/callback/**","/api/gpt/recommend").permitAll()
             .anyRequest().authenticated()
         )
         .exceptionHandling(exceptions -> exceptions

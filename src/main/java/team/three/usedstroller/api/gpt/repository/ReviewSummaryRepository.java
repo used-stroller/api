@@ -10,4 +10,7 @@ public interface ReviewSummaryRepository extends JpaRepository<ReviewSummaryEnti
 
   @Query(value = "SELECT * FROM review_summary WHERE model_id = :modelId ORDER BY RANDOM() LIMIT 3", nativeQuery = true)
   List<ReviewSummaryEntity> findRandom3ByModelId(@Param("modelId") Long model_id);
+
+  @Query(value = "SELECT * FROM review_summary WHERE model_id = :modelId ORDER BY RANDOM() LIMIT 2", nativeQuery = true)
+  List<ReviewSummaryEntity> findRandom2ByModelId(@Param("modelId") Long model_id);
 }
