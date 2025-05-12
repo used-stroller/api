@@ -13,6 +13,11 @@ Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4N
   "carryOn": false,
   "userText": "디자인 이쁘고, 가격도 적당하고, 폴딩이 쉬웠으면 좋겠음"
 }
+
+### 상품목록
+GET {{host}}/api/gpt/stream
+Content-Type: application/json; charset=utf-8
+
 #### 상품상태변경
 #POST {{host}}/product/change/status
 #Content-Type: application/json; charset=utf-8

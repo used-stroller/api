@@ -1,7 +1,10 @@
 package team.three.usedstroller.api.gpt.controller;
 
+import java.time.Duration;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +24,13 @@ public class GptController {
 //  @PostMapping(value = "/recommend")
   public Flux<String> recommendStroller(@RequestBody UserInputReqDto req) {
       return gptService.recommendAndStream(req);
+  }
+
+  @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  public Flux<String> streamMessages() {
+    return Flux.interval(Duration.ofSeconds(1))
+        .take(5)
+        .map(i -> "메시지 " + i);
   }
 
 }
