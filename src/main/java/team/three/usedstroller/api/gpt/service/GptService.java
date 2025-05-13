@@ -2,6 +2,8 @@ package team.three.usedstroller.api.gpt.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +81,7 @@ public class GptService {
     log.info("apiPrompt: {}", apiPrompt);
 
     // 6. 최종 API 요청
-    return streamGptApi(apiPrompt);
+    return simulateGptStreaming(apiPrompt,candidates);
   }
 
   public String buildPromptUserText(Long modelId, String userText) {
@@ -131,51 +133,65 @@ public class GptService {
     return response.getChoices().get(0).getMessage().getContent();
   }
 
-  public Flux<String> streamGptApi(String userPrompt) {
+  public Flux<String> simulateGptStreaming(String userPrompt, List<Model> candidates) {
+    Map<String,String> modelImageMap = new HashMap<>();
+    for (Model model : candidates) {
+      String modelName = model.getName();
+      String modelIamge = model.getImageUrl();
+      modelImageMap.put(modelName,modelIamge);
+    }
     Map<String, Object> request = Map.of(
-        "model","gpt-4o",
-        "messages",List.of(
-            Map.of(
-                "role","user",
-                "content", userPrompt
-            )
+        "model", "gpt-4o",
+        "messages", List.of(
+            Map.of("role", "user", "content", userPrompt)
         ),
-        "stream",true
+        "stream", false
     );
 
     return gptWebClient.post()
         .bodyValue(request)
         .retrieve()
-        .onStatus(HttpStatusCode::isError, res ->
-            res.bodyToMono(String.class).flatMap(errorBody -> {
-              log.warn("GPT API 에러 바디: {}", errorBody);
-              return Mono.error(new RuntimeException("상태코드: " + res.statusCode()));
-            })
-        )
-        .bodyToFlux(String.class)
-        .doOnSubscribe(sub -> log.info("▶️ GPT 요청 시작됨"))
-        .doOnNext(line -> log.info(" GPT 응답 원본: {}", line))
-        .doOnError(e -> log.error("GPT WebClient 오류 발생", e))
-        .doOnComplete(() -> log.info("GPT 스트림 완료"))
-        .flatMap(line -> Flux.fromArray(line.split("\n"))) // 여러 줄로 온 경우 분리
-        .filter(line -> line.startsWith("data: ")) // "data: " 로 시작하는 줄만 추출
-        .map(line -> line.substring("data: ".length())) // 앞 prefix 제거
-        .takeWhile(data -> !data.equals("[DONE]"))      // 끝 표시 제거
-        .map(data -> {
+        .bodyToMono(String.class)
+        .map(response -> {
           try {
-            JsonNode json = new ObjectMapper().readTree(data);
-            return json
+            JsonNode json = new ObjectMapper().readTree(response);
+            String content = json
                 .get("choices")
                 .get(0)
-                .get("delta")
+                .get("message")
                 .get("content")
                 .asText("");
+            return content;
           } catch (Exception e) {
-            log.error("GPT 스트림 파싱 오류: {}", data, e);
+            log.error("응답 파싱 실패", e);
             return "";
           }
         })
-        .filter(text -> !text.isBlank());
+        .flatMapMany(fullText -> {
+          // ① 문장 단위 혹은 줄 단위 분할
+          String[] chunks = fullText.split("(?<=\\.|\\n)"); // 문장 끝 기준
+          return Flux.fromArray(chunks);
+        })
+        .map(String::trim)
+        .filter(chunk -> !chunk.isEmpty())
+        .map(chunk -> {
+          // "![모델명](이미지 URL)" 형태의 텍스트인지 확인
+          if (chunk.matches("!\\[.+]\\(이미지 URL\\)")) {
+            // 정규식 그룹을 사용해 괄호 안 모델명 추출 → "SEEC 롤리팝2"
+            String full = chunk.replaceAll("!\\[(.+)]\\(이미지 URL\\)", "$1");
+            // 모델명을 브랜드와 모델명으로 나눔 → ["SEEC", "롤리팝2"]
+            String[] parts = full.split(" ", 2);
+            // 모델명만 추출 (브랜드는 버림). ex) "롤리팝2"
+            String modelName = parts.length == 2 ? parts[1] : parts[0];
+            // 모델명에 대응하는 실제 이미지 URL을 맵에서 가져옴. 없으면 빈 문자열 사용
+            String imageUrl = modelImageMap.getOrDefault(modelName, "");
+            // "![SEEC 롤리팝2](https://~~)" 형식으로 다시 조립하여 반환
+            return "![" + full + "](" + imageUrl + ")";
+          }
+          return chunk;
+        })
+        .delayElements(Duration.ofMillis(800)) // ② 스트리밍처럼 보여주기
+        .doOnNext(chunk -> log.info("🔸 응답 전송: {}", chunk));
   }
 
 
