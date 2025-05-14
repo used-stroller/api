@@ -29,6 +29,7 @@ public class ModelRepositoryImpl {
 					model.twin.eq(req.getTwin()),
 					model.strollerType.eq(req.getType().toString())
 				)
+				.orderBy(model.launched.desc())
 				.limit(10)
 			;
 

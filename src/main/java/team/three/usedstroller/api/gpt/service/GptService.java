@@ -57,7 +57,7 @@ public class GptService {
       }
       // 기타요청 정확도 점수화
       // 1. 프롬프트 작성
-      String userPrompt = buildPromptUserText(model.getId(), req.getUserText());
+      String userPrompt = buildPromptUserText(model.getId(), req.getUserText(), req.getWeightKeywordList());
       // 2. api 요청
       String res = callGptApi(userPrompt);
       score = score + Integer.parseInt(res.replaceAll("점", "").replaceAll("\\.", ""));
@@ -84,29 +84,39 @@ public class GptService {
     return simulateGptStreaming(apiPrompt,candidates);
   }
 
-  public String buildPromptUserText(Long modelId, String userText) {
+  public String buildPromptUserText(Long modelId, String userText,List<String> weightKeywordList) {
     // 후기 리스트 가져오기
     List<ReviewSummaryEntity> reviewList = reviewSummaryRepository.findRandom3ByModelId(modelId);
 
 
     StringBuilder sb = new StringBuilder();
+
     sb.append("당신은 유모차를 추천하기 위해, 사용자의 요구사항과 제품 후기를 비교하여 점수를 매기는 도우미입니다.\n\n");
 
     // 사용자 요청
     sb.append("[사용자 요청사항]\n");
     sb.append("\"").append(userText).append("\"\n\n");
 
-    // 후기들 추가
-    for (int i = 0; i <reviewList.size(); i ++ ) {
+    // 중요 항목 (가중치 요소)
+    sb.append("[사용자가 중요하게 여기는 항목]\n");
+    for (String keyword : weightKeywordList) {
+      sb.append("- ").append(keyword).append("\n");
+    }
+    sb.append("\n");
+
+    // 후기들
+    for (int i = 0; i < reviewList.size(); i++) {
       sb.append("[후기 ").append(i + 1).append("]\n");
       sb.append("\"").append(reviewList.get(i)).append("\"\n\n");
     }
+
     sb.append("---\n\n");
+
     sb.append("각 후기의 내용을 참고하여,\n");
-    sb.append("**사용자 요청사항과 후기들이 얼마나 잘 일치하는지** 평가해 주세요.\n\n");
-    sb.append("- 총점은 0점에서 50점 사이로 매겨주세요.\n");
+    sb.append("**사용자 요청사항과 후기들이 얼마나 잘 일치하는지**, 특히 '중요하게 여기는 항목'과 얼마나 잘 맞는지를 중심으로 평가해 주세요.\n\n");
+    sb.append("- 점수는 0점에서 50점 사이로 매겨주세요.\n");
     sb.append("- 일치하는 내용이 많을수록 높은 점수를 주세요.\n");
-    sb.append("- **아무 설명도 하지 말고, 오직 숫자 하나만 출력해.**\n");
+    sb.append("- **설명 없이 숫자 하나만 출력해 주세요.**\n");
     return sb.toString();
   }
 
@@ -205,7 +215,7 @@ public class GptService {
     sb.append("[system 역할 안내]\n");
     sb.append("넌 유모차 전문가야. 사용자 조건과 유모차 모델 정보, 후기 요약을 참고해 최적의 유모차 1개를 추천해줘.\n");
     sb.append("1순위 모델과 2순위 모델을 반드시 모두 비교해줘. 두 모델 각각의 장단점을 비교 분석한 뒤, 어떤 모델이 더 적합한지 최종 추천을 내려줘.\n");
-    sb.append("답변 마지막에 주제와 자연스럽게 이어지는 후속질문 2~3개를 번호로 제시해줘.\n\n");
+    // sb.append("답변 마지막에 주제와 자연스럽게 이어지는 후속질문 2~3개를 번호로 제시해줘.\n\n");
 //    sb.append("- 사용자 답변과 주제 연관성 있는 후속질문 2~3개를 작성한다.\n");
 //    sb.append("- 후속질문은 번호를 붙이고, 선택형 문장으로 작성한다.\n");
 //    sb.append("- 후속질문은 답변과 자연스럽게 이어질 수 있게 만든다.\n\n");
@@ -215,8 +225,8 @@ public class GptService {
     sb.append("1. **모델명**  \n");
     sb.append("   ![모델명](이미지 URL)\n");
     sb.append("2. 추천 이유 설명\n");
-    sb.append("3. 후속 질문 (번호 붙임, 선택형 문장)\n");
-    sb.append("4. [더 많은 중고 유모차 보러가기](https://jungmocha.co.kr)\n\n");
+    // sb.append("3. 하이퍼링크 텍스트는 절대로 줄을 나누지 말고 한 줄로 출력\n");
+    // sb.append("4. [더 많은 중고 유모차 보러가기](https://jungmocha.co.kr)\n\n");
 
 
     

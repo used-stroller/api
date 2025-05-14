@@ -1,5 +1,7 @@
 package team.three.usedstroller.api.gpt.dto;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,4 +22,5 @@ public class UserInputReqDto {
   private WeightType weightType;
   private Boolean carryOn;
   private String userText;
+  private List<String> weightKeywordList;
 }

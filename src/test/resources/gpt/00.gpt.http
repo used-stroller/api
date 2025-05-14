@@ -5,13 +5,14 @@ Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4N
 
 {
   "age": 7,
-  "maxPriceNew": 1000000,
-  "maxPriceUsed": 500000,
+  "maxPriceNew": 100000,
+  "maxPriceUsed": 100000,
   "twin": false,
-  "type":"CONVERTIBLE",
+  "type":"HANDY",
   "weightType": "NORMAL",
   "carryOn": false,
-  "userText": "디자인 이쁘고, 가격도 적당하고, 폴딩이 쉬웠으면 좋겠음"
+  "userText": "기내반입,폴딩이 쉬웠으면 좋겠음, 이쁜",
+  "weightKeywordList": ["가벼움","승차감","최신모델"]
 }
 
 ### 상품목록
