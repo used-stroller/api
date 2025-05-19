@@ -19,15 +19,30 @@ public class ModelRepositoryImpl {
 	private final QModel model = QModel.model;
 
 	public List<Model> filterByHardCondition(UserInputReqDto req) {
+		int minAge = 0;
+		int maxAge = 47;
+		switch(req.getAgeCode()) {
+			case "s":
+				maxAge = 6;
+				break;
+			case "m":
+				minAge = 7;
+				maxAge = 12;
+				break;
+			case "l":
+				minAge = 13;
+				break;
+		}
+
 		JPAQuery<Model> jpaQuery = query
 				.selectFrom(model)
 				.where(
-					model.minAge.loe(req.getAge()),
-					model.maxAge.goe(req.getAge()),
+					model.minAge.loe(minAge),
+					model.maxAge.goe(maxAge),
 					(newPriceBelow(req.getMaxPriceNew())
 						.or(usedPriceBelow(req.getMaxPriceUsed()))),
-					model.twin.eq(req.getTwin()),
-					model.strollerType.eq(req.getType().toString())
+					model.twin.eq(req.getTwin())
+					// model.strollerType.eq(req.getType().toString())
 				)
 				.orderBy(model.launched.desc())
 				.limit(10)

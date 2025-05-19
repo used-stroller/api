@@ -11,12 +11,16 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import team.three.usedstroller.api.error.ApiErrorCode;
+import team.three.usedstroller.api.error.ApiException;
 import team.three.usedstroller.api.gpt.dto.GptMessage;
 import team.three.usedstroller.api.gpt.dto.GptRequest;
 import team.three.usedstroller.api.gpt.dto.GptResponse;
@@ -35,33 +39,23 @@ public class GptService {
   private final ReviewSummaryRepository reviewSummaryRepository;
   @Qualifier("gptWebClient")
   private final WebClient gptWebClient;
+  private final CacheManager cacheManager;
 
   @Transactional
   public Flux<String> recommendAndStream(UserInputReqDto req) {
     
     // 후보 추리기
     // 1. 하드조건(연령, 가격, 유모차 타입,쌍둥이)
-    List<Model> models = modelRepositoryImpl.filterByHardCondition(req);
     Map<Model,Integer> modelScores = new HashMap<>();
-    
-    // 2. 소프트 조건(무게타입,기내반입, 유저 텍스트) 25점, 25점, 50점
+    List<Model> models = modelRepositoryImpl.filterByHardCondition(req);
+    if(models.isEmpty()) {
+      throw new ApiException(ApiErrorCode.MODEL_NOT_FOUND);
+    }
+
+    // 2. 소프트 조건, 유저 가중치 기반으로 점수 50점만점
     for (Model model : models) {
       int score = 0;
-      // 무게선호도
-      if (model.getWeightType().equals(req.getWeightType().toString())) {
-          score = score+5;
-      }
-      // 기내반입선호도
-      if (model.getCarryOn().equals(req.getCarryOn())) {
-          score = score+5;
-      }
-      // 기타요청 정확도 점수화
-      // 1. 프롬프트 작성
-      String userPrompt = buildPromptUserText(model.getId(), req.getUserText(), req.getWeightKeywordList());
-      // 2. api 요청
-      String res = callGptApi(userPrompt);
-      score = score + Integer.parseInt(res.replaceAll("점", "").replaceAll("\\.", ""));
-      // 3. 모델과 점수 put
+      score = getScore(req, model, score);
       modelScores.put(model,score);
     }
     log.info("modelScores: {}", modelScores);
@@ -76,15 +70,32 @@ public class GptService {
 
     log.info("sortedList: {}", candidates);
 
-    // 5. 프롬프트 작성
-    String apiPrompt = buildPromptRecommend(req, candidates);
-    log.info("apiPrompt: {}", apiPrompt);
+    // 1순위 캐시에 저장
+    Cache cache = cacheManager.getCache("modelCache");
+    cache.put(req.getSessionId(),candidates.get(0).getId());
 
-    // 6. 최종 API 요청
+    // 가져오는 로직
+    // Cache cache2 = cacheManager.getCache("modelCache");
+    // if(cache2 == null) return null;
+    // Long modelId = cache2.get(req.getSessionId(),Long.class);
+    // cache.evict(req.getSessionId());
+
+    // 5. 최종 API 요청
+    String apiPrompt = buildPromptRecommend(req, candidates);
     return simulateGptStreaming(apiPrompt,candidates);
   }
 
-  public String buildPromptUserText(Long modelId, String userText,List<String> weightKeywordList) {
+  private int getScore(UserInputReqDto req, Model model, int score) {
+    // 기타요청 정확도 점수화
+    // 1. 프롬프트 작성
+    String userPrompt = scorePrompt(model.getId(), req.getUserText(), req.getWeightKeywordList());
+    // 2. api 요청
+    String res = callGptApi(userPrompt);
+    score = score + Integer.parseInt(res.replaceAll("점", "").replaceAll("\\.", ""));
+    return score;
+  }
+
+  public String scorePrompt(Long modelId, String userText,List<String> weightKeywordList) {
     // 후기 리스트 가져오기
     List<ReviewSummaryEntity> reviewList = reviewSummaryRepository.findRandom3ByModelId(modelId);
 
@@ -231,14 +242,15 @@ public class GptService {
 
     
     // 3. 사용자 조건
+
     sb.append("[사용자 조건]\n");
-    sb.append("- 아이 개월수: ").append(input.getAge()).append("개월\n");
+    sb.append("- 아이 개월수: ").append(getAgeLabel(input.getAgeCode())).append("\n");
     sb.append("- 쌍둥이 : ").append(input.getTwin()? "예" : "아니오").append("\n");
     sb.append("- 신제품 최대 가격: ").append(input.getMaxPriceNew()).append("원\n");
     sb.append("- 중고제품 최대 가격: ").append(input.getMaxPriceUsed()).append("원\n");
     sb.append("- 유모차 타입: ").append(input.getType()).append("\n");
-    sb.append("- 유모차 무게: ").append(input.getWeightType()).append("\n");
-    sb.append("- 기내반입  ").append(input.getCarryOn() ? "예" : "아니오").append("\n");
+    // sb.append("- 유모차 무게: ").append(input.getWeightType()).append("\n");
+    // sb.append("- 기내반입  ").append(input.getCarryOn() ? "예" : "아니오").append("\n");
     sb.append("- 기타 : ").append(input.getUserText()).append("\n\n");
 
     // 4. 후보 모델 정보
@@ -277,6 +289,24 @@ public class GptService {
     sb.append("- 감성 키워드 '소중한 시간', '아가와의 외출'을 포함해줘.\n");
 
     return sb.toString();
+  }
+
+  private String getAgeLabel(String age) {
+    String ageLabel;
+    switch (age) {
+      case "s":
+        ageLabel = "0~6개월";
+        break;
+      case "m":
+        ageLabel = "7~12개월";
+        break;
+      case "l":
+        ageLabel = "13개월 이상";
+        break;
+      default:
+        ageLabel = "알 수 없음";
+    }
+    return ageLabel;
   }
 
   private String cleanSummaryPrefix(String summary) {

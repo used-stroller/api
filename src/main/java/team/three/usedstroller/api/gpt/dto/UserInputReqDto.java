@@ -14,13 +14,13 @@ import team.three.usedstroller.api.enums.WeightType;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserInputReqDto {
-  private Long age;
+  private String ageCode;
   private Long maxPriceNew;
   private Long maxPriceUsed;
   private Boolean twin;
-  private StrollerType type;
-  private WeightType weightType;
-  private Boolean carryOn;
+  // private StrollerType type;
+  // private WeightType weightType;
   private String userText;
   private List<String> weightKeywordList;
+  private String sessionId;
 }

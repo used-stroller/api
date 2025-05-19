@@ -4,13 +4,10 @@ Content-Type: application/json; charset=utf-8
 Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4NzIzMTQiLCJOQU1FIjoi7J2064-Z7ZuIIiwiZXhwIjoxNzQ2MjIyMjMxfQ.w4YyFemQqNXjmBq7q6_tBW2f-pm67In29MNu7QdDaVy8N1NdTU4KEMl6VAHq2g9joPS-5Cr4VBG07FUcWQkmRg
 
 {
-  "age": 7,
-  "maxPriceNew": 100000,
-  "maxPriceUsed": 100000,
+  "ageCode": "m",
+  "maxPriceNew": 800000,
+  "maxPriceUsed": 500000,
   "twin": false,
-  "type":"HANDY",
-  "weightType": "NORMAL",
-  "carryOn": false,
   "userText": "기내반입,폴딩이 쉬웠으면 좋겠음, 이쁜",
   "weightKeywordList": ["가벼움","승차감","최신모델"]
 }
@@ -27,3 +24,23 @@ Content-Type: application/json; charset=utf-8
 #"id" : 4,
 #"statusType" : "Reserved"
 #}
+
+### 상품목록
+GET {{host}}/api/gpt/stream
+Content-Type: application/json; charset=utf-8
+
+### 캐시 저장 테스트
+POST {{host}}/test/save/cache
+Content-Type: application/json; charset=utf-8
+
+{
+  "sessionId": "ldh0512"
+}
+
+### 캐시 조회 테스트
+GET {{host}}/test/get/cache?sessionId=ldh0512
+Content-Type: application/json; charset=utf-8
+
+### 캐시 존재 여부확인
+GET {{host}}/test/has/cache?sessionId=ldh0512
+Content-Type: application/json; charset=utf-8

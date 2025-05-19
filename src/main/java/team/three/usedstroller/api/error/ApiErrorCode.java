@@ -27,6 +27,7 @@ public enum ApiErrorCode {
 
   // --- 404 NOT_FOUND
   RESOURCE_NOT_FOUND          (HttpStatus.NOT_FOUND,    "E40400" , "요청한 리소스를 찾을 수 없습니다"),
+  MODEL_NOT_FOUND             (HttpStatus.NOT_FOUND,  "E40001" , "조건에 해당하는 모델이 없습니다. \n조건을 다시 입력해주세요"),
 
   // 408 REQUEST_TIMEOUT
   NETWORK_TIMEOUT_ERROR       (HttpStatus.REQUEST_TIMEOUT, "E40901", "네트워크 오류가 발생했습니다. 다시 시도해주세요"),
