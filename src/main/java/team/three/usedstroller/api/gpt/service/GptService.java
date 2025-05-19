@@ -21,6 +21,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import team.three.usedstroller.api.error.ApiErrorCode;
 import team.three.usedstroller.api.error.ApiException;
+import team.three.usedstroller.api.gpt.dto.CacheReqDto;
 import team.three.usedstroller.api.gpt.dto.GptMessage;
 import team.three.usedstroller.api.gpt.dto.GptRequest;
 import team.three.usedstroller.api.gpt.dto.GptResponse;
@@ -248,7 +249,7 @@ public class GptService {
     sb.append("- 쌍둥이 : ").append(input.getTwin()? "예" : "아니오").append("\n");
     sb.append("- 신제품 최대 가격: ").append(input.getMaxPriceNew()).append("원\n");
     sb.append("- 중고제품 최대 가격: ").append(input.getMaxPriceUsed()).append("원\n");
-    sb.append("- 유모차 타입: ").append(input.getType()).append("\n");
+//    sb.append("- 유모차 타입: ").append(input.getType()).append("\n");
     // sb.append("- 유모차 무게: ").append(input.getWeightType()).append("\n");
     // sb.append("- 기내반입  ").append(input.getCarryOn() ? "예" : "아니오").append("\n");
     sb.append("- 기타 : ").append(input.getUserText()).append("\n\n");
@@ -312,5 +313,18 @@ public class GptService {
   private String cleanSummaryPrefix(String summary) {
     // 앞에 오는 숫자 + 점("2.") 또는 ** 제거
     return summary.replaceFirst("^(\\d+\\.\\s*|\\*\\*\\s*)", "").trim();
+  }
+
+  public void saveCache(CacheReqDto req) {
+    cacheManager.getCache("modelCache").put(req.getSessionId(),20L);
+  }
+
+
+  public Long getCache(String sessionId) {
+    Cache cache = cacheManager.getCache("modelCache");
+    if( cache == null ) return null;
+    Long modelId = cache.get(sessionId, Long.class);
+    cache.evict(sessionId);
+    return modelId;
   }
 }

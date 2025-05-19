@@ -61,7 +61,7 @@ public class SecurityConfig {
         .httpBasic(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(requests -> requests
-            .requestMatchers("/api/product/list/**","/api/product/get/**","/login", "/api/user/signup", "/reissue","/api/auth/kakao/**","/api/backend/auth/kakao/**","/api/auth/callback/**","/api/gpt/recommend", "/api/gpt/stream/**").permitAll()
+            .requestMatchers("/api/product/list/**","/api/product/get/**","/login", "/api/user/signup", "/reissue","/api/auth/kakao/**","/api/backend/auth/kakao/**","/api/auth/callback/**","/api/gpt/**", "/api/gpt/stream/**").permitAll()
             .anyRequest().authenticated()
         )
         .exceptionHandling(exceptions -> exceptions

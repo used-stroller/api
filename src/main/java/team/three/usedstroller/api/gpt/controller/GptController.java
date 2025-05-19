@@ -44,9 +44,4 @@ public class GptController {
     return gptService.getCache(sessionId);
   }
 
-  @GetMapping("/test/has/cache")
-  public boolean hasCache(String sessionId){
-    return gptService.hasCache(sessionId);
-  }
-
 }

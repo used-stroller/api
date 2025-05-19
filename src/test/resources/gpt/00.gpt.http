@@ -30,7 +30,7 @@ GET {{host}}/api/gpt/stream
 Content-Type: application/json; charset=utf-8
 
 ### 캐시 저장 테스트
-POST {{host}}/test/save/cache
+POST {{host}}/api/gpt/test/save/cache
 Content-Type: application/json; charset=utf-8
 
 {
@@ -38,9 +38,6 @@ Content-Type: application/json; charset=utf-8
 }
 
 ### 캐시 조회 테스트
-GET {{host}}/test/get/cache?sessionId=ldh0512
+GET {{host}}/api/gpt/test/get/cache?sessionId=ldh0512
 Content-Type: application/json; charset=utf-8
 
-### 캐시 존재 여부확인
-GET {{host}}/test/has/cache?sessionId=ldh0512
-Content-Type: application/json; charset=utf-8
