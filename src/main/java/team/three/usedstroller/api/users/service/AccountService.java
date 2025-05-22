@@ -23,6 +23,8 @@ import team.three.usedstroller.api.error.ApiErrorCode;
 import team.three.usedstroller.api.error.ApiException;
 import team.three.usedstroller.api.product.domain.FavoriteEntity;
 import team.three.usedstroller.api.product.domain.Product;
+import team.three.usedstroller.api.product.dto.res.ProductDetailDto;
+import team.three.usedstroller.api.product.dto.res.ProductDto;
 import team.three.usedstroller.api.product.repository.ProductRepository;
 import team.three.usedstroller.api.users.entity.Account;
 import team.three.usedstroller.api.users.dto.AccountDto;
@@ -134,24 +136,36 @@ public class AccountService {
   public MyPageDto getMyPage() {
 
     // 회원정보 조회
-    Long accountId = SecurityUtil.getAccountId();
+    // Long accountId = SecurityUtil.getAccountId();
+    Long accountId = 23L;
     Account account = accountRepository.findById(accountId).orElseThrow(() -> new ApiException(ApiErrorCode.MEMBER_NOT_FOUND));
-
-    // 관심상품 목록
-    List<FavoriteEntity> favorites = favoriteRepository.findByAccountId(accountId);
-    List<Long> ids = favorites.stream().map(FavoriteEntity::getProductId).toList();
-    List<Product> favoriteProducts = productRepository.findAllById(ids);
-    
-    // 판매상품 목록
-    List<Product> sellingProducts = productRepository.getProductListByAccountId(accountId);
 
     return MyPageDto.builder()
         .accountId(account.getId())
         .name(account.getName())
         .image(account.getImage())
         .kakaoId(account.getKakaoId())
-        .favorites(favoriteProducts)
-        .sellingList(sellingProducts)
         .build();
+  }
+
+  public List<ProductDto> getFavorites() {
+    // Long accountId = SecurityUtil.getAccountId();
+    Long accountId = 23L;
+    List<FavoriteEntity> favorites = favoriteRepository.findByAccountId(accountId);
+    List<Long> ids = favorites.stream().map(FavoriteEntity::getProductId).toList();
+    List<Product> favoriteProducts = productRepository.findAllById(ids);
+    return favoriteProducts.stream()
+        .map(ProductDto::toDto)
+        .toList();
+  }
+
+  public List<ProductDto> getSellingList() {
+    // Long accountId = SecurityUtil.getAccountId();
+    Long accountId = 23L;
+    // 판매상품 목록
+    List<Product> sellingProducts = productRepository.getProductListByAccountId(accountId);
+    return sellingProducts.stream()
+        .map(ProductDto::toDto)
+        .toList();
   }
 }

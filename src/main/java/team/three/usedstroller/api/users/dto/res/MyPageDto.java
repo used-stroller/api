@@ -21,6 +21,4 @@ public class MyPageDto {
 	private String name;
 	private String image;
 	private String kakaoId;
-	List<Product> favorites;
-	List<Product> sellingList;
 }

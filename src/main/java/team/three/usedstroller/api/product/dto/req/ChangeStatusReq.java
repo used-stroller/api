@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import team.three.usedstroller.api.enums.RegisterType;
 
 @Getter
 @ToString
@@ -18,5 +19,5 @@ import lombok.ToString;
 public class ChangeStatusReq implements Serializable {
 
   private Long id;
-  private String statusType;
+  private RegisterType statusType;
 }

@@ -291,7 +291,7 @@ public class ProductService {
   @Transactional
   public void changeStatus(ChangeStatusReq request) {
     Product productEntity = productRepository.findById(request.getId()).orElseThrow(() -> new ApiException(ApiErrorCode.PRODUCT_NOT_FOUND));
-    productEntity.setStatus(request.getStatusType());
+    productEntity.setStatus(request.getStatusType().toString());
   }
 
   //  public void modify(List<MultipartFile> newImages, String existringImages, Set deletedImages, String newImageData, Long productId) {

@@ -110,7 +110,6 @@ public class ProductRepositoryImpl implements CustomProductRepository {
       int totalCount = jpaQuery.fetch().size();
 
       List<ProductRes> products = jpaQuery
-          .orderBy(getOrderBy(pageable.getSort()))
           .orderBy(product.uploadDate.desc().nullsLast())
           .offset(pageable.getOffset())
           .limit(ObjectUtils.isEmpty(pageable.getPageSize()) ? 10: pageable.getPageSize())

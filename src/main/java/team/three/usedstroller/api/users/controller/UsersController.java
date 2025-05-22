@@ -1,5 +1,7 @@
 package team.three.usedstroller.api.users.controller;
 
+import java.util.List;
+
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import team.three.usedstroller.api.common.dto.ResponseDto;
+import team.three.usedstroller.api.product.dto.res.ProductDetailDto;
+import team.three.usedstroller.api.product.dto.res.ProductDto;
 import team.three.usedstroller.api.users.dto.AccountDto;
 import team.three.usedstroller.api.users.dto.LoginWrapperDto;
 import team.three.usedstroller.api.users.dto.ResponseLoginDto;
@@ -53,6 +57,16 @@ public class UsersController {
   @ResponseStatus(HttpStatus.CREATED)
   public ResponseEntity<ResponseDto<ResponseLoginDto>> kakaoLogin(@RequestBody LoginWrapperDto loginResult, HttpServletResponse response) {
     return ResponseDto.toResponseEntity(accountService.loginOrSignUp(loginResult,response));
+  }
+
+  @GetMapping("/mypage/favorites")
+  public ResponseEntity<ResponseDto<List<ProductDto>>> getFavorites() {
+    return ResponseDto.toResponseEntity(accountService.getFavorites());
+  }
+
+  @GetMapping("/mypage/selling-list")
+  public ResponseEntity<ResponseDto<List<ProductDto>>> getSellingList() {
+    return ResponseDto.toResponseEntity(accountService.getSellingList());
   }
 
 }
