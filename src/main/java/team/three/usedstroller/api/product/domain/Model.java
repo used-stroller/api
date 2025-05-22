@@ -47,5 +47,11 @@ public class Model extends BaseTimeEntity {
   private Boolean twin;
   private String etc;
   private String ImageUrl;
+  private Integer weightScore;
+  private Integer brandScore;
+  private Integer driveScore;
+  private Integer safeScore;
+  private Integer priceScore;
+  private Integer flightScore;
 
 }

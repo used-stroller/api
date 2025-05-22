@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import team.three.usedstroller.api.gpt.dto.CacheReqDto;
+import team.three.usedstroller.api.gpt.dto.ModelDto;
 import team.three.usedstroller.api.gpt.dto.UserInputReqDto;
 import team.three.usedstroller.api.gpt.service.GptService;
 
@@ -22,16 +23,13 @@ public class GptController {
   private final GptService gptService;
 
   @PostMapping(value = "/recommend", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-//  @PostMapping(value = "/recommend")
   public Flux<String> recommendStroller(@RequestBody UserInputReqDto req) {
       return gptService.recommendAndStream(req);
   }
 
-  @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-  public Flux<String> streamMessages() {
-    return Flux.interval(Duration.ofSeconds(1))
-        .take(5)
-        .map(i -> "메시지 " + i);
+  @GetMapping("/get/model")
+  public ModelDto getModelInfo(String sessionId){
+    return gptService.getModelInfo(sessionId);
   }
 
   @PostMapping("/test/save/cache")

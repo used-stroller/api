@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,14 +20,18 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import team.three.usedstroller.api.common.utils.EntityUtils;
+import team.three.usedstroller.api.enums.WeightKeyword;
 import team.three.usedstroller.api.error.ApiErrorCode;
 import team.three.usedstroller.api.error.ApiException;
 import team.three.usedstroller.api.gpt.dto.CacheReqDto;
 import team.three.usedstroller.api.gpt.dto.GptMessage;
 import team.three.usedstroller.api.gpt.dto.GptRequest;
 import team.three.usedstroller.api.gpt.dto.GptResponse;
+import team.three.usedstroller.api.gpt.dto.ModelDto;
 import team.three.usedstroller.api.gpt.dto.UserInputReqDto;
 import team.three.usedstroller.api.gpt.entity.ReviewSummaryEntity;
+import team.three.usedstroller.api.gpt.repository.ModelRepository;
 import team.three.usedstroller.api.gpt.repository.ModelRepositoryImpl;
 import team.three.usedstroller.api.gpt.repository.ReviewSummaryRepository;
 import team.three.usedstroller.api.product.domain.Model;
@@ -37,6 +42,7 @@ import team.three.usedstroller.api.product.domain.Model;
 public class GptService {
 
   private final ModelRepositoryImpl modelRepositoryImpl;
+  private final ModelRepository modelRepository;
   private final ReviewSummaryRepository reviewSummaryRepository;
   @Qualifier("gptWebClient")
   private final WebClient gptWebClient;
@@ -44,118 +50,51 @@ public class GptService {
 
   @Transactional
   public Flux<String> recommendAndStream(UserInputReqDto req) {
-    
+    List<Model> finalCandidates = new ArrayList<>();
+    Map<Model,Integer> dbScores = new HashMap<>();
+    List<Integer> weightKeywordList = req.getWeightKeywordList();
+
     // 후보 추리기
-    // 1. 하드조건(연령, 가격, 유모차 타입,쌍둥이)
-    Map<Model,Integer> modelScores = new HashMap<>();
+    // 1. 하드조건(연령, 가격,쌍둥이)
     List<Model> models = modelRepositoryImpl.filterByHardCondition(req);
     if(models.isEmpty()) {
       throw new ApiException(ApiErrorCode.MODEL_NOT_FOUND);
     }
 
-    // 2. 소프트 조건, 유저 가중치 기반으로 점수 50점만점
-    for (Model model : models) {
-      int score = 0;
-      score = getScore(req, model, score);
-      modelScores.put(model,score);
+    // 2-1. 소프트 조건 DB-score
+    for(Model model : models) {
+      int totalScore = getTotalScore(model, weightKeywordList);
+      dbScores.put(model, totalScore);
     }
-    log.info("modelScores: {}", modelScores);
 
-    // 4. 점수 순 정렬(3개)
-    List<Model> candidates = modelScores.entrySet()
+    List<Model> candidates = dbScores.entrySet()
         .stream()
         .sorted(Map.Entry.<Model, Integer>comparingByValue().reversed())
+        .map(Map.Entry::getKey) // 여기에서 Model만 추출
         .limit(3)
-        .map(Map.Entry::getKey) // ✅ 여기에서 Model만 추출
-        .collect(Collectors.toList());
-
-    log.info("sortedList: {}", candidates);
+        .toList();
 
     // 1순위 캐시에 저장
     Cache cache = cacheManager.getCache("modelCache");
     cache.put(req.getSessionId(),candidates.get(0).getId());
-
-    // 가져오는 로직
-    // Cache cache2 = cacheManager.getCache("modelCache");
-    // if(cache2 == null) return null;
-    // Long modelId = cache2.get(req.getSessionId(),Long.class);
-    // cache.evict(req.getSessionId());
 
     // 5. 최종 API 요청
     String apiPrompt = buildPromptRecommend(req, candidates);
     return simulateGptStreaming(apiPrompt,candidates);
   }
 
-  private int getScore(UserInputReqDto req, Model model, int score) {
-    // 기타요청 정확도 점수화
-    // 1. 프롬프트 작성
-    String userPrompt = scorePrompt(model.getId(), req.getUserText(), req.getWeightKeywordList());
-    // 2. api 요청
-    String res = callGptApi(userPrompt);
-    score = score + Integer.parseInt(res.replaceAll("점", "").replaceAll("\\.", ""));
-    return score;
+  private static int getTotalScore(Model model, List<Integer> weightKeywordList) {
+    int safeScore = weightKeywordList.contains(1) ? model.getSafeScore()*2 : model.getSafeScore();
+    int driveScore = weightKeywordList.contains(2) ? model.getDriveScore()*2: model.getDriveScore();
+    int brandScore = weightKeywordList.contains(3) ? model.getBrandScore()*2: model.getBrandScore();
+    int priceScore = weightKeywordList.contains(4) ? model.getPriceScore()*2: model.getPriceScore();
+    int weightScore = weightKeywordList.contains(5) ? model.getWeightScore()*2: model.getWeightScore();
+    int flightScore = weightKeywordList.contains(6) ? model.getFlightScore()*2: model.getFlightScore();
+	  return safeScore+driveScore+brandScore+priceScore+weightScore+flightScore;
   }
 
-  public String scorePrompt(Long modelId, String userText,List<String> weightKeywordList) {
-    // 후기 리스트 가져오기
-    List<ReviewSummaryEntity> reviewList = reviewSummaryRepository.findRandom3ByModelId(modelId);
 
-
-    StringBuilder sb = new StringBuilder();
-
-    sb.append("당신은 유모차를 추천하기 위해, 사용자의 요구사항과 제품 후기를 비교하여 점수를 매기는 도우미입니다.\n\n");
-
-    // 사용자 요청
-    sb.append("[사용자 요청사항]\n");
-    sb.append("\"").append(userText).append("\"\n\n");
-
-    // 중요 항목 (가중치 요소)
-    sb.append("[사용자가 중요하게 여기는 항목]\n");
-    for (String keyword : weightKeywordList) {
-      sb.append("- ").append(keyword).append("\n");
-    }
-    sb.append("\n");
-
-    // 후기들
-    for (int i = 0; i < reviewList.size(); i++) {
-      sb.append("[후기 ").append(i + 1).append("]\n");
-      sb.append("\"").append(reviewList.get(i)).append("\"\n\n");
-    }
-
-    sb.append("---\n\n");
-
-    sb.append("각 후기의 내용을 참고하여,\n");
-    sb.append("**사용자 요청사항과 후기들이 얼마나 잘 일치하는지**, 특히 '중요하게 여기는 항목'과 얼마나 잘 맞는지를 중심으로 평가해 주세요.\n\n");
-    sb.append("- 점수는 0점에서 50점 사이로 매겨주세요.\n");
-    sb.append("- 일치하는 내용이 많을수록 높은 점수를 주세요.\n");
-    sb.append("- **설명 없이 숫자 하나만 출력해 주세요.**\n");
-    return sb.toString();
-  }
-
-  public String callGptApi(String userPrompt) {
-    GptRequest request = new GptRequest(
-        "gpt-3.5-turbo",
-        List.of(
-            new GptMessage("user", userPrompt)
-        )
-    );
-
-    GptResponse response = gptWebClient.post()
-        .bodyValue(request)
-        .retrieve()
-        .onStatus(HttpStatusCode::isError, res ->
-            res.bodyToMono(String.class).flatMap(errorBody -> {
-              log.info("에러바디 :" + errorBody);
-              return Mono.error(new RuntimeException("상태코드 :" + res.statusCode()));
-            })
-        )
-        .bodyToMono(GptResponse.class)
-        .block();
-
-    return response.getChoices().get(0).getMessage().getContent();
-  }
-
-  public Flux<String> simulateGptStreaming(String userPrompt, List<Model> candidates) {
+  private Flux<String> simulateGptStreaming(String userPrompt, List<Model> candidates) {
     Map<String,String> modelImageMap = new HashMap<>();
     for (Model model : candidates) {
       String modelName = model.getName();
@@ -189,12 +128,12 @@ public class GptService {
             return "";
           }
         })
-        .flatMapMany(fullText -> {
+        .flatMapMany(fullText -> { // flatMapMany는 Mono 값을 Flux로 변환할때 씀 hello => h,e,l,l,o
           // ① 문장 단위 혹은 줄 단위 분할
-          String[] chunks = fullText.split("(?<=\\.|\\n)"); // 문장 끝 기준
+          String[] chunks = fullText.split("(?<=\\.|\\n)"); // 마침표나 줄바꿈으로 끊음
           return Flux.fromArray(chunks);
         })
-        .map(String::trim)
+        .map(String::trim) // 앞뒤공백제거
         .filter(chunk -> !chunk.isEmpty())
         .map(chunk -> {
           // "![모델명](이미지 URL)" 형태의 텍스트인지 확인
@@ -215,10 +154,6 @@ public class GptService {
         .delayElements(Duration.ofMillis(800)) // ② 스트리밍처럼 보여주기
         .doOnNext(chunk -> log.info("🔸 응답 전송: {}", chunk));
   }
-
-
-
-
 
   public String buildPromptRecommend(UserInputReqDto input, List<Model> candidates) {
     StringBuilder sb = new StringBuilder();
@@ -249,9 +184,6 @@ public class GptService {
     sb.append("- 쌍둥이 : ").append(input.getTwin()? "예" : "아니오").append("\n");
     sb.append("- 신제품 최대 가격: ").append(input.getMaxPriceNew()).append("원\n");
     sb.append("- 중고제품 최대 가격: ").append(input.getMaxPriceUsed()).append("원\n");
-//    sb.append("- 유모차 타입: ").append(input.getType()).append("\n");
-    // sb.append("- 유모차 무게: ").append(input.getWeightType()).append("\n");
-    // sb.append("- 기내반입  ").append(input.getCarryOn() ? "예" : "아니오").append("\n");
     sb.append("- 기타 : ").append(input.getUserText()).append("\n\n");
 
     // 4. 후보 모델 정보
@@ -259,6 +191,8 @@ public class GptService {
     for (int i = 0; i < candidates.size(); i++) {
       List<ReviewSummaryEntity>  reviews = reviewSummaryRepository.findRandom3ByModelId(candidates.get(i).getId());
       String rank = (i == 0) ? "1순위" : "2순위";
+      sb.append(rank).append(" - ").append(candidates.get(i).getBrand()).append(" ").append(candidates.get(i).getName()).append("\n");
+      sb.append("- 후기 요약:\n");
       // sb.append(index++).append(". ").append(model.getBrand()).append(" ").append(model.getName()).append(" (").append(model.getBrand()).append(")\n");
       // sb.append("- 유모차 타입: ").append(model.getStrollerType()).append("\n");
       // sb.append("- 출시년도: ").append(model.getLaunched()).append("년\n");
@@ -272,18 +206,17 @@ public class GptService {
       // sb.append("- 기내반입 여부: ").append(model.getCarryOn()).append("\n");
       // sb.append("- 쌍둥이 여부: ").append(model.getTwin()).append("\n");
       // sb.append("- 이미지: ").append(model.getImageUrl()).append("\n");
-      sb.append(rank).append(" - ").append(candidates.get(i).getBrand()).append(" ").append(candidates.get(i).getName()).append("\n");
-      sb.append("- 후기 요약:\n");
       for(ReviewSummaryEntity review : reviews) {
         String cleaned = cleanSummaryPrefix(review.getSummary());
         sb.append("> ").append(cleaned).append("\n");
       }
     }
 
-    // 5. 질문
-    sb.append("[질문]\n");
+    // 5. 답변
+    sb.append("[답변]\n");
     sb.append("위 두 모델은 각각 어떤 장단점이 있는지 설명해줘.\n");
     sb.append("두 모델을 비교한 후, 사용자 조건에 가장 적합한 유모차 1개를 최종 추천해줘.\n");
+    sb.append("사용자 조건 중 '기타'에 들어갔던 내용도 언급을 해줘.\n");
     sb.append("두 모델 모두 꼭 언급해주고, 비교 설명은 상세히 해줘.\n");
     sb.append("- 어머님 타겟의 따뜻하고 신뢰감 있는 말투로.\n");
     sb.append("- 문장은 부드럽지만 신뢰감 있게, 실제 사용 상황을 떠올리게 설명해줘.\n");
@@ -326,5 +259,111 @@ public class GptService {
     Long modelId = cache.get(sessionId, Long.class);
     cache.evict(sessionId);
     return modelId;
+  }
+
+  public ModelDto getModelInfo(String sessionId) {
+    // 캐시에서 모델 id 가져오기, key는 sessionId, value = modelId
+    Cache cache = cacheManager.getCache("modelCache");
+    if( cache == null ) return null;
+    Long modelId = cache.get(sessionId, Long.class);
+    // 모델조회
+    Model model = EntityUtils.findOrThrow(modelRepository.findById(modelId), ApiErrorCode.MODEL_NOT_FOUND);
+    cache.evict(sessionId);
+    return ModelDto.of(model);
+  }
+
+
+  // ============================================안쓰는 부분 =========================================================
+
+
+  // 2-2. 소프트 조건 gpt-score, 하드조건에 뽑힌 모델, 유저 가중치 기반으로 점수 50점만점 , 생략 => GPT 부분
+  // for (Model model : models) {
+  //   int score = 0;
+  //   score = getScore(req, model, score);
+  //   modelScores.put(model,score);
+  // }
+  //
+  // log.info("modelScores: {}", modelScores);
+  //
+  // // 3. 점수 순 정렬(3개)
+  // List<Model> gptCandidates = modelScores.entrySet()
+  //     .stream()
+  //     .sorted(Map.Entry.<Model, Integer>comparingByValue().reversed())
+  //     .map(Map.Entry::getKey) // 여기에서 Model만 추출
+  //     .collect(Collectors.toList());
+  //
+  // log.info("sortedList: {}", gptCandidates);
+
+
+
+  private int getScore(UserInputReqDto req, Model model, int score) {
+    // 기타요청 정확도 점수화
+    // 1. 프롬프트 작성
+    String userPrompt = scorePrompt(model.getId(), req.getUserText(), req.getWeightKeywordList());
+    // 2. api 요청
+    String res = callGptApi(userPrompt);
+    score = score + Integer.parseInt(res.replaceAll("점", "").replaceAll("\\.", ""));
+    return score;
+  }
+
+  public String scorePrompt(Long modelId, String userText,List<Integer> weightKeywordList) {
+    // 후기 리스트 가져오기
+    List<ReviewSummaryEntity> reviewList = reviewSummaryRepository.findRandom3ByModelId(modelId);
+
+
+    StringBuilder sb = new StringBuilder();
+
+    sb.append("당신은 유모차를 추천하기 위해, 사용자의 요구사항과 제품 후기를 비교하여 점수를 매기는 도우미입니다.\n\n");
+
+    // 사용자 요청
+    sb.append("[사용자 요청사항]\n");
+    sb.append("\"").append(userText).append("\"\n\n");
+
+    // 중요 항목 (가중치 요소)
+
+    sb.append("[사용자가 중요하게 여기는 항목]\n");
+    for (Integer code : weightKeywordList) {
+      String keyword = WeightKeyword.labelOf(code);
+      sb.append("- ").append(keyword).append("\n");
+    }
+    sb.append("\n");
+
+    // 후기들
+    for (int i = 0; i < reviewList.size(); i++) {
+      sb.append("[후기 ").append(i + 1).append("]\n");
+      sb.append("\"").append(reviewList.get(i)).append("\"\n\n");
+    }
+
+    sb.append("---\n\n");
+
+    sb.append("각 후기의 내용을 참고하여,\n");
+    sb.append("**사용자 요청사항과 후기들이 얼마나 잘 일치하는지**, 특히 '중요하게 여기는 항목'과 얼마나 잘 맞는지를 중심으로 평가해 주세요.\n\n");
+    sb.append("- 점수는 0점에서 50점 사이로 매겨주세요.\n");
+    sb.append("- 일치하는 내용이 많을수록 높은 점수를 주세요.\n");
+    sb.append("- **설명 없이 숫자 하나만 출력해 주세요.**\n");
+    return sb.toString();
+  }
+
+  public String callGptApi(String userPrompt) {
+    GptRequest request = new GptRequest(
+        "gpt-3.5-turbo",
+        List.of(
+            new GptMessage("user", userPrompt)
+        )
+    );
+
+    GptResponse response = gptWebClient.post()
+        .bodyValue(request)
+        .retrieve()
+        .onStatus(HttpStatusCode::isError, res ->
+            res.bodyToMono(String.class).flatMap(errorBody -> {
+              log.info("에러바디 :" + errorBody);
+              return Mono.error(new RuntimeException("상태코드 :" + res.statusCode()));
+            })
+        )
+        .bodyToMono(GptResponse.class)
+        .block();
+
+    return response.getChoices().get(0).getMessage().getContent();
   }
 }

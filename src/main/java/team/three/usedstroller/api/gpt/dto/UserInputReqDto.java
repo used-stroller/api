@@ -21,6 +21,6 @@ public class UserInputReqDto {
   // private StrollerType type;
   // private WeightType weightType;
   private String userText;
-  private List<String> weightKeywordList;
+  private List<Integer> weightKeywordList;
   private String sessionId;
 }
