@@ -27,6 +27,11 @@ public class GptController {
       return gptService.recommendAndStream(req);
   }
 
+  @PostMapping(value = "/recommend/test", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  public Flux<String> recommendStrollerTest(@RequestBody UserInputReqDto req) {
+    return gptService.recommendAndStreamTest(req);
+  }
+
   @GetMapping("/get/model")
   public ModelDto getModelInfo(String sessionId){
     return gptService.getModelInfo(sessionId);

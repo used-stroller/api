@@ -9,7 +9,23 @@ Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4N
   "maxPriceUsed": 500000,
   "twin": false,
   "userText": "기내반입,폴딩이 쉬웠으면 좋겠음, 이쁜",
-  "weightKeywordList": ["가벼움","승차감","최신모델"]
+  "weightKeywordList": [4,5,6],
+  "sessionId": "ldh"
+}
+
+### gpt 테스트용
+POST {{host}}/api/gpt/recommend/test
+Content-Type: application/json; charset=utf-8
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4NzIzMTQiLCJOQU1FIjoi7J2064-Z7ZuIIiwiZXhwIjoxNzQ2MjIyMjMxfQ.w4YyFemQqNXjmBq7q6_tBW2f-pm67In29MNu7QdDaVy8N1NdTU4KEMl6VAHq2g9joPS-5Cr4VBG07FUcWQkmRg
+
+{
+  "ageCode": "m",
+  "maxPriceNew": 800000,
+  "maxPriceUsed": 500000,
+  "twin": false,
+  "userText": "기내반입,폴딩이 쉬웠으면 좋겠음, 이쁜",
+  "weightKeywordList": [4,5,6],
+  "sessionId": "ldh"
 }
 
 ### 상품목록
