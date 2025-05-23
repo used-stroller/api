@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import team.three.usedstroller.api.chat.document.ChatMessage;
 import team.three.usedstroller.api.chat.document.ChatRoom;
 import team.three.usedstroller.api.chat.dto.ChatMessageDto;
+import team.three.usedstroller.api.chat.dto.CreateChatDto;
 import team.three.usedstroller.api.chat.repository.ChatMessageRepository;
 import team.three.usedstroller.api.chat.repository.ChatRoomRepository;
 
@@ -36,6 +37,9 @@ public class ChatService {
         }
       return chatHistory;
     }
+
+
+
     public static String convertDateFormat(String inputDate) {
         LocalDateTime localDateTime = LocalDateTime.parse(inputDate, DateTimeFormatter.ISO_DATE_TIME);
 
@@ -44,15 +48,17 @@ public class ChatService {
         return formattedDate;
     }
 
-    public ChatRoom createChatRoom(List<String> userIds) {
-        Collections.sort(userIds);
-        ChatRoom chatRoom = ChatRoom.builder()
-            .id(String.join("_", userIds))
-            .lastMessage("")
-            .users(userIds)
-            .lastMessageTimeStamp(System.currentTimeMillis())
-            .build();
-        return chatRoomRepository.save(chatRoom);
-
+    public ChatRoom createChatRoom(CreateChatDto req) {
+        Collections.sort(req.getUserIds());
+        String chatRoomId = req.getProductId()+"_"+String.join("_", req.getUserIds());
+        return chatRoomRepository.findById(chatRoomId).orElseGet(() -> {
+            ChatRoom chatRoom = ChatRoom.builder()
+                .id(chatRoomId)
+                .lastMessage("")
+                .users(req.getUserIds())
+                .lastMessageTimeStamp(System.currentTimeMillis())
+                .build();
+            return chatRoomRepository.save(chatRoom);
+        });
     }
 }

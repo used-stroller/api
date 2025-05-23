@@ -3,11 +3,16 @@ package team.three.usedstroller.api.chat.service;
 import com.corundumstudio.socketio.SocketIOServer;
 import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
+
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
 import team.three.usedstroller.api.chat.document.ChatMessage;
 import team.three.usedstroller.api.chat.repository.ChatMessageRepository;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ChatSocketHandler {
@@ -39,10 +44,18 @@ public class ChatSocketHandler {
         // 연결 종료 후 필요한 작업 처리
       });
     server.start();
-  }
-    else {
-      System.out.println("⚠️ 이미 Socket.IO 서버가 실행 중입니다.");
     }
-}
+      else {
+        System.out.println("⚠️ 이미 Socket.IO 서버가 실행 중입니다.");
+      }
+  }
+
+  @PreDestroy
+  public void shutdown() {
+    if (isStarted) {
+      log.info("Socket.IO 서버 종료중...");
+      server.stop();
+    }
+  }
 
 }

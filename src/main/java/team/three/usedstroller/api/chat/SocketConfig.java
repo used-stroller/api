@@ -8,10 +8,15 @@ import com.corundumstudio.socketio.Transport;
 import com.corundumstudio.socketio.listener.DataListener;
 import org.json.JSONException;
 import org.springframework.context.annotation.Bean;
-import team.three.usedstroller.api.chat.document.ChatMessage;
 
+import lombok.RequiredArgsConstructor;
+import team.three.usedstroller.api.chat.document.ChatMessage;
+import team.three.usedstroller.api.chat.repository.ChatMessageRepository;
+
+@RequiredArgsConstructor
 @org.springframework.context.annotation.Configuration
 public class SocketConfig {
+  private final ChatMessageRepository chatMessageRepository;
   @Bean
   public SocketIOServer socketIOServer() {
     Configuration config = new Configuration();
@@ -27,6 +32,9 @@ public class SocketConfig {
     server.addEventListener("sendMessage", ChatMessage.class, new DataListener<ChatMessage>() {
       @Override
       public void onData(SocketIOClient client, ChatMessage data, AckRequest ackRequest) throws JSONException {
+
+        // 저장
+        chatMessageRepository.save(data);
         // 수신된 메시지에서 방 ID, 보낸 사람, 메시지 내용 추출
         String roomId = data.getRoomId();
         String sender = data.getSender();

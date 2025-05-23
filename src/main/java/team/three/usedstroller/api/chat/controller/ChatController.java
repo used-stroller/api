@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import team.three.usedstroller.api.chat.document.ChatRoom;
 import team.three.usedstroller.api.chat.dto.ChatMessageDto;
+import team.three.usedstroller.api.chat.dto.CreateChatDto;
 import team.three.usedstroller.api.chat.service.ChatService;
 
 @RestController
@@ -27,7 +28,7 @@ public class ChatController {
   }
 
   @PostMapping("/create")
-  public ChatRoom createChatRoom(@RequestBody List<String> userIds) {
-    return chatService.createChatRoom(userIds);
+  public ChatRoom createChatRoom(@RequestBody CreateChatDto req) {
+    return chatService.createChatRoom(req);
   }
 }
