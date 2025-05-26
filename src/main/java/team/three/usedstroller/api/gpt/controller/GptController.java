@@ -46,5 +46,4 @@ public class GptController {
   public Long getCache(String sessionId){
     return gptService.getCache(sessionId);
   }
-
 }

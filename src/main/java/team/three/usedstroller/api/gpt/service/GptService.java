@@ -5,12 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -121,7 +124,12 @@ public class GptService {
         "아가와 행복한 외출 시간을 즐기며, 즐거운 육아 생활 이어가시길 바랍니다."
     };
 
-    return Flux.fromArray(lines)
+    List<String> mergedLines = toMarkDownFormat(lines);
+
+    // 배열로 변환
+    String[] fixedLines = mergedLines.toArray(new String[0]);
+
+    return Flux.fromArray(fixedLines)
         .delayElements(Duration.ofMillis(400))
         .doOnNext(chunk -> log.info("🔸 응답 전송: {}", chunk));
   }
@@ -174,7 +182,12 @@ public class GptService {
         .flatMapMany(fullText -> { // flatMapMany는 Mono 값을 Flux로 변환할때 씀 hello => h,e,l,l,o
           // ① 문장 단위 혹은 줄 단위 분할
           String[] chunks = fullText.split("(?<=\\.|\\n)"); // 마침표나 줄바꿈으로 끊음
-          return Flux.fromArray(chunks);
+
+          List<String> mergedLines = toMarkDownFormat(chunks);
+          // 배열로 변환
+          String[] fixedLines = mergedLines.toArray(String[]::new);
+
+          return Flux.fromArray(fixedLines);
         })
         .map(String::trim) // 앞뒤공백제거
         .filter(chunk -> !chunk.isEmpty())
@@ -198,6 +211,33 @@ public class GptService {
         .doOnNext(chunk -> log.info("🔸 응답 전송: {}", chunk));
   }
 
+  private static @NotNull List<String> toMarkDownFormat(String[] chunks) {
+    List<String> mergedLines = new ArrayList<>();
+    StringBuilder buffer = new StringBuilder();
+    boolean inImageMarkdown = false;
+
+    for (String line : chunks) {
+      if (line.contains("![")) {
+        // 이미지 마크다운 시작: buffer에 쌓기 시작
+        inImageMarkdown = true;
+        buffer.append(line);
+      } else if (inImageMarkdown) {
+        // 마크다운 이어붙이기 중
+        buffer.append(line);
+        if (line.contains(")")) {
+          // 닫힘 ')' 발견 시 이미지 마크다운 완료 → 리스트에 추가
+          mergedLines.add(buffer.toString());
+          buffer.setLength(0);
+          inImageMarkdown = false;
+        }
+      } else {
+        // 일반 텍스트는 그대로 추가
+        mergedLines.add(line);
+      }
+    }
+    return mergedLines;
+  }
+
   public String buildPromptRecommend(UserInputReqDto input, List<Model> candidates) {
     StringBuilder sb = new StringBuilder();
 
@@ -212,9 +252,11 @@ public class GptService {
 
     // 2. 답변 출력 포맷 안내
     sb.append("[답변 출력 포맷]\n");
-    sb.append("1. **모델명**  \n");
-    sb.append("   ![모델명](이미지 URL)\n");
-    sb.append("2. 추천 이유 설명\n");
+    sb.append("1순위 **모델명**  \n");
+    sb.append("   ![모델명](").append(candidates.get(0).getImageUrl() == null? "":candidates.get(0).getImageUrl()).append(")\n");
+    sb.append("2순위 **모델명**  \n");
+    sb.append("   ![모델명](").append(candidates.get(1).getImageUrl() == null? "":candidates.get(1).getImageUrl()).append(")\n");
+    sb.append("**추천 이유 설명**\n");
     // sb.append("3. 하이퍼링크 텍스트는 절대로 줄을 나누지 말고 한 줄로 출력\n");
     // sb.append("4. [더 많은 중고 유모차 보러가기](https://jungmocha.co.kr)\n\n");
 
@@ -236,19 +278,6 @@ public class GptService {
       String rank = (i == 0) ? "1순위" : "2순위";
       sb.append(rank).append(" - ").append(candidates.get(i).getBrand()).append(" ").append(candidates.get(i).getName()).append("\n");
       sb.append("- 후기 요약:\n");
-      // sb.append(index++).append(". ").append(model.getBrand()).append(" ").append(model.getName()).append(" (").append(model.getBrand()).append(")\n");
-      // sb.append("- 유모차 타입: ").append(model.getStrollerType()).append("\n");
-      // sb.append("- 출시년도: ").append(model.getLaunched()).append("년\n");
-      // sb.append("- 제조: ").append(model.getCountry()).append("\n");
-      // sb.append("- 신제품 가격: ").append(model.getNewPrice()).append("원\n");
-      // sb.append("- 중고 가격: ").append(model.getUsedPrice()).append("원\n");
-      // sb.append("- 무게: ").append(model.getWeight()).append("kg\n");
-      // sb.append("- 무게 타입: ").append(model.getWeightType()).append("\n");
-      // sb.append("- 사이즈: ").append(model.getSize()).append("cm\n");
-      // sb.append("- 등받이 조절: ").append(model.getReclining()).append("(각도)조절\n");
-      // sb.append("- 기내반입 여부: ").append(model.getCarryOn()).append("\n");
-      // sb.append("- 쌍둥이 여부: ").append(model.getTwin()).append("\n");
-      // sb.append("- 이미지: ").append(model.getImageUrl()).append("\n");
       for(ReviewSummaryEntity review : reviews) {
         String cleaned = cleanSummaryPrefix(review.getSummary());
         sb.append("> ").append(cleaned).append("\n");
@@ -260,6 +289,7 @@ public class GptService {
     sb.append("위 두 모델은 각각 어떤 장단점이 있는지 설명해줘.\n");
     sb.append("두 모델을 비교한 후, 사용자 조건에 가장 적합한 유모차 1개를 최종 추천해줘.\n");
     sb.append("사용자 조건 중 '기타'에 들어갔던 내용도 언급을 해줘.\n");
+    sb.append("사용자 조건 중 아기 개월수, 가격에 대한 부분도 언급해줘.\n");
     sb.append("두 모델 모두 꼭 언급해주고, 비교 설명은 상세히 해줘.\n");
     sb.append("- 어머님 타겟의 따뜻하고 신뢰감 있는 말투로.\n");
     sb.append("- 문장은 부드럽지만 신뢰감 있게, 실제 사용 상황을 떠올리게 설명해줘.\n");
