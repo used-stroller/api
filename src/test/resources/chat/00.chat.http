@@ -1,0 +1,18 @@
+### 채팅방 생성
+POST {{host}}/api/chat/create
+Content-Type: application/json; charset=utf-8
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4NzIzMTQiLCJOQU1FIjoi7J2064-Z7ZuIIiwiZXhwIjoxNzQ2MjIyMjMxfQ.w4YyFemQqNXjmBq7q6_tBW2f-pm67In29MNu7QdDaVy8N1NdTU4KEMl6VAHq2g9joPS-5Cr4VBG07FUcWQkmRg
+
+{
+  "userIds": [1,3],
+  "productId": 2
+}
+
+### 채팅방 상세
+POST {{host}}/api/chat/history?roomId=1L
+Content-Type: application/json; charset=utf-8
+
+### 채팅방 리스트
+GET {{host}}/api/chat/list?userId=1
+Content-Type: application/json; charset=utf-8
+

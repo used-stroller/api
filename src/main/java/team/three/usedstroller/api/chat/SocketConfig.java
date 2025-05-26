@@ -1,5 +1,7 @@
 package team.three.usedstroller.api.chat;
 
+import java.time.LocalDateTime;
+
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOClient;
@@ -11,12 +13,17 @@ import org.springframework.context.annotation.Bean;
 
 import lombok.RequiredArgsConstructor;
 import team.three.usedstroller.api.chat.document.ChatMessage;
+import team.three.usedstroller.api.chat.document.ChatRoom;
 import team.three.usedstroller.api.chat.repository.ChatMessageRepository;
+import team.three.usedstroller.api.chat.repository.ChatRoomRepository;
+import team.three.usedstroller.api.common.utils.EntityUtils;
+import team.three.usedstroller.api.error.ApiErrorCode;
 
 @RequiredArgsConstructor
 @org.springframework.context.annotation.Configuration
 public class SocketConfig {
   private final ChatMessageRepository chatMessageRepository;
+  private final ChatRoomRepository chatRoomRepository;
   @Bean
   public SocketIOServer socketIOServer() {
     Configuration config = new Configuration();
@@ -32,12 +39,16 @@ public class SocketConfig {
     server.addEventListener("sendMessage", ChatMessage.class, new DataListener<ChatMessage>() {
       @Override
       public void onData(SocketIOClient client, ChatMessage data, AckRequest ackRequest) throws JSONException {
-
+        
+        // 업데이트 시간 저장
+        ChatRoom room = EntityUtils.findOrThrow(chatRoomRepository.findById(data.getRoomId()),
+            ApiErrorCode.RESOURCE_NOT_FOUND);
+        room.setUpdatedAt(LocalDateTime.now());
+        chatRoomRepository.save(room);
         // 저장
         chatMessageRepository.save(data);
         // 수신된 메시지에서 방 ID, 보낸 사람, 메시지 내용 추출
         String roomId = data.getRoomId();
-        String sender = data.getSender();
         String message = data.getMessage();
         // 해당 방에 있는 모든 클라이언트에게 "message" 이벤트로 메시지 전송
         server.getRoomOperations(roomId).sendEvent("message", message);

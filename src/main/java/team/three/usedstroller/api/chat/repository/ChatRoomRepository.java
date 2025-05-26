@@ -7,5 +7,5 @@ import team.three.usedstroller.api.chat.document.ChatRoom;
 
 public interface ChatRoomRepository extends MongoRepository<ChatRoom, String> {
 	// users 리스트에 특정 userId가 포함된 채팅방을 조회
-	List<ChatRoom> findByUsersContains(String userId);
+	List<ChatRoom> findByUsersContainsOrderByUpdatedAtDesc(String userId);
 }
