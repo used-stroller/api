@@ -17,10 +17,14 @@ public class UserInputReqDto {
   private String ageCode;
   private Long maxPriceNew;
   private Long maxPriceUsed;
-  private Boolean twin;
+  private String twin;
   // private StrollerType type;
   // private WeightType weightType;
   private String userText;
   private List<Integer> weightKeywordList;
   private String sessionId;
+
+  public Boolean getTwin() {
+    return "yes".equalsIgnoreCase(twin);
+  }
 }
