@@ -1,9 +1,8 @@
 package team.three.usedstroller.api.users.service;
 
-import java.util.List;
-
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,16 +22,15 @@ import team.three.usedstroller.api.error.ApiErrorCode;
 import team.three.usedstroller.api.error.ApiException;
 import team.three.usedstroller.api.product.domain.FavoriteEntity;
 import team.three.usedstroller.api.product.domain.Product;
-import team.three.usedstroller.api.product.dto.res.ProductDetailDto;
 import team.three.usedstroller.api.product.dto.res.ProductDto;
 import team.three.usedstroller.api.product.repository.ProductRepository;
-import team.three.usedstroller.api.users.entity.Account;
 import team.three.usedstroller.api.users.dto.AccountDto;
 import team.three.usedstroller.api.users.dto.LoginWrapperDto;
 import team.three.usedstroller.api.users.dto.ResponseLoginDto;
 import team.three.usedstroller.api.users.dto.ResponseLoginTokenDto;
 import team.three.usedstroller.api.users.dto.ResultDto;
 import team.three.usedstroller.api.users.dto.res.MyPageDto;
+import team.three.usedstroller.api.users.entity.Account;
 import team.three.usedstroller.api.users.repository.AccountRepository;
 import team.three.usedstroller.api.users.repository.FavoriteRepository;
 
@@ -136,8 +134,7 @@ public class AccountService {
   public MyPageDto getMyPage() {
 
     // 회원정보 조회
-    // Long accountId = SecurityUtil.getAccountId();
-    Long accountId = 23L;
+     Long accountId = SecurityUtil.getAccountId();
     Account account = accountRepository.findById(accountId).orElseThrow(() -> new ApiException(ApiErrorCode.MEMBER_NOT_FOUND));
 
     return MyPageDto.builder()
@@ -149,8 +146,7 @@ public class AccountService {
   }
 
   public List<ProductDto> getFavorites() {
-    // Long accountId = SecurityUtil.getAccountId();
-    Long accountId = 23L;
+     Long accountId = SecurityUtil.getAccountId();
     List<FavoriteEntity> favorites = favoriteRepository.findByAccountId(accountId);
     List<Long> ids = favorites.stream().map(FavoriteEntity::getProductId).toList();
     List<Product> favoriteProducts = productRepository.findAllById(ids);
@@ -160,8 +156,7 @@ public class AccountService {
   }
 
   public List<ProductDto> getSellingList() {
-    // Long accountId = SecurityUtil.getAccountId();
-    Long accountId = 23L;
+     Long accountId = SecurityUtil.getAccountId();
     // 판매상품 목록
     List<Product> sellingProducts = productRepository.getProductListByAccountId(accountId);
     return sellingProducts.stream()

@@ -2,17 +2,13 @@ package team.three.usedstroller.api.gpt.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.Cache;
@@ -53,7 +49,6 @@ public class GptService {
 
   @Transactional
   public Flux<String> recommendAndStream(UserInputReqDto req) {
-    List<Model> finalCandidates = new ArrayList<>();
     Map<Model,Integer> dbScores = new HashMap<>();
     List<Integer> weightKeywordList = req.getWeightKeywordList();
 
@@ -88,6 +83,7 @@ public class GptService {
 
   @Transactional
   public Flux<String> recommendAndStreamTest(UserInputReqDto req) {
+    cacheManager.getCache("modelCache").put(req.getSessionId(),20L);
     String[] lines = {
         "1.",
         "**줄즈 에어플러스**",
