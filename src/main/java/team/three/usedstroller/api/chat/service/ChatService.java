@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.text.html.parser.Entity;
 
@@ -25,6 +26,7 @@ import team.three.usedstroller.api.chat.repository.ChatRoomRepository;
 import team.three.usedstroller.api.common.utils.EntityUtils;
 import team.three.usedstroller.api.common.utils.SecurityUtil;
 import team.three.usedstroller.api.error.ApiErrorCode;
+import team.three.usedstroller.api.error.ApiException;
 import team.three.usedstroller.api.product.domain.Product;
 import team.three.usedstroller.api.product.repository.ProductRepository;
 import team.three.usedstroller.api.users.entity.Account;
@@ -40,6 +42,13 @@ public class ChatService {
     private final MongoTemplate mongoTemplate;
 
     public List<ChatMessageDto> getChatHistory(String roomId) {
+        // 채팅 대상자 아닌사람이 조회할경우 예외처리
+        Long sender = SecurityUtil.getAccountId();
+        ChatRoom room = EntityUtils.findOrThrow(chatRoomRepository.findById(roomId),ApiErrorCode.CHAT_ROOM_NOT_FOUND);
+        boolean isParticipant = room.getUsers().contains(sender.toString());
+        if (!isParticipant) {
+            throw new ApiException(ApiErrorCode.UNAUTHORIZED_CHAT_USER);
+        }
 
         // 모든 메시지 읽음 표시
         markMessagesAsRead(roomId,SecurityUtil.getAccountId().toString());

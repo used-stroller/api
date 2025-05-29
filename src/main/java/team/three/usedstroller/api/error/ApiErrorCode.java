@@ -21,6 +21,7 @@ public enum ApiErrorCode {
   INVALID_TOKEN               (HttpStatus.UNAUTHORIZED, "E40100" , "토큰이 유효하지 않습니다."),
   INVALID_REFRESH_TOKEN       (HttpStatus.UNAUTHORIZED, "E40101" , "리프레시 토큰이 유효하지 않습니다."),
   MISMATCH_REFRESH_TOKEN      (HttpStatus.UNAUTHORIZED, "E40102" , "리프레시 토큰의 유저 정보가 일치하지 않습니다."),
+  UNAUTHORIZED_CHAT_USER      (HttpStatus.UNAUTHORIZED, "E40103" , "채팅방에 참여한 유저만 조회할 수 있습니다."),
 
   // 403 FORBIDDEN
   ACCESS_DENIED_EXCEPTION     (HttpStatus.FORBIDDEN,    "E40300" , "접근할 수 없는 권한 입니다"),
@@ -28,6 +29,7 @@ public enum ApiErrorCode {
   // --- 404 NOT_FOUND
   RESOURCE_NOT_FOUND          (HttpStatus.NOT_FOUND,    "E40400" , "요청한 리소스를 찾을 수 없습니다"),
   MODEL_NOT_FOUND             (HttpStatus.NOT_FOUND,  "E40001" , "조건에 해당하는 모델이 없습니다. \n조건을 다시 입력해주세요"),
+  CHAT_ROOM_NOT_FOUND         (HttpStatus.NOT_FOUND,  "E40002" , "채팅방이 없습니다."),
 
   // 408 REQUEST_TIMEOUT
   NETWORK_TIMEOUT_ERROR       (HttpStatus.REQUEST_TIMEOUT, "E40901", "네트워크 오류가 발생했습니다. 다시 시도해주세요"),
