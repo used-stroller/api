@@ -84,22 +84,42 @@ public class SecurityConfig {
     return configuration.getAuthenticationManager();
   }
 
+  // public CorsConfigurationSource corsConfigurationSource() {
+  //   CorsConfiguration corsConfiguration = new CorsConfiguration();
+  //   corsConfiguration.setAllowedOrigins(List.of(
+  //       "http://localhost:3000",
+  //       "https://jungmocha.co.kr",
+  //       "https://front-git-feature-gpt-donghuns-projects.vercel.app"
+  //
+  //   ));
+  //   corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+  //   corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
+  //   corsConfiguration.setAllowCredentials(true);
+  //   corsConfiguration.setMaxAge(Duration.ofDays(1));
+  //
+  //   UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+  //   source.registerCorsConfiguration("/**", corsConfiguration);
+  //   return source;
+  // }
+  @Bean
   public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration corsConfiguration = new CorsConfiguration();
-    corsConfiguration.setAllowedOrigins(List.of(
-        "http://localhost:3000",
-        "https://jungmocha.co.kr",
-        "https://front-git-feature-gpt-donghuns-projects.vercel.app"
+    return request -> {
+      String origin = request.getHeader("Origin");
+      log.info("🔥 CORS 요청 origin: {}", origin); // 여기에 찍히는지 확인
 
-    ));
-    corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-    corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
-    corsConfiguration.setAllowCredentials(true);
-    corsConfiguration.setMaxAge(Duration.ofDays(1));
+      CorsConfiguration config = new CorsConfiguration();
+      config.setAllowedOrigins(List.of(
+          "http://localhost:3000",
+          "https://jungmocha.co.kr",
+          "https://front-git-feature-gpt-donghuns-projects.vercel.app"
+      ));
+      config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+      config.setAllowedHeaders(List.of("*"));
+      config.setAllowCredentials(true);
+      config.setMaxAge(Duration.ofDays(1));
 
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", corsConfiguration);
-    return source;
+      return config;
+    };
   }
 
   @Bean
