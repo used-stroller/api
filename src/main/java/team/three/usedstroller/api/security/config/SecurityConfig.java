@@ -89,7 +89,9 @@ public class SecurityConfig {
     corsConfiguration.setAllowedOriginPatterns(List.of(
         "http://localhost:3000",
         "https://jungmocha.co.kr",
-        "https://front-git-feature-*.vercel.app"
+        "https://front-git-feature-*.vercel.app",
+        "https://front-git-feature-gpt-donghuns-projects.vercel.app"
+
     ));
     corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
     corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
