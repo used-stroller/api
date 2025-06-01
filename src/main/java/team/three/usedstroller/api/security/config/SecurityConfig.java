@@ -1,7 +1,6 @@
 package team.three.usedstroller.api.security.config;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import team.three.usedstroller.api.common.jwt.JwtAccessDeniedHandler;
 import team.three.usedstroller.api.common.jwt.JwtAuthenticationEntryPoint;
 import team.three.usedstroller.api.common.jwt.JwtTokenProvider;
@@ -82,17 +80,42 @@ public class SecurityConfig {
     return configuration.getAuthenticationManager();
   }
 
+  // public CorsConfigurationSource corsConfigurationSource() {
+  //   CorsConfiguration corsConfiguration = new CorsConfiguration();
+  //   corsConfiguration.setAllowedOrigins(List.of(
+  //       "http://localhost:3000",
+  //       "https://jungmocha.co.kr",
+  //       "https://front-git-feature-gpt-donghuns-projects.vercel.app"
+  //
+  //   ));
+  //   corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+  //   corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
+  //   corsConfiguration.setAllowCredentials(true);
+  //   corsConfiguration.setMaxAge(Duration.ofDays(1));
+  //
+  //   UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+  //   source.registerCorsConfiguration("/**", corsConfiguration);
+  //   return source;
+  // }
+  @Bean
   public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration corsConfiguration = new CorsConfiguration();
-    corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "https://jungmocha.co.kr","https://front-git-feautre-kakaooneclick-donghuns-projects.vercel.app/"));
-    corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-    corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
-    corsConfiguration.setAllowCredentials(true);
-    corsConfiguration.setMaxAge(Duration.ofDays(1));
+    return request -> {
+      String origin = request.getHeader("Origin");
+      log.info("🔥 CORS 요청 origin: {}", origin); // 여기에 찍히는지 확인
 
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", corsConfiguration);
-    return source;
+      CorsConfiguration config = new CorsConfiguration();
+      config.setAllowedOrigins(List.of(
+          "http://localhost:3000",
+          "https://jungmocha.co.kr",
+          "https://front-git-feature-gpt-donghuns-projects.vercel.app"
+      ));
+      config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+      config.setAllowedHeaders(List.of("*"));
+      config.setAllowCredentials(true);
+      config.setMaxAge(Duration.ofDays(1));
+
+      return config;
+    };
   }
 
   @Bean

@@ -1,5 +1,6 @@
 package team.three.usedstroller.api.product.repository;
-import static team.three.usedstroller.api.product.domain.QModel.*;
+import static team.three.usedstroller.api.product.domain.QModel.model;
+
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -54,7 +55,21 @@ public class ProductRepositoryImpl implements CustomProductRepository {
             applyNotNullUploadDate(pageable.getSort()))
         .orderBy(product.orderSeq.asc().nullsLast());
 
-    int totalCount = jpaQuery.fetch().size();
+    Long totalCount = query
+        .select(product.count())
+        .from(product)
+        .where(product.isDeleted.eq('N'),
+            product.sourceType.ne(SourceType.CARROT).or(product.sourceType.eq(SourceType.CARROT).and(product.status.eq("Ongoing"))),
+            applyKeyword(filter.getKeyword()),
+            applySourceType(filter.getSourceType()),
+            applyPriceRange(filter.getMinPrice(), filter.getMaxPrice()),
+            applyDefaultRegion(filter.getRegion(), filter.getFixedAddress(), filter.getDetailAddress()),
+            applyRegion(filter.getRegion()),
+            applyBrand(filter.getBrand()),
+            applyModel(filter.getModel()),
+            applyPeriod(filter.getPeriod()),
+            applyNotNullUploadDate(pageable.getSort()))
+        .fetchOne();
 
     List<ProductRes> products = jpaQuery
         .orderBy(getOrderBy(pageable.getSort()))

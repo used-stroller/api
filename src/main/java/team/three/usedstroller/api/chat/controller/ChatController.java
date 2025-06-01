@@ -18,7 +18,6 @@ import team.three.usedstroller.api.chat.service.ChatService;
 @RestController
 @RequestMapping("/api/chat")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:3000","https://jungmocha.co.kr"})
 public class ChatController {
   private final ChatService chatService;
 
