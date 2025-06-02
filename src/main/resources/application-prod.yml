@@ -15,6 +15,8 @@ spring:
 logging:
   level:
     ROOT: info
+
+#    sql 작업속도 보려면 주석해재
 #    org.hibernate.SQL: info
 #    org.hibernate.type.descriptor.sql.BasicBinder: info
 #    org.hibernate.stat: off
