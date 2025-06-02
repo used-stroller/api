@@ -52,8 +52,7 @@ public class ProductRepositoryImpl implements CustomProductRepository {
             applyBrand(filter.getBrand()),
             applyModel(filter.getModel()),
             applyPeriod(filter.getPeriod()),
-            applyNotNullUploadDate(pageable.getSort()))
-        .orderBy(product.orderSeq.asc().nullsLast());
+            applyNotNullUploadDate(pageable.getSort()));
 
     Long totalCount = query
         .select(product.count())
@@ -73,7 +72,6 @@ public class ProductRepositoryImpl implements CustomProductRepository {
 
     List<ProductRes> products = jpaQuery
         .orderBy(getOrderBy(pageable.getSort()))
-        .orderBy(product.uploadDate.desc().nullsLast())
         .offset(pageable.getOffset())
         .limit(ObjectUtils.isEmpty(pageable.getPageSize()) ? 10: pageable.getPageSize())
         .fetch()
@@ -252,15 +250,25 @@ public class ProductRepositoryImpl implements CustomProductRepository {
 
   private OrderSpecifier<?>[] getOrderBy(Sort sort) {
     return Stream.concat(
+
+        // 1. orderSeq, uploadDate 정렬
+        Stream.of(
+            product.orderSeq.asc().nullsLast(),
+            product.uploadDate.desc().nullsLast()
+        ),
+
+        Stream.concat(
         sort.stream()
             .map(order -> new OrderSpecifier<>(
                 order.isAscending() ? Order.ASC : Order.DESC,
                 Expressions.stringPath(order.getProperty())
             )),
+
         Stream.of(new OrderSpecifier<>(
             Order.DESC,
             product.sourceType.when(SourceType.NAVER).then(0).otherwise(1)
         ))
+      )
     ).toArray(OrderSpecifier[]::new);
   }
 }
