@@ -1,9 +1,9 @@
 ### 상품목록
-GET {{host}}/product/list
+GET {{host}}/api/product/list
 Content-Type: application/json; charset=utf-8
 
 ### 상품상세 조회
-GET {{host}}/product/get/4
+GET {{host}}/api/product/get/4
 Content-Type: application/json; charset=utf-8
 
 ### 이미지 테스트
@@ -11,11 +11,11 @@ GET {{host}}/image/1bc9f07a-e4ca-40f0-a267-98f5215a39f1_KakaoTalk_20241018_22233
 Content-Type: application/json; charset=utf-8
 
 ### 추천목록
-GET {{host}}/product/list/recommend
+GET {{host}}/api/product/list/recommend
 Content-Type: application/json; charset=utf-8
 
 ### 상품등록
-POST {{host}}/product/register
+POST {{host}}/api/product/register
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary

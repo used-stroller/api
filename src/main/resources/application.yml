@@ -16,7 +16,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     open-in-view: false
     properties:
@@ -26,16 +26,21 @@ spring:
         jdbc.batch_size: 100
         order_inserts: true
         order_updates: true
+        generate_statistics: true
 
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
 logging:
+  config: classpath:config/logback-spring.xml
   level:
-    ROOT: info
-    org.springframework.jdbc: debug
-    org.springframework.security: debug
+    root:                info
+    jdbc.sqltiming:      info
+    jdbc.resultsettable: debug
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+    org.hibernate.stat: debug
 
 apiNinjas:
   token: IlUI1OV1J+Yofs0ib5q3hg==2FkpjYRP8WMVcXmz
