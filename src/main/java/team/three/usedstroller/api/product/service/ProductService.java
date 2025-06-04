@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import team.three.usedstroller.api.common.utils.ImageUploader;
 import team.three.usedstroller.api.common.utils.SecurityUtil;
+import team.three.usedstroller.api.enums.RegisterType;
 import team.three.usedstroller.api.error.ApiErrorCode;
 import team.three.usedstroller.api.error.ApiException;
 import team.three.usedstroller.api.product.domain.FavoriteEntity;
@@ -143,6 +144,7 @@ public class ProductService {
         .region("")
         .isDeleted('N')
         .account(account.get())
+        .status(String.valueOf(RegisterType.Ongoing))
         .build();
     productRepository.save(product);
 

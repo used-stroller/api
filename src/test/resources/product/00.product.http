@@ -96,15 +96,16 @@ Content-Type: image/jpeg
 --boundary--
 
 ### 상품상태변경
-POST {{host}}/product/change/status
+POST {{host}}/api/product/change/status
 Content-Type: application/json; charset=utf-8
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4NzIzMTQiLCJOQU1FIjoi7J2064-Z7ZuIIiwiZXhwIjoxNzQ5MDE2MDc2fQ.4xnk7Y6lxWI96ncWiB0mQTC9udIDpnkruUfLY8rB8_EwFpV0DYx_keUz7_Wl1p8MkUETFUG3lMlHc-itdvK-pA
 
 {
-"id" : 4,
+"id" : 601054,
 "statusType" : "Reserved"
 }
 
-### 상품상태변경
+### 좋아요 추가
 POST {{host}}/product/favorite/add
 Content-Type: application/json; charset=utf-8
 
@@ -112,7 +113,7 @@ Content-Type: application/json; charset=utf-8
   "productId" : 4
 }
 
-### 상품상태변경
+### 삭제
 POST {{host}}/product/favorite/delete
 Content-Type: application/json; charset=utf-8
 
