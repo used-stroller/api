@@ -39,8 +39,7 @@ public class ModelRepositoryImpl {
 				.where(
 					model.minAge.loe(minAge),
 					model.maxAge.goe(maxAge),
-					(newPriceBelow(req.getMaxPriceNew()) // 작거나 같음
-						.or(usedPriceBelow(req.getMaxPriceUsed()))),
+					usedPriceBelow(req.getMaxPriceUsed()),
 					model.twin.eq(req.getTwin())
 					// model.strollerType.eq(req.getType().toString())
 				)
@@ -49,10 +48,6 @@ public class ModelRepositoryImpl {
 			;
 
 		return jpaQuery.fetch();
-	}
-
-	private BooleanExpression newPriceBelow(Long maxPrice) {
-		return (maxPrice != null) ? model.newPrice.loe(maxPrice) : null;
 	}
 
 	private BooleanExpression usedPriceBelow(Long maxPrice) {
