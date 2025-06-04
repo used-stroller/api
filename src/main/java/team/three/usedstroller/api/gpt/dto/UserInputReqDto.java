@@ -15,7 +15,6 @@ import team.three.usedstroller.api.enums.WeightType;
 @NoArgsConstructor
 public class UserInputReqDto {
   private String ageCode;
-  private Long maxPriceNew;
   private Long maxPriceUsed;
   private String twin;
   // private StrollerType type;
