@@ -263,7 +263,6 @@ public class GptService {
     sb.append("[사용자 조건]\n");
     sb.append("- 아이 개월수: ").append(getAgeLabel(input.getAgeCode())).append("\n");
     sb.append("- 쌍둥이 : ").append(input.getTwin()? "예" : "아니오").append("\n");
-    sb.append("- 신제품 최대 가격: ").append(input.getMaxPriceNew()).append("원\n");
     sb.append("- 중고제품 최대 가격: ").append(input.getMaxPriceUsed()).append("원\n");
     sb.append("- 기타 : ").append(input.getUserText()).append("\n\n");
 
