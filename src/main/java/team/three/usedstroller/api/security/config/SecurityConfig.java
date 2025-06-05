@@ -107,7 +107,7 @@ public class SecurityConfig {
       config.setAllowedOrigins(List.of(
           "http://localhost:3000",
           "https://jungmocha.co.kr",
-          "https://front-git-feature-gpt-donghuns-projects.vercel.app"
+          "https://api.jungmocha.shop"
       ));
       config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
       config.setAllowedHeaders(List.of("*"));
