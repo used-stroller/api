@@ -18,6 +18,6 @@ import team.three.usedstroller.api.enums.RegisterType;
 @Data
 public class ChangeStatusReq implements Serializable {
 
-  private Long id;
+  private Long productId;
   private RegisterType statusType;
 }

@@ -292,7 +292,7 @@ public class ProductService {
 
   @Transactional
   public void changeStatus(ChangeStatusReq request) {
-    Product productEntity = productRepository.findById(request.getId()).orElseThrow(() -> new ApiException(ApiErrorCode.PRODUCT_NOT_FOUND));
+    Product productEntity = productRepository.findById(request.getProductId()).orElseThrow(() -> new ApiException(ApiErrorCode.PRODUCT_NOT_FOUND));
     productEntity.setStatus(request.getStatusType().toString());
   }
 
