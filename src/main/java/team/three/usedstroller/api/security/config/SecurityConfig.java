@@ -104,10 +104,10 @@ public class SecurityConfig {
       log.info("🔥 CORS 요청 origin: {}", origin); // 여기에 찍히는지 확인
 
       CorsConfiguration config = new CorsConfiguration();
-      config.setAllowedOrigins(List.of(
+      config.setAllowedOriginPatterns(List.of(
           "http://localhost:3000",
-          "https://jungmocha.co.kr",
-          "https://front-git-develop-donghuns-projects.vercel.app"
+          "https://*.jungmocha.co.kr",
+          "https://*.vercel.app"
       ));
       config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
       config.setAllowedHeaders(List.of("*"));
