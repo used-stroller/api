@@ -1,34 +1,44 @@
 package team.three.usedstroller.api;
 
-import static team.three.usedstroller.api.domain.QProduct.product;
+import static team.three.usedstroller.api.product.domain.QModel.model;
+import static team.three.usedstroller.api.product.domain.QProduct.product;
 
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
-import team.three.usedstroller.api.config.QueryDslConfig;
-import team.three.usedstroller.api.domain.Product;
-import team.three.usedstroller.api.domain.QProduct;
-import team.three.usedstroller.api.dto.FilterReq;
-import team.three.usedstroller.api.dto.ProductRes;
-import team.three.usedstroller.api.repository.ProductRepositoryImpl;
+import team.three.usedstroller.api.common.config.QueryDslConfig;
+import team.three.usedstroller.api.product.domain.FavoriteEntity;
+import team.three.usedstroller.api.product.domain.Product;
+import team.three.usedstroller.api.product.domain.QProduct;
+import team.three.usedstroller.api.product.repository.ProductRepositoryImpl;
+import team.three.usedstroller.api.users.repository.AccountRepository;
+import team.three.usedstroller.api.users.repository.FavoriteRepository;
 
 @DataJpaTest
 @Import(QueryDslConfig.class)
-@ActiveProfiles("test")
-//@AutoConfigureTestDatabase(replace = Replace.NONE) //실제 DB연결 해주는 설정, default가 내장형 DB
+@ActiveProfiles("local")
+@AutoConfigureTestDatabase(replace = Replace.NONE) //실제 DB연결 해주는 설정, default가 내장형 DB
 class QueryDslTest {
 
   @Autowired
   JPAQueryFactory query;
   @Autowired
   ProductRepositoryImpl productRepository;
+  @Autowired
+  AccountRepository accountRepository;
+
+  @Autowired
+  FavoriteRepository favoriteRepository;
 
   @Test
   void findById() {
@@ -51,15 +61,15 @@ class QueryDslTest {
         .fetch();
   }
 
-  @Test
-  void cotainTest(){
-    FilterReq filter = new FilterReq("",null,null,null,"", "", "전국",null,null,null);
-    Pageable pageable = PageRequest.of(1,1);
-    Page<ProductRes> products = productRepository.getProducts(filter, pageable);
-  }
+//  @Test
+//  void cotainTest(){
+//    FilterReq filter = new FilterReq("",null,null,null,"", "", "전국",null,null,null);
+//    Pageable pageable = PageRequest.of(1,1);
+//    Page<ProductRes> products = productRepository.getProducts(filter, pageable);
+//  }
 
   @Test
-  public void subQuery(){
+  void subQuery(){
     QProduct productSub = new QProduct("productSub");
     query.selectFrom(product)
         .where(product.id.eq(
@@ -70,10 +80,58 @@ class QueryDslTest {
         ));
   }
   @Test
-  public void concat(){
+  void concat(){
     query.select(product.address.concat("_").concat(product.title))
         .from(product)
         .fetch();
+  }
+
+  @Test
+  void recommendPrice(){
+    List<Product> result = query.selectFrom(product)
+        .leftJoin(product.model, model)
+        .where(
+            product.model.isNotNull(),
+            model.recommendPrice.isNotNull(),
+            // recommendPrice * 0.9를 BigDecimal로 처리한 후 Long으로 변환
+            product.price.gt(
+                Expressions.numberTemplate(BigDecimal.class, "({0} * 0.7)", model.recommendPrice).longValue()
+            ),
+            // recommendPrice * 1.1을 BigDecimal로 처리한 후 Long으로 변환
+            product.price.lt(
+                Expressions.numberTemplate(BigDecimal.class, "({0} * 1.2)", model.recommendPrice).longValue()
+            ),
+            product.title.notLike("%배시넷").and(product.title.notLike("%베시넷%"))
+
+        )
+        .fetch();
+    for (Product fetch1 : result) {
+      System.out.println("fetch1 = " + fetch1);
+    }
+  }
+
+  @Test
+  void getFavorite() {
+    List<Product> favorites = accountRepository.getFavorites(3L);
+    for (Product favorite : favorites) {
+      System.out.println("favorite.toString() = " + favorite);
+      
+    }
+  }
+
+  @Test
+  void selectAll() {
+    List<FavoriteEntity> all = favoriteRepository.findAll();
+    for (FavoriteEntity favoriteEntity : all) {
+      System.out.println("favoriteEntity = " + favoriteEntity);
+      
+    }
+  }
+
+  @Test
+  void isExist() {
+    boolean present = favoriteRepository.findByProductIdAndAccountId(29916L, 3L).isPresent();
+    System.out.println("present = " + present);
   }
 
 

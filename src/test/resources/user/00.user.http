@@ -1,0 +1,11 @@
+### 마이페이지
+GET {{host}}/api/user/mypage
+Content-Type: application/json; charset=utf-8
+
+### 관심목록
+GET {{host}}/api/user/mypage/favorites
+Content-Type: application/json; charset=utf-8
+
+### 파는목록
+GET {{host}}/api/user/mypage/selling-list
+Content-Type: application/json; charset=utf-8

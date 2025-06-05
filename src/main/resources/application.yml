@@ -1,4 +1,9 @@
 spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 30MB
   datasource:
     url: jdbc:postgresql://${db.hostname}:${db.port}/${db.name}
     username: ${db.username}
@@ -11,8 +16,8 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: false
+      ddl-auto: none
+    show-sql: true
     open-in-view: false
     properties:
       hibernate:
@@ -21,22 +26,32 @@ spring:
         jdbc.batch_size: 100
         order_inserts: true
         order_updates: true
-
-  servlet:
-    multipart:
-      max-file-size: -1
-      max-request-size: -1
+        generate_statistics: true
 
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
 logging:
+  config: classpath:config/logback-spring.xml
   level:
-    ROOT: info
-    org.springframework.jdbc: debug
+    root:                info
+    jdbc.sqltiming:      info
+    jdbc.resultsettable: debug
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+    org.hibernate.stat: debug
 
 apiNinjas:
   token: IlUI1OV1J+Yofs0ib5q3hg==2FkpjYRP8WMVcXmz
 
 #웹훅테스트
+
+jwt:
+  secret: VrGOz0YASc62/8N/lr1GkTfzG+npn/yAcq5iUkXyQ3UOsdVweA89FKATWaGgSxArj132iVW5QYC+241ZOIqrmw==
+  access-expiration: 3600000 # 60분
+  refresh-expiration: 604800000 # 7일
+
+gpt:
+  api:
+    key: ${EXTERNAL_API_KEY}
