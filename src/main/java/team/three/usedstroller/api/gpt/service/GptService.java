@@ -248,10 +248,15 @@ public class GptService {
 
     // 2. 답변 출력 포맷 안내
     sb.append("[답변 출력 포맷]\n");
-    sb.append("1순위 **모델명**  \n");
-    sb.append("   ![모델명](").append(candidates.get(0).getImageUrl() == null? "":candidates.get(0).getImageUrl()).append(")\n");
-    sb.append("2순위 **모델명**  \n");
-    sb.append("   ![모델명](").append(candidates.get(1).getImageUrl() == null? "":candidates.get(1).getImageUrl()).append(")\n");
+    sb.append("1순위 **").append(candidates.get(0).getName()).append("**  \n");
+    sb.append("   ![").append(candidates.get(0).getName()).append("](")
+        .append(candidates.get(0).getImageUrl() == null ? "" : candidates.get(0).getImageUrl())
+        .append(")\n");
+
+    sb.append("2순위 **").append(candidates.get(1).getName()).append("**  \n");
+    sb.append("   ![").append(candidates.get(1).getName()).append("](")
+        .append(candidates.get(1).getImageUrl() == null ? "" : candidates.get(1).getImageUrl())
+        .append(")\n");
     sb.append("**추천 이유 설명**\n");
     // sb.append("3. 하이퍼링크 텍스트는 절대로 줄을 나누지 말고 한 줄로 출력\n");
     // sb.append("4. [더 많은 중고 유모차 보러가기](https://jungmocha.co.kr)\n\n");
