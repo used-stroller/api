@@ -11,6 +11,12 @@ spring:
     redis:
       host: localhost
       port: 6379
+<<<<<<< HEAD
+
+socket-server:
+  port: 8086 # you can change this to a port that is free to use
+  host: 127.0.0.1 # change this to your IPv4 address
+=======
     mongodb:
       uri: mongodb://localhost:27017/chatdb
     #      uri: mongodb://username:password@your-mongo-host:27017/chatdb 원격서버의 경우
@@ -27,3 +33,4 @@ file:
 cookie:
   domain:
     host: localhost
+>>>>>>> main

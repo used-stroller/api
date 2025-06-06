@@ -1,5 +1,23 @@
 package team.three.usedstroller.api;
 
+<<<<<<< HEAD
+import org.junit.jupiter.api.Test;
+
+
+class UnitTest {
+
+  @Test
+  void tenOrEleven (){
+    class Static{
+      public int a =20;
+      static int b= 0;
+    }
+    int a;
+    a=10;
+    Static.b = a;
+    Static st = new Static();
+    System.out.println(Static.b++);
+=======
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -85,5 +103,6 @@ public class UnitTest {
     for (Map.Entry<String, Integer> e : top3) {
       System.out.println("e = " + e.getKey());
     }
+>>>>>>> main
   }
 }

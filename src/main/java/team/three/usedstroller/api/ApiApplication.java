@@ -2,6 +2,10 @@ package team.three.usedstroller.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+<<<<<<< HEAD
+import org.springframework.context.annotation.Bean;
+=======
+>>>>>>> main
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @EnableJpaAuditing
@@ -12,4 +16,21 @@ public class ApiApplication {
     SpringApplication.run(ApiApplication.class, args);
   }
 
+<<<<<<< HEAD
+  /**
+   CORS오류 관련설정
+   */
+  @Bean
+  public WebMvcConfigurer corsConfigurer(){
+    return new WebMvcConfigurer() {
+      @Override
+      public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+            .allowedOrigins("http://localhost:3000").allowCredentials(true).allowedOrigins("http://localhost:5173").allowCredentials(true);
+      }
+    };
+  }
+
+=======
+>>>>>>> main
 }
