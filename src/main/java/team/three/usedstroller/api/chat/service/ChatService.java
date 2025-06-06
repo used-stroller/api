@@ -5,12 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-
-import javax.swing.text.html.parser.Entity;
-
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -44,7 +39,7 @@ public class ChatService {
     public List<ChatMessageDto> getChatHistory(String roomId) {
         // 채팅 대상자 아닌사람이 조회할경우 예외처리
         Long sender = SecurityUtil.getAccountId();
-        ChatRoom room = EntityUtils.findOrThrow(chatRoomRepository.findById(roomId),ApiErrorCode.CHAT_ROOM_NOT_FOUND);
+        ChatRoom room = EntityUtils.findOrThrow(chatRoomRepository.findByRoomId(roomId),ApiErrorCode.CHAT_ROOM_NOT_FOUND);
         boolean isParticipant = room.getUsers().contains(sender.toString());
         if (!isParticipant) {
             throw new ApiException(ApiErrorCode.UNAUTHORIZED_CHAT_USER);
@@ -100,7 +95,8 @@ public class ChatService {
             .map(room -> {
                 String opponentId = room.getUsers().stream()
                     .filter(id -> !id.equals(userId)) //사용자아이디 아닌것 찾기
-                    .findFirst().orElse(null);
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("opponentId is null for room: " + room.getRoomId()));
                 Account opponent = EntityUtils.findOrThrow(accountRepository.findById(Long.parseLong(opponentId)),
                     ApiErrorCode.MEMBER_NOT_FOUND);
                 Product product = EntityUtils.findOrThrow(productRepository.findById(room.getProductId()),ApiErrorCode.PRODUCT_NOT_FOUND);
