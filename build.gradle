@@ -58,10 +58,8 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-<<<<<<< HEAD
     //socket io
     implementation 'com.corundumstudio.socketio:netty-socketio:2.0.9'
-=======
     implementation 'com.google.code.gson:gson:2.10.1' // 최신 버전 확인
     //socket io
     implementation 'com.corundumstudio.socketio:netty-socketio:2.0.0' // Socket.IO 3.x 서버 라이브러리
@@ -71,7 +69,6 @@ dependencies {
 
     // web client
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
->>>>>>> main
 
     //test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

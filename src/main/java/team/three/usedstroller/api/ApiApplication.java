@@ -2,11 +2,10 @@ package team.three.usedstroller.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-<<<<<<< HEAD
 import org.springframework.context.annotation.Bean;
-=======
->>>>>>> main
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @EnableJpaAuditing
 @SpringBootApplication
@@ -16,7 +15,6 @@ public class ApiApplication {
     SpringApplication.run(ApiApplication.class, args);
   }
 
-<<<<<<< HEAD
   /**
    CORS오류 관련설정
    */
@@ -30,7 +28,4 @@ public class ApiApplication {
       }
     };
   }
-
-=======
->>>>>>> main
 }
