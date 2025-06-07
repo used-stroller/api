@@ -5,7 +5,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -28,6 +30,7 @@ import team.three.usedstroller.api.users.entity.Account;
 import team.three.usedstroller.api.users.repository.AccountRepository;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
@@ -74,18 +77,20 @@ public class ChatService {
         return formattedDate;
     }
 
-    public ChatRoom createChatRoom(CreateChatDto req) {
+    public ChatRoomDto createChatRoom(CreateChatDto req) {
         Collections.sort(req.getUserIds());
         String chatRoomId = req.getProductId()+"_"+String.join("_", req.getUserIds());
-        return chatRoomRepository.findById(chatRoomId).orElseGet(() -> {
+        ChatRoom room =  chatRoomRepository.findByRoomId(chatRoomId).orElseGet(() -> {
             ChatRoom chatRoom = ChatRoom.builder()
                 .roomId(chatRoomId)
                 .lastMessage("")
                 .users(req.getUserIds())
+                .productId(req.getProductId())
                 .lastMessageTime(LocalDateTime.now())
                 .build();
             return chatRoomRepository.save(chatRoom);
         });
+        return room.toDto();
     }
 
 	public List<ChatRoomDto> getChatRooms(String userId) {
@@ -93,25 +98,45 @@ public class ChatService {
         return chatRooms.stream()
             // ChatRoomDto 리스트를 반환
             .map(room -> {
-                String opponentId = room.getUsers().stream()
-                    .filter(id -> !id.equals(userId)) //사용자아이디 아닌것 찾기
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalStateException("opponentId is null for room: " + room.getRoomId()));
-                Account opponent = EntityUtils.findOrThrow(accountRepository.findById(Long.parseLong(opponentId)),
-                    ApiErrorCode.MEMBER_NOT_FOUND);
-                Product product = EntityUtils.findOrThrow(productRepository.findById(room.getProductId()),ApiErrorCode.PRODUCT_NOT_FOUND);
-                int unreadCount = chatMessageRepository.countByRoomIdAndReceiverIdAndReadFalse(room.getRoomId(), userId);
-                return ChatRoomDto.builder()
-                    .roomId(room.getRoomId())
-                    .opponentName(opponent.getName())
-                    .productImageUrl(product.getImgSrc())
-                    .productTitle(product.getTitle())
-                    .lastMessage(room.getLastMessage())
-                    .lastMessageTime(room.getLastMessageTime())
-                    .unreadCount(unreadCount)
-                    .build();
-            }).toList();
-	}
+                try {
+                    log.info("🔥 처리 중인 방: {}", room.getRoomId());
+                    log.info("🔥 users: {}", room.getUsers());
+
+                    List<String> users = room.getUsers();
+                    if (users == null || users.size() < 2) {
+                        throw new IllegalStateException("유저가 2명 이상이 아닌 채팅방입니다. roomId=" + room.getRoomId());
+                    }
+
+                    String opponentId = users.stream()
+                        .filter(id -> !id.equals(userId))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalStateException("상대방 ID를 찾을 수 없습니다. roomId=" + room.getRoomId() + ", userId=" + userId));
+
+                    log.info("opponentId: {}", opponentId);
+
+                    Long opponentLongId = Long.parseLong(opponentId); // 여기도 try-catch 가능
+                    Account opponent = EntityUtils.findOrThrow(accountRepository.findById(opponentLongId), ApiErrorCode.MEMBER_NOT_FOUND);
+                    Product product = EntityUtils.findOrThrow(productRepository.findById(room.getProductId()), ApiErrorCode.PRODUCT_NOT_FOUND);
+                    int unreadCount = chatMessageRepository.countByRoomIdAndReceiverIdAndReadFalse(room.getRoomId(), userId);
+
+                    return ChatRoomDto.builder()
+                        .roomId(room.getRoomId())
+                        .opponentName(opponent.getName())
+                        .productImageUrl(product.getImgSrc())
+                        .productTitle(product.getTitle())
+                        .lastMessage(room.getLastMessage())
+                        .lastMessageTime(room.getLastMessageTime())
+                        .unreadCount(unreadCount)
+                        .build();
+                } catch (Exception e) {
+                    log.error("❌ 채팅방 처리 실패: roomId={}, 오류: {}", room.getRoomId(), e.getMessage(), e);
+                    return null;
+                }
+            })
+            .filter(Objects::nonNull)
+            .toList();
+
+  }
 
 
     // 읽음 처리

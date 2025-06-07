@@ -13,6 +13,6 @@ GET {{host}}/api/chat/list?userId=23
 Content-Type: application/json; charset=utf-8
 
 ### 채팅방 내용
-GET {{host}}/api/chat/history/2_1_23
+GET {{host}}/api/chat/history/595503_23_24
 Content-Type: application/json; charset=utf-8
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4NzIzMTQiLCJOQU1FIjoi7J2064-Z7ZuIIiwiZXhwIjoxNzQ5MjQzNTQ1fQ.CTJ8L4l97k7pUjY3ZVl0_bSNI7XLIOjemn8Ckik_NWlYw-_lYErjEymJjFikYv1hzKbElsCT8gHOt4yNa7as9g
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4NzIzMTQiLCJOQU1FIjoi7J2064-Z7ZuIIiwiZXhwIjoxNzQ5MjY2MDMzfQ.Lk0cc87O-sdpWjY_v1QAsKK1DIE0znQ69iu-0_thuGTacWZvSbuykLimC3As8nTVVC-Rm2NiM9EuhVF39pdAWg

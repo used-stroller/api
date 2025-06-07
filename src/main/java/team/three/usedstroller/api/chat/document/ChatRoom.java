@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
+import team.three.usedstroller.api.chat.dto.ChatRoomDto;
 
 @Document(collection = "chat_rooms")
 @Builder
@@ -23,4 +24,14 @@ public class ChatRoom {
   private Long productId;
   private LocalDateTime updatedAt;
 
+  public ChatRoomDto toDto() {
+    return ChatRoomDto.builder()
+        .roomId(this.roomId)
+        .users(this.users)
+        .lastMessage(this.lastMessage)
+        .lastMessageTime(this.lastMessageTime)
+        .productId(this.productId)
+        .updatedAt(this.updatedAt)
+        .build();
+  }
 }
