@@ -16,4 +16,5 @@ public class ChatMessageDto {
   private String receiverId;
   private String message;
   private String timestamp;
+  private Long sender;
 }

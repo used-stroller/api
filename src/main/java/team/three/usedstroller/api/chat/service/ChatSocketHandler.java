@@ -32,7 +32,6 @@ public class ChatSocketHandler {
       System.out.println("방 입장 : " + roomId);
     });
     server.addEventListener("sendMessage", ChatMessage.class, (client, message, ackSender) -> {
-      System.out.println("📩 메시지 수신: " + message.getMessage()); // 로그 추가
       message.setTimestamp(LocalDateTime.now().toString());
       repository.save(message);
       message.setTimestamp(ChatService.convertDateFormat(message.getTimestamp()));
@@ -40,8 +39,8 @@ public class ChatSocketHandler {
     });
 
       server.addDisconnectListener(client -> {
-        System.out.println("클라이언트 연결 종료됨: " + client.getSessionId());
-        // 연결 종료 후 필요한 작업 처리
+        System.out.println("❌ 클라이언트 연결 종료됨: " + client.getSessionId());
+        System.out.println("이유: " + client.getTransport());
       });
     server.start();
     }
