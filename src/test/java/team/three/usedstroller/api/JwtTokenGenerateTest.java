@@ -1,35 +1,22 @@
 package team.three.usedstroller.api;
 
-import java.security.NoSuchAlgorithmException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-import lombok.RequiredArgsConstructor;
 import team.three.usedstroller.api.common.jwt.JwtTokenProvider;
 import team.three.usedstroller.api.users.dto.ResponseLoginTokenDto;
 import team.three.usedstroller.api.users.entity.Account;
 import team.three.usedstroller.api.users.repository.AccountRepository;
 
-@ActiveProfiles(value = "prod")
-@TestPropertySource(properties = {
-})
 @org.springframework.boot.test.context.SpringBootTest
-public class SpringBootTest {
+@ActiveProfiles("prod")
+@TestPropertySource(properties = {
+    "EXTERNAL_API_KEY=이런 환경변수 넣어야 동작함"
+})
+public class JwtTokenGenerateTest {
 
   @Autowired
   private  JwtTokenProvider jwtTokenProvider;

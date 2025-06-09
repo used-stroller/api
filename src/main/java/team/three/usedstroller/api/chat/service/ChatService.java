@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -15,6 +18,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import team.three.usedstroller.api.chat.document.ChatMessage;
 import team.three.usedstroller.api.chat.document.ChatRoom;
+import team.three.usedstroller.api.chat.dto.ChatHistoryResDto;
 import team.three.usedstroller.api.chat.dto.ChatMessageDto;
 import team.three.usedstroller.api.chat.dto.ChatRoomDto;
 import team.three.usedstroller.api.chat.dto.CreateChatDto;
@@ -39,11 +43,16 @@ public class ChatService {
     private final ProductRepository productRepository;
     private final MongoTemplate mongoTemplate;
 
-    public List<ChatMessageDto> getChatHistory(String roomId) {
+    public ChatHistoryResDto getChatHistory(String roomId) {
         // 채팅 대상자 아닌사람이 조회할경우 예외처리
-        Long sender = SecurityUtil.getAccountId();
+        Long currentUserId = SecurityUtil.getAccountId();
         ChatRoom room = EntityUtils.findOrThrow(chatRoomRepository.findByRoomId(roomId),ApiErrorCode.CHAT_ROOM_NOT_FOUND);
-        boolean isParticipant = room.getUsers().contains(sender.toString());
+        String receiverId = room.getUsers().stream()
+            .filter(id -> !Objects.equals(id,currentUserId.toString()))
+            .findFirst()
+            .orElseThrow(() -> new ApiException(ApiErrorCode.MEMBER_NOT_FOUND));
+
+        boolean isParticipant = room.getUsers().contains(currentUserId.toString());
         if (!isParticipant) {
             throw new ApiException(ApiErrorCode.UNAUTHORIZED_CHAT_USER);
         }
@@ -64,7 +73,12 @@ public class ChatService {
                 .timestamp(convertDateFormat(chat.getTimestamp()))
                 .build());
         }
-      return chatHistory;
+
+      return ChatHistoryResDto.builder()
+          .currentUserId(currentUserId.toString())
+          .receiverId(receiverId)
+          .chatMessages(chatHistory)
+          .build();
     }
 
 
@@ -78,19 +92,28 @@ public class ChatService {
     }
 
     public ChatRoomDto createChatRoom(CreateChatDto req) {
-        Collections.sort(req.getUserIds());
-        String chatRoomId = req.getProductId()+"_"+String.join("_", req.getUserIds());
-        ChatRoom room =  chatRoomRepository.findByRoomId(chatRoomId).orElseGet(() -> {
+
+        // 1. userId 정렬
+        List<String> sortedUserIds = new ArrayList<>(req.getUserIds());
+        Collections.sort(sortedUserIds);
+
+        // 2. 중복 여부 체크(상품 ID + 유저)
+        Optional<ChatRoom> existing = chatRoomRepository.findByProductIdAndUsers(req.getProductId(), sortedUserIds);
+        if (existing.isPresent()) {
+            return existing.get().toDto();
+        }
+
+        // 3. UUID 생성 + 저장
+        String chatRoomId = UUID.randomUUID().toString();
             ChatRoom chatRoom = ChatRoom.builder()
                 .roomId(chatRoomId)
                 .lastMessage("")
-                .users(req.getUserIds())
+                .users(sortedUserIds)
                 .productId(req.getProductId())
                 .lastMessageTime(LocalDateTime.now())
                 .build();
-            return chatRoomRepository.save(chatRoom);
-        });
-        return room.toDto();
+            chatRoomRepository.save(chatRoom);
+        return chatRoom.toDto();
     }
 
 	public List<ChatRoomDto> getChatRooms(String userId) {

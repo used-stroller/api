@@ -1,18 +1,22 @@
+### eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4NzIzMTQiLCJOQU1FIjoi7J2064-Z7ZuIIiwiZXhwIjoxNzgwOTg0ODYzfQ.lMMJ23YGFh5vRZQoLKiTznVzyBaZhVqVY4ntWo91bGZNxMEBWlK2xL62apcE95VjJ0LHcaS3miJDEp7gAwaApA
+
+
 ### 채팅방 생성
 POST {{host}}/api/chat/create
 Content-Type: application/json; charset=utf-8
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4NzIzMTQiLCJOQU1FIjoi7J2064-Z7ZuIIiwiZXhwIjoxNzQ5MjQzNTQ1fQ.CTJ8L4l97k7pUjY3ZVl0_bSNI7XLIOjemn8Ckik_NWlYw-_lYErjEymJjFikYv1hzKbElsCT8gHOt4yNa7as9g
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4NzIzMTQiLCJOQU1FIjoi7J2064-Z7ZuIIiwiZXhwIjoxNzgwOTg0ODYzfQ.lMMJ23YGFh5vRZQoLKiTznVzyBaZhVqVY4ntWo91bGZNxMEBWlK2xL62apcE95VjJ0LHcaS3miJDEp7gAwaApA
 
 {
-  "userIds": [1,23],
+  "userIds": [23,24],
   "productId": 2
 }
 
 ### 채팅방 리스트
 GET {{host}}/api/chat/list?userId=23
 Content-Type: application/json; charset=utf-8
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4NzIzMTQiLCJOQU1FIjoi7J2064-Z7ZuIIiwiZXhwIjoxNzgwOTg0ODYzfQ.lMMJ23YGFh5vRZQoLKiTznVzyBaZhVqVY4ntWo91bGZNxMEBWlK2xL62apcE95VjJ0LHcaS3miJDEp7gAwaApA
 
 ### 채팅방 내용
-GET {{host}}/api/chat/history/595503_23_24
+GET {{host}}/api/chat/history/34e820f0-f611-44d3-9afa-dd0eef015cff
 Content-Type: application/json; charset=utf-8
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4NzIzMTQiLCJOQU1FIjoi7J2064-Z7ZuIIiwiZXhwIjoxNzQ5MjY2MDMzfQ.Lk0cc87O-sdpWjY_v1QAsKK1DIE0znQ69iu-0_thuGTacWZvSbuykLimC3As8nTVVC-Rm2NiM9EuhVF39pdAWg
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4NzIzMTQiLCJOQU1FIjoi7J2064-Z7ZuIIiwiZXhwIjoxNzgwOTg0ODYzfQ.lMMJ23YGFh5vRZQoLKiTznVzyBaZhVqVY4ntWo91bGZNxMEBWlK2xL62apcE95VjJ0LHcaS3miJDEp7gAwaApA

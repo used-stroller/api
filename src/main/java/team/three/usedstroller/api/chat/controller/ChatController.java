@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import team.three.usedstroller.api.chat.dto.ChatHistoryResDto;
 import team.three.usedstroller.api.chat.dto.ChatMessageDto;
 import team.three.usedstroller.api.chat.dto.ChatRoomDto;
 import team.three.usedstroller.api.chat.dto.CreateChatDto;
@@ -22,7 +24,7 @@ public class ChatController {
 
   // 특정 채팅방의 메시지 가져오기
   @GetMapping("/history/{roomId}")
-  public List<ChatMessageDto> getChatHistory(@PathVariable String roomId) {
+  public ChatHistoryResDto getChatHistory(@PathVariable String roomId) {
     return chatService.getChatHistory(roomId);
   }
 
