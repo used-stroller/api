@@ -12,7 +12,7 @@ Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4N
 }
 
 ### 채팅방 리스트
-GET {{host}}/api/chat/list?userId=23
+GET {{host}}/api/chat/list
 Content-Type: application/json; charset=utf-8
 Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4NzIzMTQiLCJOQU1FIjoi7J2064-Z7ZuIIiwiZXhwIjoxNzgwOTg0ODYzfQ.lMMJ23YGFh5vRZQoLKiTznVzyBaZhVqVY4ntWo91bGZNxMEBWlK2xL62apcE95VjJ0LHcaS3miJDEp7gAwaApA
 

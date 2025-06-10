@@ -34,7 +34,7 @@ public class ChatController {
   }
 
   @GetMapping("/list")
-  public List<ChatRoomDto> getChatRooms(@RequestParam String userId) {
-    return chatService.getChatRooms(userId);
+  public List<ChatRoomDto> getChatRooms() {
+    return chatService.getChatRooms();
   }
 }

@@ -116,7 +116,8 @@ public class ChatService {
         return chatRoom.toDto();
     }
 
-	public List<ChatRoomDto> getChatRooms(String userId) {
+	public List<ChatRoomDto> getChatRooms() {
+        String userId = SecurityUtil.getAccountId().toString();
         List<ChatRoom> chatRooms = chatRoomRepository.findByUsersContainsOrderByUpdatedAtDesc(userId);
         return chatRooms.stream()
             // ChatRoomDto 리스트를 반환
@@ -152,7 +153,7 @@ public class ChatService {
                         .unreadCount(unreadCount)
                         .build();
                 } catch (Exception e) {
-                    log.error("❌ 채팅방 처리 실패: roomId={}, 오류: {}", room.getRoomId(), e.getMessage(), e);
+                    log.error("채팅방 처리 실패: roomId={}, 오류: {}", room.getRoomId(), e.getMessage(), e);
                     return null;
                 }
             })
