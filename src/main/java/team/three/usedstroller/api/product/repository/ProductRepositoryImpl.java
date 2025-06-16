@@ -257,12 +257,25 @@ public class ProductRepositoryImpl implements CustomProductRepository {
             product.uploadDate.desc().nullsLast()
         ),
 
+
+        // "sort": ["price,asc"] 이렇게 넘어오면 Sort.Order(property="price", direction=ASC)로 매핑
+
         Stream.concat(
-        sort.stream()
-            .map(order -> new OrderSpecifier<>(
-                order.isAscending() ? Order.ASC : Order.DESC,
-                Expressions.stringPath(order.getProperty())
-            )),
+            sort.stream()
+                .map(order -> {
+                  Order direction = order.isAscending() ? Order.ASC : Order.DESC;
+                  String property = order.getProperty();
+
+                  switch (property) {
+                    case "price":
+                      return new OrderSpecifier<>(direction, product.price);
+                    case "uploadDate":
+                      return new OrderSpecifier<>(direction, product.uploadDate);
+                    default:
+                      // fallback: 문자열 필드
+                      return new OrderSpecifier<>(direction, Expressions.stringPath(property));
+                  }
+                }),
 
         Stream.of(new OrderSpecifier<>(
             Order.DESC,
