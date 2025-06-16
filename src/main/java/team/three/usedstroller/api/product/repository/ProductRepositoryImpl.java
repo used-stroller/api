@@ -249,15 +249,15 @@ public class ProductRepositoryImpl implements CustomProductRepository {
   }
 
   private OrderSpecifier<?>[] getOrderBy(Sort sort) {
-    return Stream.concat(
+    // 정렬 조건이 아예 없는 경우
+    if (!sort.iterator().hasNext()) {
+      return new OrderSpecifier[]{
+          product.orderSeq.asc().nullsLast(),
+          product.uploadDate.desc().nullsLast()
+      };
+    }
 
-        // 1. orderSeq, uploadDate 정렬
-        Stream.of(
-            product.orderSeq.asc().nullsLast(),
-            product.uploadDate.desc().nullsLast()
-        ),
-
-
+    return
         // "sort": ["price,asc"] 이렇게 넘어오면 Sort.Order(property="price", direction=ASC)로 매핑
 
         Stream.concat(
@@ -281,7 +281,6 @@ public class ProductRepositoryImpl implements CustomProductRepository {
             Order.DESC,
             product.sourceType.when(SourceType.NAVER).then(0).otherwise(1)
         ))
-      )
     ).toArray(OrderSpecifier[]::new);
   }
 }
