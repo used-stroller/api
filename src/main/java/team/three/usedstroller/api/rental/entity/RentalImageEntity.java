@@ -28,9 +28,10 @@ public class RentalImageEntity extends BaseTimeEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "rental_id")
-    private RentalEntity rental;
+  private String src;
+  @ManyToOne(fetch = FetchType.LAZY)
+  // 렌탈 상품 id
+  @JoinColumn(name = "rental_id")
+  private RentalEntity rental;
+  private int orderSeq;
 }

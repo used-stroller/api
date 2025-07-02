@@ -49,9 +49,9 @@ public class RentalController {
         );
   }
 
-  @GetMapping("/get/{id}")
-  public ResponseEntity<ResponseDto<RentalDto>> getRentalDetails(
-      @PathVariable("id") Long id)  {
-    return ResponseDto.toResponseEntity(rentalService.getRentalDetails(id));
-  }
+  // @GetMapping("/get/{id}")
+  // public ResponseEntity<ResponseDto<RentalDto>> getRentalDetails(
+  //     @PathVariable("id") Long id)  {
+  //   return ResponseDto.toResponseEntity(rentalService.getRentalDetails(id));
+  // }
 }

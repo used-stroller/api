@@ -10,4 +10,13 @@ import team.three.usedstroller.api.users.entity.Account;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RentalDto {
+	private Long id;
+	private String code;
+	private String productName;
+	private String src;
+	private String color;
+	private Long rentalPrice;
+	private boolean isRentable;
+	private String productionDate;
+
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,7 +46,7 @@ public class RentalService {
 
   private final RentalRepositoryImpl rentalRepositoryImpl;
 
-  public List<RentalDto> getRentalList(Pageable pageable) {
-    rentalRepositoryImpl.getRentalList(pageable);
+  public Page<RentalDto> getRentalList(Pageable pageable) {
+    return rentalRepositoryImpl.getRentalList(pageable);
   }
 }
