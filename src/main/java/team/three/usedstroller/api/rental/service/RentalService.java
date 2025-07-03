@@ -49,4 +49,8 @@ public class RentalService {
   public Page<RentalDto> getRentalList(Pageable pageable) {
     return rentalRepositoryImpl.getRentalList(pageable);
   }
+
+  public RentalDto getRentalDetails(Long id) {
+    return rentalRepositoryImpl.getRentalDetails(id);
+  }
 }

@@ -16,6 +16,9 @@ logging:
   level:
     ROOT: info
 
+file:
+  upload-dir: /home/stroller/images/product/
+
 cookie:
   domain:
-    host: front-git-develop-donghuns-projects.vercel.app
+    host: jungmocha.co.kr

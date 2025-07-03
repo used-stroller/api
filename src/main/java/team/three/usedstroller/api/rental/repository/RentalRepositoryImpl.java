@@ -14,6 +14,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import team.three.usedstroller.api.rental.dto.RentalDto;
 import team.three.usedstroller.api.rental.entity.QRentalEntity;
+import team.three.usedstroller.api.rental.entity.QRentalImageEntity;
+import team.three.usedstroller.api.rental.entity.RentalEntity;
 
 @Repository
 @RequiredArgsConstructor
@@ -21,6 +23,7 @@ public class RentalRepositoryImpl implements CustomRentalRepository {
 
 	private final JPAQueryFactory query;
 	private final QRentalEntity rentalEntity = QRentalEntity.rentalEntity;
+	private final QRentalImageEntity rentalImageEntity = QRentalImageEntity.rentalImageEntity;
 
 	@Override
 	public Page<RentalDto> getRentalList(Pageable pageable) {
@@ -46,5 +49,16 @@ public class RentalRepositoryImpl implements CustomRentalRepository {
 
 		List<RentalDto> rentalList = jpaQuery.fetch();
 		return new PageImpl<>(rentalList, pageable, totalCount);
+	}
+
+	@Override
+	public RentalDto getRentalDetails(Long id) {
+		RentalEntity entity = query
+			.selectFrom(rentalEntity)
+			.leftJoin(rentalEntity.images, rentalImageEntity).fetchJoin()
+			.where(rentalEntity.id.eq(id))
+			.fetchOne();
+
+		return RentalDto.from(entity);
 	}
 }

@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +29,7 @@ import team.three.usedstroller.api.users.dto.Authority;
 @Entity
 @Builder
 @AllArgsConstructor
+@Table(name = "rental")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RentalEntity extends BaseTimeEntity {
 
@@ -43,6 +45,7 @@ public class RentalEntity extends BaseTimeEntity {
   private boolean isRentable;
   private String productionDate; //제조일
   private String description; // 설명
+  private String descriptionImage; // 상품설명 이미지
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name="model_id")

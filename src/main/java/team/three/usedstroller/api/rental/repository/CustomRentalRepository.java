@@ -10,4 +10,6 @@ import team.three.usedstroller.api.rental.dto.RentalDto;
 
 public interface CustomRentalRepository {
   Page<RentalDto> getRentalList(Pageable pageable);
+
+  RentalDto getRentalDetails(Long id);
 }
