@@ -2,17 +2,11 @@ package team.three.usedstroller.api.rental.dto;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.util.StringUtils;
-
 import lombok.Setter;
 import team.three.usedstroller.api.rental.entity.RentalEntity;
-import team.three.usedstroller.api.users.entity.Account;
 
 @Getter
 @Setter
@@ -30,6 +24,11 @@ public class RentalDto {
 	private String description;
 	private String descriptionImage;
 	private List<RentalImageDto> rentalImages;
+	private String strollerType;
+	private String grade;
+	private Float weight;
+	private String size;
+
 
 	    // 정적 팩토리 메서드 추가
     public static RentalDto from(RentalEntity entity) {
@@ -48,7 +47,11 @@ public class RentalDto {
 			entity.getProductionDate(),
             entity.getDescription(),
             entity.getDescriptionImage(),
-            imageDtos
+            imageDtos,
+						entity.getModel().getStrollerType(),
+						entity.getGrade(),
+						entity.getModel().getWeight(),
+						entity.getModel().getSize()
         );
     }
 }

@@ -12,6 +12,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
+import team.three.usedstroller.api.product.domain.QModel;
 import team.three.usedstroller.api.rental.dto.RentalDto;
 import team.three.usedstroller.api.rental.entity.QRentalEntity;
 import team.three.usedstroller.api.rental.entity.QRentalImageEntity;
@@ -23,6 +24,7 @@ public class RentalRepositoryImpl implements CustomRentalRepository {
 
 	private final JPAQueryFactory query;
 	private final QRentalEntity rentalEntity = QRentalEntity.rentalEntity;
+	private final QModel model = QModel.model;
 	private final QRentalImageEntity rentalImageEntity = QRentalImageEntity.rentalImageEntity;
 
 	@Override
@@ -35,9 +37,14 @@ public class RentalRepositoryImpl implements CustomRentalRepository {
 			rentalEntity.color.as("color"),
 			rentalEntity.rentalPrice.as("rentalPrice"),
 			rentalEntity.isRentable.as("isRentable"),
-			rentalEntity.productionDate.as("productionDate")
+			rentalEntity.productionDate.as("productionDate"),
+			rentalEntity.model.strollerType.as("strollerType"),
+			rentalEntity.grade.as("grade"),
+			rentalEntity.model.weight.as("weight"),
+			rentalEntity.model.size.as("size")
 		))
-		.from(rentalEntity);
+		.from(rentalEntity)
+			.leftJoin(rentalEntity.model, model);
 
 	     Long totalCount = query
 		.select(rentalEntity.count())
