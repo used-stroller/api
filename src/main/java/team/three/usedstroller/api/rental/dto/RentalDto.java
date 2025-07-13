@@ -1,5 +1,6 @@
 package team.three.usedstroller.api.rental.dto;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -28,6 +29,8 @@ public class RentalDto {
 	private String grade;
 	private Float weight;
 	private String size;
+	private LocalDate rentalStart;
+	private LocalDate rentalEnd;
 
 
 	    // 정적 팩토리 메서드 추가
@@ -42,16 +45,18 @@ public class RentalDto {
             entity.getProductName(),
             entity.getSrc(),
             entity.getColor(),
-			entity.getRentalPrice(),
-			entity.isRentable(),
-			entity.getProductionDate(),
+						entity.getRentalPrice(),
+						entity.isRentable(),
+						entity.getProductionDate(),
             entity.getDescription(),
             entity.getDescriptionImage(),
             imageDtos,
 						entity.getModel().getStrollerType(),
 						entity.getGrade(),
 						entity.getModel().getWeight(),
-						entity.getModel().getSize()
+						entity.getModel().getSize(),
+						null,
+						null
         );
     }
 }

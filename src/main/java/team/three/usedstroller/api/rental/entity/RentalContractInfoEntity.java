@@ -7,45 +7,43 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.three.usedstroller.api.common.domain.BaseTimeEntity;
-import team.three.usedstroller.api.product.domain.Model;
+import team.three.usedstroller.api.users.entity.Account;
 
 @Getter
 @Entity
 @Builder
 @AllArgsConstructor
-@Table(name = "rental")
+@Table(name = "rental_contract_info")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RentalEntity extends BaseTimeEntity {
+public class RentalContractInfoEntity extends BaseTimeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-  private String code;
-  private String productName;
-  private String src;
-  private String color;
-  private String grade;
-  private Long rentalPrice;
-  private boolean isRentable;
-  private String productionDate; //제조일
-  private String description; // 설명
-  private String descriptionImage; // 상품설명 이미지
-  private boolean deleted;
+  private String name;
+  private String phone;
+  private LocalDate rentalStart;
+  private LocalDate rentalEnd;
+  private LocalDate receiveDate;
+  private Long amount;
+  private Long period;
+  private Long deposit;
+  private String status;
+  private String memo;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name="model_id")
-  private Model model;
+  @JoinColumn(name = "rental_id")
+  private RentalEntity rental;
 
-  @OneToMany(mappedBy = "rental")
-  List<RentalImageEntity> images = new ArrayList<>();
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "account_id")
+  private Account account;
 }

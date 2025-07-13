@@ -20,6 +20,6 @@ Content-Type: application/json; charset=utf-8
 Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4NzIzMTQiLCJOQU1FIjoi7J2064-Z7ZuIIiwiZXhwIjoxNzgwOTg0ODYzfQ.lMMJ23YGFh5vRZQoLKiTznVzyBaZhVqVY4ntWo91bGZNxMEBWlK2xL62apcE95VjJ0LHcaS3miJDEp7gAwaApA
 
 ### 렌탈 상세
-GET {{host}}/api/rental/get/1
+GET {{host}}/api/rental/get/6
 Content-Type: application/json; charset=utf-8
 Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MjMsIklEWCI6IjM4NTE4NzIzMTQiLCJOQU1FIjoi7J2064-Z7ZuIIiwiZXhwIjoxNzgwOTg0ODYzfQ.lMMJ23YGFh5vRZQoLKiTznVzyBaZhVqVY4ntWo91bGZNxMEBWlK2xL62apcE95VjJ0LHcaS3miJDEp7gAwaApA

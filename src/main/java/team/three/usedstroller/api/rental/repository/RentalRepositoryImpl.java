@@ -14,6 +14,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import team.three.usedstroller.api.product.domain.QModel;
 import team.three.usedstroller.api.rental.dto.RentalDto;
+import team.three.usedstroller.api.rental.entity.QRentalContractInfoEntity;
 import team.three.usedstroller.api.rental.entity.QRentalEntity;
 import team.three.usedstroller.api.rental.entity.QRentalImageEntity;
 import team.three.usedstroller.api.rental.entity.RentalEntity;
@@ -26,6 +27,7 @@ public class RentalRepositoryImpl implements CustomRentalRepository {
 	private final QRentalEntity rentalEntity = QRentalEntity.rentalEntity;
 	private final QModel model = QModel.model;
 	private final QRentalImageEntity rentalImageEntity = QRentalImageEntity.rentalImageEntity;
+	private final QRentalContractInfoEntity contractInfoEntity = QRentalContractInfoEntity.rentalContractInfoEntity;
 
 	@Override
 	public Page<RentalDto> getRentalList(Pageable pageable) {
@@ -41,10 +43,15 @@ public class RentalRepositoryImpl implements CustomRentalRepository {
 			rentalEntity.model.strollerType.as("strollerType"),
 			rentalEntity.grade.as("grade"),
 			rentalEntity.model.weight.as("weight"),
-			rentalEntity.model.size.as("size")
+			rentalEntity.model.size.as("size"),
+			contractInfoEntity.rentalStart.as("rentalStart"),
+			contractInfoEntity.rentalEnd.as("rentalEnd")
 		))
 		.from(rentalEntity)
-			.leftJoin(rentalEntity.model, model);
+			.leftJoin(rentalEntity.model, model)
+			.leftJoin(contractInfoEntity).on(contractInfoEntity.rental.id.eq(rentalEntity.id))
+			.where(rentalEntity.deleted.eq(false))
+			.orderBy(rentalEntity.id.desc());
 
 	     Long totalCount = query
 		.select(rentalEntity.count())
@@ -63,7 +70,7 @@ public class RentalRepositoryImpl implements CustomRentalRepository {
 		RentalEntity entity = query
 			.selectFrom(rentalEntity)
 			.leftJoin(rentalEntity.images, rentalImageEntity).fetchJoin()
-			.where(rentalEntity.id.eq(id))
+			.where(rentalEntity.id.eq(id)).orderBy(rentalImageEntity.orderSeq.asc()) // ✅ 정렬 추가
 			.fetchOne();
 
 		return RentalDto.from(entity);
