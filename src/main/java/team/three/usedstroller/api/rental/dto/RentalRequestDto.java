@@ -1,0 +1,58 @@
+package team.three.usedstroller.api.rental.dto;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import team.three.usedstroller.api.rental.entity.RentalEntity;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class RentalRequestDto {
+	private Long id;
+	private String code;
+	private String productName;
+	private String src;
+	private String color;
+	private Long rentalPrice;
+	private boolean isRentable;
+	private String productionDate;
+	private String description;
+	private String descriptionImage;
+	private List<RentalImageDto> rentalImages;
+	private String strollerType;
+	private String grade;
+	private Float weight;
+	private String size;
+
+
+	    // 정적 팩토리 메서드 추가
+    public static RentalRequestDto from(RentalEntity entity) {
+        List<RentalImageDto> imageDtos = entity.getImages().stream()
+            .map(RentalImageDto::from)
+            .collect(Collectors.toList());
+
+        return new RentalRequestDto(
+            entity.getId(),
+            entity.getCode(),
+            entity.getProductName(),
+            entity.getSrc(),
+            entity.getColor(),
+			entity.getRentalPrice(),
+			entity.isRentable(),
+			entity.getProductionDate(),
+            entity.getDescription(),
+            entity.getDescriptionImage(),
+            imageDtos,
+						entity.getModel().getStrollerType(),
+						entity.getGrade(),
+						entity.getModel().getWeight(),
+						entity.getModel().getSize()
+        );
+    }
+}
