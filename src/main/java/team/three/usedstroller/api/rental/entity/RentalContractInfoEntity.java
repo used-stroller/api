@@ -38,6 +38,7 @@ public class RentalContractInfoEntity extends BaseTimeEntity {
   private Long deposit;
   private String status;
   private String memo;
+  private boolean deleted;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "rental_id")

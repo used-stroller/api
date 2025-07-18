@@ -20,9 +20,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import team.three.usedstroller.api.rental.dto.AlimTalkDto;
 import team.three.usedstroller.api.rental.dto.RentalRequestDto;
 import team.three.usedstroller.api.rental.entity.RentalContractEntity;
 import team.three.usedstroller.api.rental.entity.RentalEntity;
+import team.three.usedstroller.api.rental.repository.RentalContractRepository;
+import team.three.usedstroller.api.rental.repository.RentalContractRepositoryImpl;
 
 /**
  * nhncloud 알림톡 API v2.3 가이드
@@ -34,20 +37,22 @@ import team.three.usedstroller.api.rental.entity.RentalEntity;
 @RequiredArgsConstructor
 public class AlimtalkService {
 	private final ObjectMapper objectMapper = new ObjectMapper();
+	private final RentalContractRepository rentalContractRepository;
 
-	    // 티비테크 NHN 알림톡 API KEY
-    private static final String APPKEY        = "";
-    private static final String SECURE_KEY    = "";
-    private static final String SENDER_KEY    = "";
-    private static final String TEMPLATE_CODE = "";
+    private static final String APPKEY        = "hY5p84S3evU26drJ";
+    private static final String SECURE_KEY    = "rPJDFJd8X3cQbS8tOG00vMkbUxrX2LZ8";
+    private static final String SENDER_KEY    = "af35ca0ba49474dad0a127fec17ceff255131711";
+    private static final String TEMPLATE_CODE = "apply";
     private static final String SEND_API_URL  = "https://api-alimtalk.cloud.toast.com/alimtalk/v2.3/appkeys/" + APPKEY + "/messages";
 
 	private static final List<String> DEVELOPERS = List.of(
             "01029376030"  // lee
     );
+	private final RentalContractRepositoryImpl rentalContractRepositoryImpl;
 
-	public boolean sendAlimtalk(RentalContractEntity contractEntity,RentalRequestDto request) {
+	public boolean sendAlimtalk(AlimTalkDto request) {
 		try{
+			RentalContractEntity contract = rentalContractRepositoryImpl.getRentalDetails();
 			List<String> phoneNumbers = getPhoneNumbers(contractEntity);
 			Map<String ,Object> templateParameter = createTemplateParameter(request);
 			log.info("알림톡 템플릿 파라미터:\n{}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(templateParameter)); //Json형식의 string으로 변환해주고 들여쓰기 해서 이쁘게 출력
