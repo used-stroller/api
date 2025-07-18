@@ -51,7 +51,7 @@ public class RentalRepositoryImpl implements CustomRentalRepository {
 			.leftJoin(rentalEntity.model, model)
 			.leftJoin(contractInfoEntity).on(contractInfoEntity.rental.id.eq(rentalEntity.id))
 			.where(rentalEntity.deleted.eq(false))
-			.orderBy(rentalEntity.id.desc());
+			.orderBy(rentalEntity.isRentable.desc(),rentalEntity.id.desc());
 
 	     Long totalCount = query
 		.select(rentalEntity.count())
